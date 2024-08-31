@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "235384305125",
+    "project_id": "delivery-16712",
+    "storage_bucket": "delivery-16712.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:235384305125:android:2dc58ad897e2e205492b0c",
+        "android_client_info": {
+          "package_name": "br.dev.rralves.delivery"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "235384305125-t5ujc3cmr2k5196r3gcvfi95fbs55tep.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "br.dev.rralves.delivery",
+            "certificate_hash": "b8904a35d1065f1393e5af0aa2e5695e77d2689c"
+          }
+        },
+        {
+          "client_id": "235384305125-m95v9m4m5tofimc35ugasf90q0eb835i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBwgLCIfeeFYHJobozqLAl7K8UIcN4LWbY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "235384305125-m95v9m4m5tofimc35ugasf90q0eb835i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "235384305125-ac83fe65bql6ejujfc0r3hau8ebfh4b9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "br.dev.rralves.delivery"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

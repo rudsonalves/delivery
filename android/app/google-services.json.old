@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "235384305125",
+    "project_id": "delivery-16712",
+    "storage_bucket": "delivery-16712.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:235384305125:android:2dc58ad897e2e205492b0c",
+        "android_client_info": {
+          "package_name": "br.dev.rralves.delivery"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBwgLCIfeeFYHJobozqLAl7K8UIcN4LWbY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
