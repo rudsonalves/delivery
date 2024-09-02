@@ -35,6 +35,12 @@ class APIFailure extends Failure {
   ]);
 }
 
+class FirebaseFailure extends Failure {
+  const FirebaseFailure([
+    super.message,
+  ]);
+}
+
 /// This abstraction contains either a success data of generic type `S` or a
 /// failure error of type `Failure` as its result.
 ///
