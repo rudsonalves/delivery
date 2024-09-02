@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 
 class AppSettings {
-  AppSettings._();
-  static final AppSettings _instance = AppSettings._();
-  static AppSettings get instance => _instance;
-
   final _brightness = ValueNotifier<Brightness>(Brightness.dark);
 
   Brightness get brightness => _brightness.value;

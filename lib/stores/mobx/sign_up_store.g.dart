@@ -150,11 +150,11 @@ mixin _$SignUpStore on _SignUpStore, Store {
   }
 
   @override
-  void validateName() {
+  void _validateName() {
     final _$actionInfo = _$_SignUpStoreActionController.startAction(
-        name: '_SignUpStore.validateName');
+        name: '_SignUpStore._validateName');
     try {
-      return super.validateName();
+      return super._validateName();
     } finally {
       _$_SignUpStoreActionController.endAction(_$actionInfo);
     }
@@ -172,11 +172,11 @@ mixin _$SignUpStore on _SignUpStore, Store {
   }
 
   @override
-  void validateEmail() {
+  void _validateEmail() {
     final _$actionInfo = _$_SignUpStoreActionController.startAction(
-        name: '_SignUpStore.validateEmail');
+        name: '_SignUpStore._validateEmail');
     try {
-      return super.validateEmail();
+      return super._validateEmail();
     } finally {
       _$_SignUpStoreActionController.endAction(_$actionInfo);
     }
@@ -194,11 +194,11 @@ mixin _$SignUpStore on _SignUpStore, Store {
   }
 
   @override
-  void validatePassword() {
+  void _validatePassword() {
     final _$actionInfo = _$_SignUpStoreActionController.startAction(
-        name: '_SignUpStore.validatePassword');
+        name: '_SignUpStore._validatePassword');
     try {
-      return super.validatePassword();
+      return super._validatePassword();
     } finally {
       _$_SignUpStoreActionController.endAction(_$actionInfo);
     }
@@ -216,11 +216,22 @@ mixin _$SignUpStore on _SignUpStore, Store {
   }
 
   @override
-  void validateCheckPassword() {
+  void _validateCheckPassword() {
     final _$actionInfo = _$_SignUpStoreActionController.startAction(
-        name: '_SignUpStore.validateCheckPassword');
+        name: '_SignUpStore._validateCheckPassword');
     try {
-      return super.validateCheckPassword();
+      return super._validateCheckPassword();
+    } finally {
+      _$_SignUpStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void reset() {
+    final _$actionInfo =
+        _$_SignUpStoreActionController.startAction(name: '_SignUpStore.reset');
+    try {
+      return super.reset();
     } finally {
       _$_SignUpStoreActionController.endAction(_$actionInfo);
     }
