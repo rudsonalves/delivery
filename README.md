@@ -17,6 +17,88 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/09/02 - version: 0.0.1+3
+
+Enhancements and improvements to user authentication, state management, and UI components
+
+This commit introduces several enhancements and improvements across various files to improve user authentication, state management, and UI components. Key changes include:
+
+1. android/app/src/main/AndroidManifest.xml
+   - Commented out an intent filter for deep linking to `example.com` to prevent unintended navigation behavior.
+
+2. assets/images/delivery_01.jpg
+   - Added a new image asset `delivery_01.jpg` for use in the drawer header.
+
+3. lib/common/models/user.dart
+   - Created a new `UserModel` class to represent user data, including name, email, phone, and password.
+
+4. lib/common/settings/app_settings.dart
+   - Removed singleton pattern for `AppSettings` in favor of dependency injection.
+
+5. lib/components/widgets/message_snack_bar.dart
+   - Added a utility widget `showMessageSnackBar` to display messages using a `SnackBar`.
+
+6. lib/components/widgets/password_text_field.dart
+   - Added `focusNode` and `nextFocus` properties to improve form navigation and accessibility.
+
+7. lib/components/widgets/state_loading.dart
+   - Introduced `StateLoading` widget to display a loading indicator overlay.
+
+8. lib/features/home/home_controller.dart
+   - Integrated `UserStore` for managing user authentication state.
+   - Added a `logout` method to handle user sign-out functionality.
+
+9. lib/features/home/home_page.dart
+   - Updated to use `AppSettings` through dependency injection.
+   - Added a navigation drawer with logout functionality and a new image header.
+
+10. lib/features/sign_in/sign_in_controller.dart
+    - Created `SignInController` to manage user sign-in logic and state.
+
+11. lib/features/sign_in/sign_in_page.dart
+    - Refactored to utilize `SignInController` for managing form input and sign-in logic.
+    - Enhanced user experience with error handling and form validation.
+
+12. lib/features/sign_up/sign_up_controller.dart
+    - Added `SignUpController` to manage user registration process and state.
+
+13. lib/features/sign_up/sign_up_page.dart
+    - Refactored to use `SignUpController` and improved form validation and error handling.
+
+14. lib/locator.dart
+    - Introduced a service locator using `GetIt` for dependency injection across the application.
+
+15. lib/main.dart
+    - Set up dependency injection by calling `setupDependencies()` during app initialization.
+
+16. lib/my_material_app.dart
+    - Updated to utilize `AppSettings` via dependency injection through the service locator.
+
+17. lib/repository/firebase/firebase_auth_repository.dart
+    - Enhanced Firebase authentication repository with additional error handling and profile update methods.
+
+18. lib/stores/mobx/generic_functions.dart
+    - Added utility functions for common form validation tasks.
+
+19. lib/stores/mobx/sign_in_store.dart
+    - Created `SignInStore` to manage state and validation for the sign-in form.
+
+20. lib/stores/mobx/sign_up_store.dart
+    - Enhanced `SignUpStore` with additional validation methods and state management.
+
+21. lib/stores/user/user_store.dart
+    - Refactored `UserStore` to include detailed user state management and profile handling.
+
+22. pubspec.lock
+    - Updated to include new dependencies: `firebase_dynamic_links` and `get_it`.
+
+23. pubspec.yaml
+    - Updated app version to `0.0.1+3`.
+    - Added new dependencies for dynamic links and dependency injection.
+
+These changes improve the overall user experience by enhancing the authentication process, simplifying state management, and providing a more robust and user-friendly interface.
+
+
 ## 2024/09/02 - version: 0.0.1+2
 
 Initial commit for setting up Firebase integration and project structure

@@ -1,7 +1,9 @@
 import 'dart:developer';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mobx/mobx.dart';
 
+import '../../common/models/user.dart';
 import '/repository/firebase/firebase_auth_repository.dart';
 
 part 'user_store.g.dart';
@@ -9,36 +11,67 @@ part 'user_store.g.dart';
 // ignore: library_private_types_in_public_api
 class UserStore = _UserStore with _$UserStore;
 
+enum UserState { stateLoading, stateSuccess, stateError, stateInitial }
+
 abstract class _UserStore with Store {
+  @observable
+  User? currentUser;
+
   @observable
   bool isLoggedIn = false;
 
   @observable
   String? errorMessage;
 
+  @observable
+  UserState state = UserState.stateInitial;
+
   @action
-  Future<void> signUp(String email, String password) async {
-    final result = await FirebaseAuthRepository.create(
-      email: email,
-      password: password,
+  void initializeUser() {
+    state = UserState.stateInitial;
+    FirebaseAuthRepository.userChanges(
+      logged: () async {
+        currentUser = FirebaseAuthRepository.getCurrentUser();
+        isLoggedIn = currentUser != null;
+      },
+      notLogged: () async {
+        currentUser = null;
+        isLoggedIn = false;
+      },
+      onError: (error) {
+        errorMessage = 'Error monitoring authentication changes: $error';
+        log(errorMessage!);
+        state = UserState.stateError;
+      },
     );
+  }
+
+  @action
+  Future<void> signUp(UserModel user) async {
+    state = UserState.stateLoading;
+    final result = await FirebaseAuthRepository.create(user);
 
     result.fold(
       (failure) {
+        state = UserState.stateError;
+        currentUser = null;
         isLoggedIn = false;
         errorMessage = failure.message;
         log('Create user error: $errorMessage');
       },
-      (userCredential) {
+      (user) {
+        state = UserState.stateSuccess;
+        currentUser = FirebaseAuthRepository.getCurrentUser();
         isLoggedIn = true;
         errorMessage = null;
-        log('User created: ${userCredential.user}');
+        log('User created: $user');
       },
     );
   }
 
   @action
   Future<void> login(String email, String password) async {
+    state = UserState.stateLoading;
     final result = await FirebaseAuthRepository.signIn(
       email: email,
       password: password,
@@ -49,11 +82,15 @@ abstract class _UserStore with Store {
         isLoggedIn = false;
         errorMessage = failure.message;
         log('Login user error: $errorMessage');
+        currentUser = null;
+        state = UserState.stateError;
       },
-      (userCredential) {
+      (user) {
+        currentUser = FirebaseAuthRepository.getCurrentUser();
         isLoggedIn = true;
         errorMessage = null;
-        log('User logged: ${userCredential.user}');
+        log('User logged: $user');
+        state = UserState.stateSuccess;
       },
     );
   }
@@ -61,12 +98,43 @@ abstract class _UserStore with Store {
   @action
   Future<void> logout() async {
     try {
+      state = UserState.stateLoading;
       await FirebaseAuthRepository.signOut();
       isLoggedIn = false;
       errorMessage = null;
+      currentUser = null;
+      state = UserState.stateSuccess;
     } catch (err) {
-      log('Erro ao fazer logout: $err');
       errorMessage = 'Erro ao fazer logout';
+      log(errorMessage!);
+      state = UserState.stateError;
+    }
+  }
+
+  @action
+  setState(UserState newState) {
+    state = newState;
+  }
+
+  @action
+  Future<void> updateProfile({
+    String? displayName,
+    String? photoURL,
+    String? newPassword,
+    PhoneAuthCredential? phoneCredential,
+  }) async {
+    if (currentUser == null) return;
+    try {
+      currentUser = await FirebaseAuthRepository.updateProfile(
+        currentUser: currentUser!,
+        displayName: displayName,
+        photoURL: photoURL,
+        newPassword: newPassword,
+        phoneCredential: phoneCredential,
+      );
+    } catch (err) {
+      errorMessage = 'Update profile error: $err';
+      log(errorMessage!);
     }
   }
 }

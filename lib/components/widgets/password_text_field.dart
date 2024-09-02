@@ -10,6 +10,8 @@ class PasswordTextField extends StatefulWidget {
   final void Function(String)? onChanged;
   final String? errorText;
   final FloatingLabelBehavior? floatingLabelBehavior;
+  final FocusNode? focusNode;
+  final FocusNode? nextFocus;
 
   const PasswordTextField({
     super.key,
@@ -22,6 +24,8 @@ class PasswordTextField extends StatefulWidget {
     this.onChanged,
     this.errorText,
     this.floatingLabelBehavior,
+    this.focusNode,
+    this.nextFocus,
   });
 
   @override
@@ -50,6 +54,7 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
           return TextFormField(
             controller: widget.controller,
             validator: widget.validator,
+            focusNode: widget.focusNode,
             obscureText: value,
             textInputAction: widget.textInputAction ?? TextInputAction.done,
             decoration: InputDecoration(
@@ -78,6 +83,11 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
               ),
             ),
             onChanged: widget.onChanged,
+            onFieldSubmitted: (value) {
+              if (widget.nextFocus != null) {
+                FocusScope.of(context).requestFocus(widget.nextFocus);
+              }
+            },
           );
         },
       ),
