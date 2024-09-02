@@ -1,3 +1,5 @@
+import 'package:delivery/features/sign_in/sign_in_page.dart';
+import 'package:delivery/features/sign_up/sign_up_page.dart';
 import 'package:flutter/material.dart';
 
 import '/features/home/home_page.dart';
@@ -31,8 +33,11 @@ class _MyMaterialAppState extends State<MyMaterialApp> {
                 brightness == Brightness.light ? theme.light() : theme.dark(),
             debugShowCheckedModeBanner: false,
             home: const HomePage(),
+            initialRoute: SignInPage.routeName,
             routes: {
               HomePage.routeName: (_) => const HomePage(),
+              SignUpPage.routeName: (_) => const SignUpPage(),
+              SignInPage.routeName: (_) => const SignInPage(),
               DeliveryPersonPage.routeName: (_) => const DeliveryPersonPage(),
             },
           );

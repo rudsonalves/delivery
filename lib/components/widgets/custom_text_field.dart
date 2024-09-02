@@ -10,6 +10,7 @@ class CustomTextField extends StatelessWidget {
   final void Function(String)? onChanged;
   final bool obscureText;
   final String? errorText;
+  final bool fullBorder;
 
   const CustomTextField({
     super.key,
@@ -22,12 +23,13 @@ class CustomTextField extends StatelessWidget {
     this.onChanged,
     this.obscureText = false,
     this.errorText,
+    this.fullBorder = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: TextFormField(
         controller: controller,
         keyboardType: keyboardType ?? TextInputType.text,
@@ -44,6 +46,11 @@ class CustomTextField extends StatelessWidget {
           ),
           hintText: hintText,
           errorText: errorText,
+          border: fullBorder
+              ? OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                )
+              : null,
         ),
       ),
     );

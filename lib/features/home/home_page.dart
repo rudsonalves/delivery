@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../common/settings/app_settings.dart';
 import '../delivery_person/delivery_person_page.dart';
+import 'home_controller.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -16,6 +17,21 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final app = AppSettings.instance;
+  final ctrl = HomeController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    ctrl.init();
+  }
+
+  @override
+  void dispose() {
+    ctrl.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
