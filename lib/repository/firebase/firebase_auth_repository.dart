@@ -3,69 +3,137 @@ import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../../common/models/user.dart';
 import '../../common/utils/data_result.dart';
 
 class FirebaseAuthRepository {
   FirebaseAuthRepository._();
 
-  static FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+  static FirebaseAuth auth = FirebaseAuth.instance;
 
-  static Future<DataResult<UserCredential>> create({
-    required String email,
-    required String password,
-  }) async {
+  static Future<DataResult<User>> create(UserModel user) async {
     try {
-      final user = await firebaseAuth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
+      final userCredential = await auth.createUserWithEmailAndPassword(
+        email: user.email,
+        password: user.password!,
       );
 
-      return DataResult.success(user);
+      if (userCredential.user == null) {
+        throw Exception('unknown FirebaseAuth error');
+      }
+
+      final currentUser = await updateProfile(
+        currentUser: userCredential.user!,
+        displayName: user.name,
+      );
+
+      // await sendSignInLinkToEmail(currentUser!);
+
+      // await signOut();
+
+      return DataResult.success(currentUser!);
     } catch (err) {
-      log(err.toString());
-      return DataResult.failure(FirebaseFailure(err.toString()));
+      final message = 'FirebaseAuthRepository.create error: $err';
+      log(message);
+      return DataResult.failure(FirebaseFailure(message));
     }
   }
 
-  static Future<DataResult<UserCredential>> signIn({
+  // FIXME: For now I have disable account verification by email so that I don´t
+  //        have to use Dynamic Link in farebase, as the will be discontinued in
+  //        August 2025.
+  static Future<void> sendSignInLinkToEmail(User user) async {
+    final acs = ActionCodeSettings(
+      url: 'https://rralves.dev.br/delivery/',
+      androidPackageName: 'br.dev.rralves.delivery',
+      handleCodeInApp: true,
+      // iOSBundleId: 'com.example.ios',
+      // installIfNotAvailable
+      androidInstallApp: true,
+      // minimumVersion
+      androidMinimumVersion: '12',
+    );
+
+    auth
+        .sendSignInLinkToEmail(
+          email: user.email!,
+          actionCodeSettings: acs,
+        )
+        .catchError(
+            (onError) => log('Error sending email verification $onError'))
+        .then((onValue) => log('Successfully sent email verification'));
+  }
+
+  static Future<User?> updateProfile({
+    required User currentUser,
+    String? displayName,
+    String? photoURL,
+    String? newPassword,
+    PhoneAuthCredential? phoneCredential,
+  }) async {
+    try {
+      await currentUser.updateDisplayName(displayName);
+      await currentUser.updatePhotoURL(photoURL);
+      if (phoneCredential != null) {
+        await currentUser.updatePhoneNumber(phoneCredential);
+      }
+      if (newPassword != null) {
+        await currentUser.updatePassword(newPassword);
+      }
+      await currentUser.reload();
+      return auth.currentUser!;
+    } catch (err) {
+      final message = 'Update profile error: $err';
+      log(message);
+      return null;
+    }
+  }
+
+  static Future<DataResult<User>> signIn({
     required String email,
     required String password,
   }) async {
     try {
-      final user = await firebaseAuth.signInWithEmailAndPassword(
+      final userCredential = await auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      return DataResult.success(user);
+      if (userCredential.user == null) {
+        throw Exception('unknown FirebaseAuth error');
+      }
+
+      return DataResult.success(userCredential.user!);
     } catch (err) {
-      log(err.toString());
-      return DataResult.failure(FirebaseFailure(err.toString()));
+      final message = 'FirebaseAuthRepository.signIn error: $err';
+      log(message);
+      return DataResult.failure(FirebaseFailure(message));
     }
   }
 
   static Future<void> signOut() async {
     try {
-      await firebaseAuth.signOut();
+      await auth.signOut();
     } catch (err) {
-      log(err.toString());
-      throw FirebaseFailure(err.toString());
+      final message = 'FirebaseAuthRepository.signIn error: $err';
+      log(message);
+      throw FirebaseFailure(message);
     }
   }
 
   // Check user authentication status
   static bool isUserLoggedIn() {
-    final currentUser = firebaseAuth.currentUser;
+    final currentUser = auth.currentUser;
     return currentUser != null;
   }
 
   // Get current authenticated user
   static User? getCurrentUser() {
-    return firebaseAuth.currentUser;
+    return auth.currentUser;
   }
 
   // Observing changes in authentication state
   static Stream<User?> authStateChanges() {
-    return firebaseAuth.authStateChanges();
+    return auth.authStateChanges();
   }
 
   // Listen for autentication state changes

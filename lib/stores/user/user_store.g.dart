@@ -9,6 +9,22 @@ part of 'user_store.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$UserStore on _UserStore, Store {
+  late final _$currentUserAtom =
+      Atom(name: '_UserStore.currentUser', context: context);
+
+  @override
+  User? get currentUser {
+    _$currentUserAtom.reportRead();
+    return super.currentUser;
+  }
+
+  @override
+  set currentUser(User? value) {
+    _$currentUserAtom.reportWrite(value, super.currentUser, () {
+      super.currentUser = value;
+    });
+  }
+
   late final _$isLoggedInAtom =
       Atom(name: '_UserStore.isLoggedIn', context: context);
 
@@ -41,12 +57,27 @@ mixin _$UserStore on _UserStore, Store {
     });
   }
 
+  late final _$stateAtom = Atom(name: '_UserStore.state', context: context);
+
+  @override
+  UserState get state {
+    _$stateAtom.reportRead();
+    return super.state;
+  }
+
+  @override
+  set state(UserState value) {
+    _$stateAtom.reportWrite(value, super.state, () {
+      super.state = value;
+    });
+  }
+
   late final _$signUpAsyncAction =
       AsyncAction('_UserStore.signUp', context: context);
 
   @override
-  Future<void> signUp(String email, String password) {
-    return _$signUpAsyncAction.run(() => super.signUp(email, password));
+  Future<void> signUp(UserModel user) {
+    return _$signUpAsyncAction.run(() => super.signUp(user));
   }
 
   late final _$loginAsyncAction =
@@ -65,11 +96,54 @@ mixin _$UserStore on _UserStore, Store {
     return _$logoutAsyncAction.run(() => super.logout());
   }
 
+  late final _$updateProfileAsyncAction =
+      AsyncAction('_UserStore.updateProfile', context: context);
+
+  @override
+  Future<void> updateProfile(
+      {String? displayName,
+      String? photoURL,
+      String? newPassword,
+      PhoneAuthCredential? phoneCredential}) {
+    return _$updateProfileAsyncAction.run(() => super.updateProfile(
+        displayName: displayName,
+        photoURL: photoURL,
+        newPassword: newPassword,
+        phoneCredential: phoneCredential));
+  }
+
+  late final _$_UserStoreActionController =
+      ActionController(name: '_UserStore', context: context);
+
+  @override
+  void initializeUser() {
+    final _$actionInfo = _$_UserStoreActionController.startAction(
+        name: '_UserStore.initializeUser');
+    try {
+      return super.initializeUser();
+    } finally {
+      _$_UserStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  dynamic setState(UserState newState) {
+    final _$actionInfo =
+        _$_UserStoreActionController.startAction(name: '_UserStore.setState');
+    try {
+      return super.setState(newState);
+    } finally {
+      _$_UserStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
   @override
   String toString() {
     return '''
+currentUser: ${currentUser},
 isLoggedIn: ${isLoggedIn},
-errorMessage: ${errorMessage}
+errorMessage: ${errorMessage},
+state: ${state}
     ''';
   }
 }

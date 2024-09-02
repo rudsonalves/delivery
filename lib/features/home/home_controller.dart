@@ -3,10 +3,15 @@ import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../../locator.dart';
 import '../../repository/firebase/firebase_auth_repository.dart';
+import '../../stores/user/user_store.dart';
 
 class HomeController {
   StreamSubscription<User?>? _authSubscription;
+  final userStore = locator<UserStore>();
+
+  bool get isLoggedIn => userStore.isLoggedIn;
 
   init() {
     // Subscribes to user status changes
@@ -29,5 +34,9 @@ class HomeController {
 
   void dispose() {
     _authSubscription?.cancel();
+  }
+
+  Future<void> logout() async {
+    if (isLoggedIn) await userStore.logout();
   }
 }

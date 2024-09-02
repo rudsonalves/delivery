@@ -7,6 +7,7 @@ import 'common/settings/app_settings.dart';
 import 'common/theme/theme.dart';
 import 'common/theme/util.dart';
 import 'features/delivery_person/delivery_person_page.dart';
+import 'locator.dart';
 
 class MyMaterialApp extends StatefulWidget {
   const MyMaterialApp({super.key});
@@ -16,7 +17,7 @@ class MyMaterialApp extends StatefulWidget {
 }
 
 class _MyMaterialAppState extends State<MyMaterialApp> {
-  final appSettings = AppSettings.instance;
+  final appSettings = locator<AppSettings>();
 
   @override
   Widget build(BuildContext context) {

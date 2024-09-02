@@ -1,8 +1,8 @@
 import 'package:mobx/mobx.dart';
 
-part 'sign_up_store.g.dart';
+import 'generic_functions.dart';
 
-enum Status { initial, loading, success, error }
+part 'sign_up_store.g.dart';
 
 // ignore: library_private_types_in_public_api
 class SignUpStore = _SignUpStore with _$SignUpStore;
@@ -35,36 +35,35 @@ abstract class _SignUpStore with Store {
   @action
   void setName(String value) {
     name = value;
-    validateName();
+    _validateName();
   }
 
   @action
-  void validateName() {
+  void _validateName() {
     errorName = (name == null || name!.isEmpty) ? 'Nome é obrigatório' : null;
   }
 
   @action
   void setEmail(String value) {
     email = value;
-    validateEmail();
+    _validateEmail();
   }
 
   @action
-  void validateEmail() {
-    final regex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
-    errorEmail = (email == null || email!.isEmpty || !regex.hasMatch(email!))
-        ? 'E-mail válido'
+  void _validateEmail() {
+    errorEmail = StoreFunc.itsNotEmail(email)
+        ? 'Por favor, insira um email válido'
         : null;
   }
 
   @action
   void setPassword(String value) {
     password = value;
-    validatePassword();
+    _validatePassword();
   }
 
   @action
-  void validatePassword() {
+  void _validatePassword() {
     if (password == null || password!.length < 6) {
       errorPassword = 'Senha menor que 6 caracteres';
       return;
@@ -77,13 +76,37 @@ abstract class _SignUpStore with Store {
   @action
   void setCheckPassword(String value) {
     checkPassword = value;
-    validateCheckPassword();
+    _validateCheckPassword();
   }
 
   @action
-  void validateCheckPassword() {
+  void _validateCheckPassword() {
     errorCheckPassword = (password == null || password != checkPassword)
         ? 'Senhas diferem!'
         : null;
+  }
+
+  bool get isValid {
+    _validateName();
+    _validateEmail();
+    _validatePassword();
+    _validateCheckPassword();
+
+    return errorName == null &&
+        errorEmail == null &&
+        errorPassword == null &&
+        errorCheckPassword == null;
+  }
+
+  @action
+  void reset() {
+    name = null;
+    email = null;
+    password = null;
+    checkPassword = null;
+    errorName = null;
+    errorEmail = null;
+    errorPassword = null;
+    errorCheckPassword = null;
   }
 }
