@@ -17,6 +17,85 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/09/03 - version: 0.1.0+4
+
+Addition of new assets, refactoring of user model and controllers, and improvements to settings and authentication
+
+This commit introduces several enhancements and refactors to the codebase, focusing on the user model, settings management, and new assets for the UI. Key changes include:
+
+1. New Assets Added
+   - Added multiple new image assets to `assets/images/`: `delivery_00.jpg`, `delivery_02.jpg`, `delivery_03.jpg`, `delivery_04.jpg`, `delivery_name.png`, `text2871-7.png`.
+   - Updated existing image `delivery_01.jpg`.
+   - Added a new SVG asset `drawing.svg` to `assets/svg/` for improved graphic representation.
+
+2. lib/common/models/user.dart
+   - Expanded `UserModel` to include `id`, `role`, and `userStatus` properties.
+   - Introduced serialization methods (`toMap`, `fromMap`, `toJson`, `fromJson`) for easier data handling and storage.
+   - Added new enums `UserRole` and `UserStatus` for better role management and user status tracking.
+
+3. lib/common/settings/app_settings.dart
+   - Integrated `SharedPreferences` for persistent app settings management.
+   - Added methods for initialization, loading settings, toggling brightness, and tracking admin check status.
+   - Improved handling of brightness settings with `ValueNotifier`.
+
+4. lib/common/utils/data_result.dart
+   - Refactored error classes, renamed `FirebaseFailure` to `FireAuthFailure` and introduced `FireStoreFailure` for more specific error handling.
+
+5. lib/features/home/home_controller.dart
+   - Integrated `AppSettings` through dependency injection for managing app settings directly within the controller.
+   - Added new methods to check if the theme is dark and toggle brightness.
+
+6. lib/features/home/home_page.dart
+   - Refactored to use a new `HomeDrawer` widget for the navigation drawer, separating concerns and improving code readability.
+   - Added logout and login functionality handlers.
+
+7. lib/features/home/widgets/home_drawer.dart
+   - Created a new `HomeDrawer` widget to manage the app's navigation drawer, improving modularity and encapsulation of drawer-related logic.
+
+8. lib/features/sign_in/sign_in_page.dart
+   - Simplified imports and organized code structure for better maintainability.
+
+9. lib/features/sign_up/sign_up_controller.dart
+   - Refactored to include `MaskedTextController` for formatted phone number input.
+   - Adjusted logic to handle user role assignment during the signup process.
+
+10. lib/features/sign_up/sign_up_page.dart
+    - Enhanced the signup form with additional fields and validation for role selection, phone number, and user status.
+    - Improved user experience with better error handling and feedback.
+
+11. lib/locator.dart
+    - Updated service locator setup to include new dependencies and maintain proper dependency injection throughout the app.
+
+12. lib/main.dart
+    - Updated initialization process to include `AppSettings` setup for persistent storage and settings management.
+
+13. lib/my_material_app.dart
+    - Refactored imports and dependencies to streamline the app initialization and usage of shared settings.
+
+14. lib/repository/firebase/firebase_auth_repository.dart
+    - Enhanced user creation logic to set user roles dynamically based on admin checks.
+    - Improved error handling and logging for authentication-related operations.
+
+15. lib/repository/firestore/user_firestore_repository.dart
+    - Introduced a new repository for handling Firestore operations related to the user, including add, set, update, delete, get, and getAll methods.
+
+16. lib/services/firebase_service.dart
+    - Simplified import statements and improved service initialization logic.
+
+17. lib/stores/mobx/common/generic_functions.dart
+    - Refactored utility functions into a common directory for better organization.
+
+18. lib/stores/mobx/sign_in_store.dart and lib/stores/mobx/sign_up_store.dart
+    - Improved store classes with better state management, validation methods, and error handling.
+    - Added role management and validation for new fields such as phone number.
+
+19. pubspec.yaml and pubspec.lock
+    - Added new dependencies: `shared_preferences` for persistent storage and `get_it` for service locator.
+    - Updated dependency versions and lock file to reflect the new additions and changes.
+
+These changes collectively improve the overall functionality, user experience, and maintainability of the codebase, enhancing authentication processes, state management, and UI components.
+
+
 ## 2024/09/02 - version: 0.0.1+3
 
 Enhancements and improvements to user authentication, state management, and UI components

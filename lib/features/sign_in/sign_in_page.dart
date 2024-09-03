@@ -1,8 +1,8 @@
-import 'package:delivery/features/sign_in/sign_in_controller.dart';
-import 'package:delivery/stores/user/user_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
+import '/features/sign_in/sign_in_controller.dart';
+import '/stores/user/user_store.dart';
 import '../../common/theme/app_text_style.dart';
 import '../../components/widgets/big_bottom.dart';
 import '../../components/widgets/custom_text_field.dart';
