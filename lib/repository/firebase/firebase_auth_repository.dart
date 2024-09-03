@@ -13,6 +13,10 @@ import '../firestore/user_firestore_repository.dart';
 class FirebaseAuthRepository {
   FirebaseAuthRepository._();
 
+  static const collectionAppSettings = 'appSettings';
+  static const docAdminConfig = 'adminConfig';
+  static const keyAdminId = 'adminId';
+
   static FirebaseAuth auth = FirebaseAuth.instance;
 
   static Future<DataResult<UserModel>> create(UserModel user) async {
@@ -69,15 +73,16 @@ class FirebaseAuthRepository {
       return false;
     }
 
-    final adminConfigRef =
-        FirebaseFirestore.instance.collection('appSettings').doc('adminConfig');
+    final adminConfigRef = FirebaseFirestore.instance
+        .collection(collectionAppSettings)
+        .doc(docAdminConfig);
 
     try {
       final docSnapshot = await adminConfigRef.get();
 
       if (docSnapshot.exists) return false;
       // First time: Set this user as admin
-      await adminConfigRef.set({'adminId': userId});
+      await adminConfigRef.set({keyAdminId: userId});
       // Update the local status to indicate that the check was successful
       await app.checkAdminChecked();
       return true;
