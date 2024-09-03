@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '/my_material_app.dart';
+import 'common/settings/app_settings.dart';
 import 'locator.dart';
 import 'services/firebase_service.dart';
 
@@ -9,10 +10,8 @@ Future<void> main() async {
 
   await FirebaseService.initialize();
 
-  // Ideal time to initialize
-  // await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
-
   setupDependencies();
+  await locator<AppSettings>().init();
 
   runApp(const MyMaterialApp());
 }

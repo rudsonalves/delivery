@@ -1,6 +1,6 @@
 import 'package:mobx/mobx.dart';
 
-import '/stores/mobx/generic_functions.dart';
+import 'common/generic_functions.dart';
 
 part 'sign_in_store.g.dart';
 
@@ -8,19 +8,16 @@ part 'sign_in_store.g.dart';
 class SignInStore = _SignInStore with _$SignInStore;
 
 abstract class _SignInStore with Store {
-  @observable
   String? email;
 
   @observable
   String? errorEmail;
 
-  @observable
   String? password;
 
   @observable
   String? errorPassword;
 
-  @action
   void setEmail(String value) {
     email = value;
     _validateEmail();
@@ -33,7 +30,6 @@ abstract class _SignInStore with Store {
         : null;
   }
 
-  @action
   void setPassword(String value) {
     password = value;
     _validatePassword();

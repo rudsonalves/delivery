@@ -1,6 +1,7 @@
 import 'package:mobx/mobx.dart';
 
-import 'generic_functions.dart';
+import '../../common/models/user.dart';
+import 'common/generic_functions.dart';
 
 part 'sign_up_store.g.dart';
 
@@ -8,31 +9,34 @@ part 'sign_up_store.g.dart';
 class SignUpStore = _SignUpStore with _$SignUpStore;
 
 abstract class _SignUpStore with Store {
-  @observable
   String? name;
 
   @observable
   String? errorName;
 
-  @observable
   String? email;
 
   @observable
   String? errorEmail;
 
+  String? phoneNumber;
+
   @observable
+  String? errorPhoneNumber;
+
   String? password;
 
   @observable
   String? errorPassword;
 
-  @observable
   String? checkPassword;
 
   @observable
   String? errorCheckPassword;
 
-  @action
+  @observable
+  UserRole role = UserRole.delivery;
+
   void setName(String value) {
     name = value;
     _validateName();
@@ -43,7 +47,6 @@ abstract class _SignUpStore with Store {
     errorName = (name == null || name!.isEmpty) ? 'Nome é obrigatório' : null;
   }
 
-  @action
   void setEmail(String value) {
     email = value;
     _validateEmail();
@@ -56,7 +59,20 @@ abstract class _SignUpStore with Store {
         : null;
   }
 
+  void setPhone(String value) {
+    phoneNumber = value;
+    _validatePhoneNumber();
+  }
+
   @action
+  void _validatePhoneNumber() {
+    errorPhoneNumber = null;
+    final numbers = phoneNumber!.replaceAll(RegExp(r'[^\d]'), '');
+    if (numbers.length != 11) {
+      errorPhoneNumber = 'Número de telefone inválido';
+    }
+  }
+
   void setPassword(String value) {
     password = value;
     _validatePassword();
@@ -73,7 +89,6 @@ abstract class _SignUpStore with Store {
         regex.hasMatch(password!) ? null : 'Senha deve conter números e letras';
   }
 
-  @action
   void setCheckPassword(String value) {
     checkPassword = value;
     _validateCheckPassword();
@@ -86,14 +101,21 @@ abstract class _SignUpStore with Store {
         : null;
   }
 
+  @action
+  void setRole(UserRole value) {
+    role = value;
+  }
+
   bool get isValid {
     _validateName();
     _validateEmail();
+    _validatePhoneNumber();
     _validatePassword();
     _validateCheckPassword();
 
     return errorName == null &&
         errorEmail == null &&
+        errorPhoneNumber == null &&
         errorPassword == null &&
         errorCheckPassword == null;
   }
@@ -102,10 +124,12 @@ abstract class _SignUpStore with Store {
   void reset() {
     name = null;
     email = null;
+    phoneNumber = null;
     password = null;
     checkPassword = null;
     errorName = null;
     errorEmail = null;
+    errorPhoneNumber = null;
     errorPassword = null;
     errorCheckPassword = null;
   }

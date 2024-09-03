@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
+import '../../common/models/user.dart';
 import '../../components/widgets/message_snack_bar.dart';
+import '../../components/widgets/state_loading.dart';
 import '../../stores/user/user_store.dart';
 import '/features/sign_up/sign_up_controller.dart';
 import '/components/widgets/custom_text_field.dart';
@@ -112,16 +114,16 @@ class _SignUpPageState extends State<SignUpPage> {
                           errorText: ctrl.singUpStore.errorEmail,
                         ),
                       ),
-                      // Observer(
-                      //   builder: (_) => CustomTextField(
-                      //     labelText: 'Telefone',
-                      //     controller: ctrl.phoneController,
-                      //     textInputAction: TextInputAction.next,
-                      //     keyboardType: TextInputType.number,
-                      //     onChanged: ctrl.singUpStore.setPhoneNumber,
-                      //     errorText: ctrl.singUpStore.errorPhoneNumber,
-                      //   ),
-                      // ),
+                      Observer(
+                        builder: (_) => CustomTextField(
+                          labelText: 'Telefone',
+                          controller: ctrl.phoneController,
+                          textInputAction: TextInputAction.next,
+                          keyboardType: TextInputType.number,
+                          onChanged: ctrl.singUpStore.setPhone,
+                          errorText: ctrl.singUpStore.errorPhoneNumber,
+                        ),
+                      ),
                       Observer(
                         builder: (_) => PasswordTextField(
                           controller: ctrl.passwordController,
@@ -140,6 +142,57 @@ class _SignUpPageState extends State<SignUpPage> {
                           errorText: ctrl.singUpStore.errorCheckPassword,
                           textInputAction: TextInputAction.done,
                           focusNode: focusNode,
+                        ),
+                      ),
+                      Observer(
+                        builder: (_) => DropdownButton<UserRole>(
+                          value: ctrl.singUpStore.role,
+                          items: UserRole.values.map(
+                            (role) {
+                              bool enable = role != UserRole.admin
+                                  ? true
+                                  : ctrl.adminChecked
+                                      ? false
+                                      : true;
+                              String title = '';
+                              IconData icon;
+                              switch (role) {
+                                case UserRole.admin:
+                                  title = 'Administrador';
+                                  icon = Icons.admin_panel_settings_rounded;
+                                  break;
+                                case UserRole.delivery:
+                                  title = 'Entregador';
+                                  icon = Icons.delivery_dining_rounded;
+                                  break;
+                                case UserRole.client:
+                                  title = 'Produtor';
+                                  icon = Icons.store_outlined;
+                                  break;
+                                case UserRole.consumer:
+                                  title = 'Consumidor';
+                                  icon = Icons.person_rounded;
+                                  break;
+                              }
+                              return DropdownMenuItem<UserRole>(
+                                value: role,
+                                enabled: enable,
+                                child: SizedBox(
+                                  width: MediaQuery.of(context).size.width * .8,
+                                  child: ListTile(
+                                    title: Text(title),
+                                    enabled: enable,
+                                    leading: Icon(icon),
+                                  ),
+                                ),
+                              );
+                            },
+                          ).toList(),
+                          onChanged: (value) {
+                            if (value != null) {
+                              ctrl.singUpStore.setRole(value);
+                            }
+                          },
                         ),
                       ),
                       BigButton(
@@ -167,9 +220,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     ],
                   ),
                   if (ctrl.state == UserState.stateLoading)
-                    const Center(
-                      child: CircularProgressIndicator(),
-                    ),
+                    const StateLoading(),
                 ],
               ),
             ),
