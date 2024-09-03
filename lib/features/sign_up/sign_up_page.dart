@@ -101,8 +101,8 @@ class _SignUpPageState extends State<SignUpPage> {
                           labelText: 'Nome',
                           controller: ctrl.nameController,
                           textInputAction: TextInputAction.next,
-                          onChanged: ctrl.singUpStore.setName,
-                          errorText: ctrl.singUpStore.errorName,
+                          onChanged: ctrl.pageStore.setName,
+                          errorText: ctrl.pageStore.errorName,
                         ),
                       ),
                       Observer(
@@ -110,8 +110,8 @@ class _SignUpPageState extends State<SignUpPage> {
                           labelText: 'Endereço de E-mail',
                           controller: ctrl.emailController,
                           textInputAction: TextInputAction.next,
-                          onChanged: ctrl.singUpStore.setEmail,
-                          errorText: ctrl.singUpStore.errorEmail,
+                          onChanged: ctrl.pageStore.setEmail,
+                          errorText: ctrl.pageStore.errorEmail,
                         ),
                       ),
                       Observer(
@@ -120,16 +120,16 @@ class _SignUpPageState extends State<SignUpPage> {
                           controller: ctrl.phoneController,
                           textInputAction: TextInputAction.next,
                           keyboardType: TextInputType.number,
-                          onChanged: ctrl.singUpStore.setPhone,
-                          errorText: ctrl.singUpStore.errorPhoneNumber,
+                          onChanged: ctrl.pageStore.setPhone,
+                          errorText: ctrl.pageStore.errorPhoneNumber,
                         ),
                       ),
                       Observer(
                         builder: (_) => PasswordTextField(
                           controller: ctrl.passwordController,
                           labelText: 'Senha',
-                          onChanged: ctrl.singUpStore.setPassword,
-                          errorText: ctrl.singUpStore.errorPassword,
+                          onChanged: ctrl.pageStore.setPassword,
+                          errorText: ctrl.pageStore.errorPassword,
                           textInputAction: TextInputAction.next,
                           nextFocus: focusNode,
                         ),
@@ -138,15 +138,15 @@ class _SignUpPageState extends State<SignUpPage> {
                         builder: (_) => PasswordTextField(
                           controller: ctrl.passwordCheckController,
                           labelText: 'Confirme a Senha',
-                          onChanged: ctrl.singUpStore.setCheckPassword,
-                          errorText: ctrl.singUpStore.errorCheckPassword,
+                          onChanged: ctrl.pageStore.setCheckPassword,
+                          errorText: ctrl.pageStore.errorCheckPassword,
                           textInputAction: TextInputAction.done,
                           focusNode: focusNode,
                         ),
                       ),
                       Observer(
                         builder: (_) => DropdownButton<UserRole>(
-                          value: ctrl.singUpStore.role,
+                          value: ctrl.pageStore.role,
                           items: UserRole.values.map(
                             (role) {
                               bool enable = role != UserRole.admin
@@ -190,7 +190,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           ).toList(),
                           onChanged: (value) {
                             if (value != null) {
-                              ctrl.singUpStore.setRole(value);
+                              ctrl.pageStore.setRole(value);
                             }
                           },
                         ),

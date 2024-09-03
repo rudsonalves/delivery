@@ -17,6 +17,47 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/09/03 - version: 0.1.0+5
+
+Refactor: Implement local storage service and enhance user management
+
+This commit introduces a refactor to the codebase, focusing on implementing a new local storage service and enhancing user management across the application. The key changes are as follows:
+
+1. Refactoring App Settings
+   - Replaced direct usage of `SharedPreferences` in `AppSettings` with a new `LocalStorageService` for more modular and testable code.
+   - Updated methods to use the new local storage service (`setIsDark`, `setAdminChecked`).
+
+2. New LocalStorageService Added
+   - Created `lib/common/storage/local_storage_service.dart` to encapsulate all local storage operations, including:
+     - Theme settings (`isDark`, `setIsDark`).
+     - Admin check status (`adminChecked`, `setAdminChecked`).
+     - User caching (`setCachedUser`, `getCachedUser`, `clearCachedUser`).
+
+3. Updates to SignIn and SignUp Controllers
+   - Refactored `SignInController` and `SignUpController` to use `pageStore` instead of `signUpStore` for improved readability and consistency.
+   - Enhanced the controllers to utilize the newly introduced `LocalStorageService` for better state management.
+
+4. Enhanced User Store with Local Caching
+   - Modified `UserStore` to use `LocalStorageService` for caching the current user and maintaining user session state.
+   - Added methods for retrieving the current user from local storage or Firestore if not found locally.
+
+5. Firestore and Firebase Auth Repository Enhancements
+   - Introduced constants for Firestore collection and document names to improve maintainability and reduce hardcoded strings.
+   - Updated `FirebaseAuthRepository` to integrate with local storage checks for the first user admin setup.
+
+6. UI and Page Logic Updates
+   - Adjusted `SignInPage` and `SignUpPage` to work with the updated controller logic, ensuring correct usage of stores and state management.
+   - Improved the UI flow by utilizing cached user data where applicable to enhance user experience and reduce redundant network calls.
+
+7. Dependency Injection Setup Updates
+   - Updated `locator.dart` to register the new `LocalStorageService` as a singleton, ensuring consistent usage across the application.
+
+8. Removed Deprecated or Unused Files
+   - Deleted obsolete files like `firebase_storage_repository.dart` and `sign_up_store.dart` under `auth` to clean up the codebase.
+
+These changes collectively improve the overall code structure, enhance modularity, and optimize user management and state handling across the Flutter application.
+
+
 ## 2024/09/03 - version: 0.1.0+4
 
 Addition of new assets, refactoring of user model and controllers, and improvements to settings and authentication
