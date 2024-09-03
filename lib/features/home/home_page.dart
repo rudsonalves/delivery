@@ -1,6 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
-import '../../common/settings/app_settings.dart';
+import '/features/home/widgets/home_drawer.dart';
 import '../../locator.dart';
 import '../delivery_person/delivery_person_page.dart';
 import '../sign_in/sign_in_page.dart';
@@ -18,8 +20,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final app = locator<AppSettings>();
   final ctrl = HomeController();
+  final random = Random();
 
   @override
   void initState() {
@@ -36,10 +38,21 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
+  void _logout() async {
+    Navigator.pop(context);
+    await ctrl.logout();
+    if (!ctrl.isLoggedIn) {
+      if (mounted) Navigator.pushNamed(context, SignInPage.routeName);
+    }
+  }
+
+  void _login() {
+    Navigator.pop(context);
+    Navigator.pushNamed(context, SignInPage.routeName);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Entregas'),
@@ -47,48 +60,19 @@ class _HomePageState extends State<HomePage> {
         elevation: 5,
         actions: [
           IconButton(
-            onPressed: app.toogleBrightness,
+            onPressed: ctrl.app.toogleBrightness,
             icon: ValueListenableBuilder(
-                valueListenable: app.brightnessNotifier,
+                valueListenable: ctrl.app.brightnessNotifier,
                 builder: (context, __, _) {
-                  return Icon(app.isDark ? Icons.dark_mode : Icons.light_mode);
+                  return Icon(ctrl.isDark ? Icons.dark_mode : Icons.light_mode);
                 }),
           ),
         ],
       ),
-      drawer: Drawer(
-        backgroundColor: app.isDark
-            ? colorScheme.onSecondary.withOpacity(0.90)
-            : colorScheme.onPrimary.withOpacity(0.90),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topRight: Radius.circular(35),
-            bottomRight: Radius.circular(35),
-          ),
-        ),
-        child: ListView(
-          children: [
-            DrawerHeader(
-              child: Image.asset(
-                'assets/images/delivery_01.jpg',
-                fit: BoxFit.fitWidth,
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Sair'),
-              onTap: () async {
-                Navigator.pop(context);
-                await ctrl.logout();
-                if (!ctrl.isLoggedIn) {
-                  if (context.mounted) {
-                    Navigator.pushNamed(context, SignInPage.routeName);
-                  }
-                }
-              },
-            ),
-          ],
-        ),
+      drawer: HomeDrawer(
+        controller: ctrl,
+        login: _login,
+        logout: _logout,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () =>

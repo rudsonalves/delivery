@@ -1,17 +1,21 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../common/models/user.dart';
+import '../../common/settings/app_settings.dart';
 import '../../common/utils/data_result.dart';
+import '../../locator.dart';
+import '../firestore/user_firestore_repository.dart';
 
 class FirebaseAuthRepository {
   FirebaseAuthRepository._();
 
   static FirebaseAuth auth = FirebaseAuth.instance;
 
-  static Future<DataResult<User>> create(UserModel user) async {
+  static Future<DataResult<UserModel>> create(UserModel user) async {
     try {
       final userCredential = await auth.createUserWithEmailAndPassword(
         email: user.email,
@@ -31,11 +35,57 @@ class FirebaseAuthRepository {
 
       // await signOut();
 
-      return DataResult.success(currentUser!);
+      if (currentUser == null) {
+        throw Exception('unknown FirebaseAuth error');
+      }
+
+      // Set user uid
+      user.id = currentUser.uid;
+
+      // Check in AppSettings before querying Firestore
+      final isFirstUser = await _checkAndSetFirstAdmin(user.id!);
+
+      // Update the user model with the appropriate role
+      user.role = isFirstUser ? UserRole.admin : user.role;
+
+      // Save user in Farestore
+      final result = await UserFirestoreRepository.set(user);
+      if (result.isFailure) {
+        throw Exception(result.error);
+      }
+
+      return DataResult.success(user);
     } catch (err) {
       final message = 'FirebaseAuthRepository.create error: $err';
       log(message);
-      return DataResult.failure(FirebaseFailure(message));
+      return DataResult.failure(FireAuthFailure(message));
+    }
+  }
+
+  static Future<bool> _checkAndSetFirstAdmin(String userId) async {
+    final app = locator<AppSettings>();
+    if (app.adminChecked) {
+      // It has been verified before, so it is not the first user
+      return false;
+    }
+
+    final adminConfigRef =
+        FirebaseFirestore.instance.collection('appSettings').doc('adminConfig');
+
+    try {
+      final docSnapshot = await adminConfigRef.get();
+
+      if (docSnapshot.exists) return false;
+      // First time: Set this user as admin
+      await adminConfigRef.set({'adminId': userId});
+      // Update the local status to indicate that the check was successful
+      await app.checkAdminChecked();
+      return true;
+    } catch (err) {
+      final message =
+          'FirebaseAuthRepository._checkAndSetFirstAdmin error: $err';
+      log(message);
+      return false;
     }
   }
 
@@ -106,7 +156,7 @@ class FirebaseAuthRepository {
     } catch (err) {
       final message = 'FirebaseAuthRepository.signIn error: $err';
       log(message);
-      return DataResult.failure(FirebaseFailure(message));
+      return DataResult.failure(FireAuthFailure(message));
     }
   }
 
@@ -116,7 +166,7 @@ class FirebaseAuthRepository {
     } catch (err) {
       final message = 'FirebaseAuthRepository.signIn error: $err';
       log(message);
-      throw FirebaseFailure(message);
+      throw FireAuthFailure(message);
     }
   }
 

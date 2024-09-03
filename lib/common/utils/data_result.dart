@@ -35,8 +35,14 @@ class APIFailure extends Failure {
   ]);
 }
 
-class FirebaseFailure extends Failure {
-  const FirebaseFailure([
+class FireAuthFailure extends Failure {
+  const FireAuthFailure([
+    super.message,
+  ]);
+}
+
+class FireStoreFailure extends Failure {
+  const FireStoreFailure([
     super.message,
   ]);
 }

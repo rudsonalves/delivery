@@ -9,21 +9,6 @@ part of 'sign_up_store.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$SignUpStore on _SignUpStore, Store {
-  late final _$nameAtom = Atom(name: '_SignUpStore.name', context: context);
-
-  @override
-  String? get name {
-    _$nameAtom.reportRead();
-    return super.name;
-  }
-
-  @override
-  set name(String? value) {
-    _$nameAtom.reportWrite(value, super.name, () {
-      super.name = value;
-    });
-  }
-
   late final _$errorNameAtom =
       Atom(name: '_SignUpStore.errorName', context: context);
 
@@ -37,21 +22,6 @@ mixin _$SignUpStore on _SignUpStore, Store {
   set errorName(String? value) {
     _$errorNameAtom.reportWrite(value, super.errorName, () {
       super.errorName = value;
-    });
-  }
-
-  late final _$emailAtom = Atom(name: '_SignUpStore.email', context: context);
-
-  @override
-  String? get email {
-    _$emailAtom.reportRead();
-    return super.email;
-  }
-
-  @override
-  set email(String? value) {
-    _$emailAtom.reportWrite(value, super.email, () {
-      super.email = value;
     });
   }
 
@@ -71,19 +41,19 @@ mixin _$SignUpStore on _SignUpStore, Store {
     });
   }
 
-  late final _$passwordAtom =
-      Atom(name: '_SignUpStore.password', context: context);
+  late final _$errorPhoneNumberAtom =
+      Atom(name: '_SignUpStore.errorPhoneNumber', context: context);
 
   @override
-  String? get password {
-    _$passwordAtom.reportRead();
-    return super.password;
+  String? get errorPhoneNumber {
+    _$errorPhoneNumberAtom.reportRead();
+    return super.errorPhoneNumber;
   }
 
   @override
-  set password(String? value) {
-    _$passwordAtom.reportWrite(value, super.password, () {
-      super.password = value;
+  set errorPhoneNumber(String? value) {
+    _$errorPhoneNumberAtom.reportWrite(value, super.errorPhoneNumber, () {
+      super.errorPhoneNumber = value;
     });
   }
 
@@ -103,22 +73,6 @@ mixin _$SignUpStore on _SignUpStore, Store {
     });
   }
 
-  late final _$checkPasswordAtom =
-      Atom(name: '_SignUpStore.checkPassword', context: context);
-
-  @override
-  String? get checkPassword {
-    _$checkPasswordAtom.reportRead();
-    return super.checkPassword;
-  }
-
-  @override
-  set checkPassword(String? value) {
-    _$checkPasswordAtom.reportWrite(value, super.checkPassword, () {
-      super.checkPassword = value;
-    });
-  }
-
   late final _$errorCheckPasswordAtom =
       Atom(name: '_SignUpStore.errorCheckPassword', context: context);
 
@@ -135,19 +89,23 @@ mixin _$SignUpStore on _SignUpStore, Store {
     });
   }
 
-  late final _$_SignUpStoreActionController =
-      ActionController(name: '_SignUpStore', context: context);
+  late final _$roleAtom = Atom(name: '_SignUpStore.role', context: context);
 
   @override
-  void setName(String value) {
-    final _$actionInfo = _$_SignUpStoreActionController.startAction(
-        name: '_SignUpStore.setName');
-    try {
-      return super.setName(value);
-    } finally {
-      _$_SignUpStoreActionController.endAction(_$actionInfo);
-    }
+  UserRole get role {
+    _$roleAtom.reportRead();
+    return super.role;
   }
+
+  @override
+  set role(UserRole value) {
+    _$roleAtom.reportWrite(value, super.role, () {
+      super.role = value;
+    });
+  }
+
+  late final _$_SignUpStoreActionController =
+      ActionController(name: '_SignUpStore', context: context);
 
   @override
   void _validateName() {
@@ -155,17 +113,6 @@ mixin _$SignUpStore on _SignUpStore, Store {
         name: '_SignUpStore._validateName');
     try {
       return super._validateName();
-    } finally {
-      _$_SignUpStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  void setEmail(String value) {
-    final _$actionInfo = _$_SignUpStoreActionController.startAction(
-        name: '_SignUpStore.setEmail');
-    try {
-      return super.setEmail(value);
     } finally {
       _$_SignUpStoreActionController.endAction(_$actionInfo);
     }
@@ -183,11 +130,11 @@ mixin _$SignUpStore on _SignUpStore, Store {
   }
 
   @override
-  void setPassword(String value) {
+  void _validatePhoneNumber() {
     final _$actionInfo = _$_SignUpStoreActionController.startAction(
-        name: '_SignUpStore.setPassword');
+        name: '_SignUpStore._validatePhoneNumber');
     try {
-      return super.setPassword(value);
+      return super._validatePhoneNumber();
     } finally {
       _$_SignUpStoreActionController.endAction(_$actionInfo);
     }
@@ -205,22 +152,22 @@ mixin _$SignUpStore on _SignUpStore, Store {
   }
 
   @override
-  void setCheckPassword(String value) {
+  void _validateCheckPassword() {
     final _$actionInfo = _$_SignUpStoreActionController.startAction(
-        name: '_SignUpStore.setCheckPassword');
+        name: '_SignUpStore._validateCheckPassword');
     try {
-      return super.setCheckPassword(value);
+      return super._validateCheckPassword();
     } finally {
       _$_SignUpStoreActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  void _validateCheckPassword() {
+  void setRole(UserRole value) {
     final _$actionInfo = _$_SignUpStoreActionController.startAction(
-        name: '_SignUpStore._validateCheckPassword');
+        name: '_SignUpStore.setRole');
     try {
-      return super._validateCheckPassword();
+      return super.setRole(value);
     } finally {
       _$_SignUpStoreActionController.endAction(_$actionInfo);
     }
@@ -240,14 +187,12 @@ mixin _$SignUpStore on _SignUpStore, Store {
   @override
   String toString() {
     return '''
-name: ${name},
 errorName: ${errorName},
-email: ${email},
 errorEmail: ${errorEmail},
-password: ${password},
+errorPhoneNumber: ${errorPhoneNumber},
 errorPassword: ${errorPassword},
-checkPassword: ${checkPassword},
-errorCheckPassword: ${errorCheckPassword}
+errorCheckPassword: ${errorCheckPassword},
+role: ${role}
     ''';
   }
 }
