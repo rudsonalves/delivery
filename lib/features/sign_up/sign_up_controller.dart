@@ -14,12 +14,12 @@ class SignUpController {
   final passwordCheckController = TextEditingController();
   final phoneController = MaskedTextController(mask: '(##) #####-####');
 
-  final singUpStore = SignUpStore();
+  final pageStore = SignUpStore();
   final store = locator<UserStore>();
   final app = locator<AppSettings>();
 
   UserState get state => store.state;
-  bool get isValid => singUpStore.isValid;
+  bool get isValid => pageStore.isValid;
   bool get adminChecked => app.adminChecked;
 
   void init() {
@@ -35,11 +35,11 @@ class SignUpController {
 
   Future<void> signUp() async {
     final user = UserModel(
-      name: singUpStore.name!,
-      email: singUpStore.email!,
-      phone: singUpStore.phoneNumber!,
-      password: singUpStore.password!,
-      role: singUpStore.role,
+      name: pageStore.name!,
+      email: pageStore.email!,
+      phone: pageStore.phoneNumber!,
+      password: pageStore.password!,
+      role: pageStore.role,
     );
 
     await store.signUp(user);

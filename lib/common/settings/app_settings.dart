@@ -1,12 +1,12 @@
+import 'package:delivery/locator.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-const keyIsDark = 'isDark';
-const keyAdminChecked = 'checkedAdmin';
+import '../storage/local_storage_service.dart';
 
 class AppSettings {
   final _brightness = ValueNotifier<Brightness>(Brightness.dark);
-  late final SharedPreferences _prefs;
+  final _localStore = locator<LocalStorageService>();
+
   bool _adminChecked = false;
 
   Brightness get brightness => _brightness.value;
@@ -15,15 +15,13 @@ class AppSettings {
   bool get adminChecked => _adminChecked;
 
   Future<void> init() async {
-    _prefs = await SharedPreferences.getInstance();
+    await _localStore.init();
     await loading();
   }
 
   Future<void> loading() async {
-    _brightness.value = (_prefs.getBool(keyIsDark) ?? true)
-        ? Brightness.dark
-        : Brightness.light;
-    _adminChecked = _prefs.getBool(keyAdminChecked) ?? false;
+    _brightness.value = _localStore.isDark ? Brightness.dark : Brightness.light;
+    _adminChecked = _localStore.adminChecked;
   }
 
   Future<void> toogleBrightness() async {
@@ -31,15 +29,11 @@ class AppSettings {
         ? Brightness.dark
         : Brightness.light;
 
-    await updateIsDark();
-  }
-
-  Future<void> updateIsDark() async {
-    await _prefs.setBool(keyIsDark, isDark);
+    await _localStore.setIsDark(isDark);
   }
 
   Future<void> checkAdminChecked() async {
     _adminChecked = true;
-    await _prefs.setBool(keyAdminChecked, _adminChecked);
+    await _localStore.setAdminChecked(_adminChecked);
   }
 }
