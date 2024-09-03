@@ -4,7 +4,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mobx/mobx.dart';
 
 import '../../common/models/user.dart';
+import '../../locator.dart';
+import '../../repository/firestore/user_firestore_repository.dart';
 import '/repository/firebase/firebase_auth_repository.dart';
+import '/common/storage/local_storage_service.dart';
 
 part 'user_store.g.dart';
 
@@ -14,8 +17,10 @@ class UserStore = _UserStore with _$UserStore;
 enum UserState { stateLoading, stateSuccess, stateError, stateInitial }
 
 abstract class _UserStore with Store {
+  final localStore = locator<LocalStorageService>();
+
   @observable
-  User? currentUser;
+  UserModel? currentUser;
 
   @observable
   bool isLoggedIn = false;
@@ -31,8 +36,9 @@ abstract class _UserStore with Store {
     state = UserState.stateInitial;
     FirebaseAuthRepository.userChanges(
       logged: () async {
-        currentUser = FirebaseAuthRepository.getCurrentUser();
-        isLoggedIn = currentUser != null;
+        final user = FirebaseAuthRepository.getCurrentUser();
+        isLoggedIn = user != null;
+        currentUser = isLoggedIn ? await getCurrentUser(user!.uid) : null;
       },
       notLogged: () async {
         currentUser = null;
@@ -44,6 +50,23 @@ abstract class _UserStore with Store {
         state = UserState.stateError;
       },
     );
+  }
+
+  Future<UserModel?> getCurrentUser(String userId) async {
+    // Get currentUser from local store
+    final localUser = localStore.getCachedUser();
+    if (localUser == null) {
+      // Get currentUser from Firestore
+      final result = await UserFirestoreRepository.get(userId);
+      if (result.isFailure || result.data == null) {
+        log('user not found');
+        return null;
+      }
+      // Set currentUser in local store
+      localStore.setCachedUser(result.data!);
+      return result.data!;
+    }
+    return localUser;
   }
 
   @action
@@ -61,7 +84,8 @@ abstract class _UserStore with Store {
       },
       (user) {
         state = UserState.stateSuccess;
-        currentUser = FirebaseAuthRepository.getCurrentUser();
+        final user = FirebaseAuthRepository.getCurrentUser();
+        if (user != null) {}
         isLoggedIn = true;
         errorMessage = null;
         log('User created: $user');
@@ -85,8 +109,9 @@ abstract class _UserStore with Store {
         currentUser = null;
         state = UserState.stateError;
       },
-      (user) {
-        currentUser = FirebaseAuthRepository.getCurrentUser();
+      (user) async {
+        final user = FirebaseAuthRepository.getCurrentUser();
+        currentUser = user != null ? await getCurrentUser(user.uid) : null;
         isLoggedIn = true;
         errorMessage = null;
         log('User logged: $user');
@@ -123,10 +148,14 @@ abstract class _UserStore with Store {
     String? newPassword,
     PhoneAuthCredential? phoneCredential,
   }) async {
-    if (currentUser == null) return;
+    User? user = FirebaseAuthRepository.getCurrentUser();
+    if (user == null) return;
     try {
-      currentUser = await FirebaseAuthRepository.updateProfile(
-        currentUser: currentUser!,
+      currentUser!.name = displayName ?? currentUser!.name;
+      // FIXME: currentUser!.phone need attention
+      localStore.setCachedUser(currentUser!);
+      user = await FirebaseAuthRepository.updateProfile(
+        currentUser: user,
         displayName: displayName,
         photoURL: photoURL,
         newPassword: newPassword,

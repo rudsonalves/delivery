@@ -91,12 +91,12 @@ class _SignInPageState extends State<SignInPage> {
                     CustomTextField(
                       labelText: 'Endereço de E-mail',
                       controller: ctrl.emailController,
-                      onChanged: ctrl.store.setEmail,
+                      onChanged: ctrl.pageStore.setEmail,
                     ),
                     PasswordTextField(
                       controller: ctrl.passwordController,
                       labelText: 'Senha',
-                      onChanged: ctrl.store.setPassword,
+                      onChanged: ctrl.pageStore.setPassword,
                     ),
                     BigButton(
                       color: Colors.green,

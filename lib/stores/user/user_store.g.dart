@@ -13,13 +13,13 @@ mixin _$UserStore on _UserStore, Store {
       Atom(name: '_UserStore.currentUser', context: context);
 
   @override
-  User? get currentUser {
+  UserModel? get currentUser {
     _$currentUserAtom.reportRead();
     return super.currentUser;
   }
 
   @override
-  set currentUser(User? value) {
+  set currentUser(UserModel? value) {
     _$currentUserAtom.reportWrite(value, super.currentUser, () {
       super.currentUser = value;
     });
