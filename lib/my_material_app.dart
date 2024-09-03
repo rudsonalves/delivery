@@ -1,5 +1,3 @@
-import 'package:delivery/features/sign_in/sign_in_page.dart';
-import 'package:delivery/features/sign_up/sign_up_page.dart';
 import 'package:flutter/material.dart';
 
 import '/features/home/home_page.dart';
@@ -7,6 +5,8 @@ import 'common/settings/app_settings.dart';
 import 'common/theme/theme.dart';
 import 'common/theme/util.dart';
 import 'features/delivery_person/delivery_person_page.dart';
+import '/features/sign_in/sign_in_page.dart';
+import '/features/sign_up/sign_up_page.dart';
 import 'locator.dart';
 
 class MyMaterialApp extends StatefulWidget {
