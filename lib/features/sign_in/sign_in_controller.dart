@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../common/models/user.dart';
+import '../../common/utils/data_result.dart';
 import '../../locator.dart';
 import '../../stores/mobx/sign_in_store.dart';
 import '../../stores/user/user_store.dart';
@@ -26,7 +27,7 @@ class SignInController {
     passwordController.dispose();
   }
 
-  Future<void> signIn() async {
-    await store.login(emailController.text, passwordController.text);
+  Future<DataResult<UserModel>> signIn() async {
+    return await store.login(emailController.text, passwordController.text);
   }
 }

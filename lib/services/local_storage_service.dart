@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../models/user.dart';
+import '../common/models/user.dart';
 
 class LocalStorageService {
   static const _keyIsDark = 'isDark';

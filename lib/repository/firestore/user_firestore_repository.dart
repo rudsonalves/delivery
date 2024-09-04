@@ -19,7 +19,7 @@ class UserFirestoreRepository {
       user.id = docRef.id;
       return DataResult.success(user);
     } catch (err) {
-      final message = 'UserFirestoreRepository.addUser: $err';
+      final message = 'UserFirestoreRepository.add: $err';
       log(message);
       return DataResult.failure(FireStoreFailure(message));
     }
@@ -79,7 +79,7 @@ class UserFirestoreRepository {
           UserModel.fromMap(docSnapshot.data() as Map<String, dynamic>);
       return DataResult.success(user);
     } catch (err) {
-      final message = 'UserFirestoreRepository.getUser: $err';
+      final message = 'UserFirestoreRepository.get: $err';
       log(message);
       return DataResult.failure(FireStoreFailure(message));
     }
@@ -94,7 +94,7 @@ class UserFirestoreRepository {
           .toList();
       return DataResult.success(users);
     } catch (err) {
-      final message = 'UserFirestoreRepository.getAllUsers: $err';
+      final message = 'UserFirestoreRepository.getAll: $err';
       log(message);
       return DataResult.failure(FireStoreFailure(message));
     }
@@ -109,7 +109,7 @@ class UserFirestoreRepository {
         }).toList();
         return DataResult.success(users);
       } catch (err) {
-        final message = 'UserFirestoreRepository.getUsersStream: $err';
+        final message = 'UserFirestoreRepository.getStream: $err';
         log(message);
         return DataResult.failure(FireStoreFailure(message));
       }

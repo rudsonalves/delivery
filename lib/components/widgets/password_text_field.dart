@@ -8,6 +8,7 @@ class PasswordTextField extends StatefulWidget {
   final TextInputAction? textInputAction;
   final bool fullBorder;
   final void Function(String)? onChanged;
+  final void Function()? onFieldSubmitted;
   final String? errorText;
   final FloatingLabelBehavior? floatingLabelBehavior;
   final FocusNode? focusNode;
@@ -19,9 +20,10 @@ class PasswordTextField extends StatefulWidget {
     this.hintText,
     required this.controller,
     this.validator,
-    this.textInputAction,
+    this.textInputAction = TextInputAction.done,
     this.fullBorder = false,
     this.onChanged,
+    this.onFieldSubmitted,
     this.errorText,
     this.floatingLabelBehavior,
     this.focusNode,
@@ -56,7 +58,7 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
             validator: widget.validator,
             focusNode: widget.focusNode,
             obscureText: value,
-            textInputAction: widget.textInputAction ?? TextInputAction.done,
+            textInputAction: widget.textInputAction,
             decoration: InputDecoration(
               errorText: widget.errorText,
               label: Text(
@@ -86,6 +88,11 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
             onFieldSubmitted: (value) {
               if (widget.nextFocus != null) {
                 FocusScope.of(context).requestFocus(widget.nextFocus);
+              } else if (widget.textInputAction == TextInputAction.done) {
+                FocusScope.of(context).unfocus();
+                if (widget.onFieldSubmitted != null) {
+                  widget.onFieldSubmitted!();
+                }
               }
             },
           );
