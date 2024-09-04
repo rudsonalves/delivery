@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 
 import '../../common/models/user.dart';
 import '../../components/widgets/message_snack_bar.dart';
@@ -24,18 +25,27 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   final ctrl = SignUpController();
   final focusNode = FocusNode();
+  late ReactionDisposer _disposer;
 
   @override
   void initState() {
     super.initState();
 
     ctrl.init();
+
+    // Reaction to monitor isLoggedIn changes
+    _disposer = reaction<bool>((_) => ctrl.isLoggedIn, (isLoggedIn) {
+      if (ctrl.isLoggedIn) {
+        Navigator.pop(context);
+      }
+    });
   }
 
   @override
   void dispose() {
     ctrl.dispose();
 
+    _disposer();
     super.dispose();
   }
 
@@ -46,28 +56,24 @@ class _SignUpPageState extends State<SignUpPage> {
       await ctrl.signUp();
       if (ctrl.state == UserState.stateSuccess) {
         if (mounted) {
-          Navigator.pop(context);
-        }
-
-        if (mounted) {
           showMessageSnackBar(
             context,
-            message: const Text('Sua conta foi criada com sucesso.'),
+            message: 'Sua conta foi criada com sucesso.',
           );
         }
+        return;
       } else {
         if (mounted) {
           showMessageSnackBar(
             context,
-            message:
-                const Text('Ocorreu algum erro. Por favor, tente mais tarde!'),
+            message: 'Ocorreu algum erro. Por favor, tente mais tarde!',
           );
         }
       }
     } else {
       showMessageSnackBar(
         context,
-        message: const Text('Por favor, corrija os erros no formulário.'),
+        message: 'Por favor, corrija os erros no formulário.',
       );
     }
   }
@@ -200,13 +206,18 @@ class _SignUpPageState extends State<SignUpPage> {
                         label: 'Cadastrar',
                         onPressed: signUp,
                       ),
-                      ElevatedButton(
+                      FilledButton.tonal(
                         onPressed: () => Navigator.pushReplacementNamed(
                             context, SignInPage.routeName),
                         child: RichText(
                           text: TextSpan(
                             children: [
-                              const TextSpan(text: 'Possui conta? '),
+                              TextSpan(
+                                text: 'Possui conta? ',
+                                style: TextStyle(
+                                  color: colorScheme.onSurface,
+                                ),
+                              ),
                               TextSpan(
                                 text: 'Entrar!',
                                 style: AppTextStyle.font14Bold(

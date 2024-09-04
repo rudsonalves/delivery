@@ -49,7 +49,7 @@ class UserModel {
       phone: map['phone'] != null ? map['phone'] as String : null,
       // password: map['password'] != null ? map['password'] as String : null,
       role: UserRole.values[map['role'] as int],
-      userStatus: UserStatus.values[map['UserStatus'] as int],
+      userStatus: UserStatus.values[map['userStatus'] as int],
     );
   }
 

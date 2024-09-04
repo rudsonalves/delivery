@@ -1,13 +1,13 @@
 import 'dart:developer';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mobx/mobx.dart';
 
 import '../../common/models/user.dart';
+import '../../common/utils/data_result.dart';
 import '../../locator.dart';
-import '../../repository/firestore/user_firestore_repository.dart';
+import '../../repository/firebase/auth_repository.dart';
 import '/repository/firebase/firebase_auth_repository.dart';
-import '/common/storage/local_storage_service.dart';
+import '../../services/local_storage_service.dart';
 
 part 'user_store.g.dart';
 
@@ -18,6 +18,7 @@ enum UserState { stateLoading, stateSuccess, stateError, stateInitial }
 
 abstract class _UserStore with Store {
   final localStore = locator<LocalStorageService>();
+  final AuthRepository auth = FirebaseAuthRepository();
 
   @observable
   UserModel? currentUser;
@@ -33,16 +34,17 @@ abstract class _UserStore with Store {
 
   @action
   void initializeUser() {
-    state = UserState.stateInitial;
-    FirebaseAuthRepository.userChanges(
-      logged: () async {
-        final user = FirebaseAuthRepository.getCurrentUser();
-        isLoggedIn = user != null;
-        currentUser = isLoggedIn ? await getCurrentUser(user!.uid) : null;
+    state = UserState.stateLoading;
+    auth.userChanges(
+      logged: (UserModel userModel) async {
+        currentUser = userModel;
+        isLoggedIn = true;
+        state = UserState.stateSuccess;
       },
       notLogged: () async {
         currentUser = null;
         isLoggedIn = false;
+        state = UserState.stateSuccess;
       },
       onError: (error) {
         errorMessage = 'Error monitoring authentication changes: $error';
@@ -52,27 +54,10 @@ abstract class _UserStore with Store {
     );
   }
 
-  Future<UserModel?> getCurrentUser(String userId) async {
-    // Get currentUser from local store
-    final localUser = localStore.getCachedUser();
-    if (localUser == null) {
-      // Get currentUser from Firestore
-      final result = await UserFirestoreRepository.get(userId);
-      if (result.isFailure || result.data == null) {
-        log('user not found');
-        return null;
-      }
-      // Set currentUser in local store
-      localStore.setCachedUser(result.data!);
-      return result.data!;
-    }
-    return localUser;
-  }
-
   @action
-  Future<void> signUp(UserModel user) async {
+  Future<DataResult<UserModel>> signUp(UserModel user) async {
     state = UserState.stateLoading;
-    final result = await FirebaseAuthRepository.create(user);
+    final result = await auth.create(user);
 
     result.fold(
       (failure) {
@@ -84,19 +69,20 @@ abstract class _UserStore with Store {
       },
       (user) {
         state = UserState.stateSuccess;
-        final user = FirebaseAuthRepository.getCurrentUser();
-        if (user != null) {}
+        currentUser = result.data!;
         isLoggedIn = true;
         errorMessage = null;
         log('User created: $user');
       },
     );
+
+    return result;
   }
 
   @action
-  Future<void> login(String email, String password) async {
+  Future<DataResult<UserModel>> login(String email, String password) async {
     state = UserState.stateLoading;
-    final result = await FirebaseAuthRepository.signIn(
+    final result = await auth.signIn(
       email: email,
       password: password,
     );
@@ -110,60 +96,37 @@ abstract class _UserStore with Store {
         state = UserState.stateError;
       },
       (user) async {
-        final user = FirebaseAuthRepository.getCurrentUser();
-        currentUser = user != null ? await getCurrentUser(user.uid) : null;
+        currentUser = user;
         isLoggedIn = true;
         errorMessage = null;
         log('User logged: $user');
         state = UserState.stateSuccess;
       },
     );
+
+    return result;
   }
 
   @action
-  Future<void> logout() async {
+  Future<DataResult<void>> logout() async {
     try {
       state = UserState.stateLoading;
-      await FirebaseAuthRepository.signOut();
+      await auth.signOut();
       isLoggedIn = false;
       errorMessage = null;
       currentUser = null;
       state = UserState.stateSuccess;
+      return DataResult.success(null);
     } catch (err) {
       errorMessage = 'Erro ao fazer logout';
       log(errorMessage!);
       state = UserState.stateError;
+      return DataResult.failure(GenericFailure(errorMessage));
     }
   }
 
   @action
   setState(UserState newState) {
     state = newState;
-  }
-
-  @action
-  Future<void> updateProfile({
-    String? displayName,
-    String? photoURL,
-    String? newPassword,
-    PhoneAuthCredential? phoneCredential,
-  }) async {
-    User? user = FirebaseAuthRepository.getCurrentUser();
-    if (user == null) return;
-    try {
-      currentUser!.name = displayName ?? currentUser!.name;
-      // FIXME: currentUser!.phone need attention
-      localStore.setCachedUser(currentUser!);
-      user = await FirebaseAuthRepository.updateProfile(
-        currentUser: user,
-        displayName: displayName,
-        photoURL: photoURL,
-        newPassword: newPassword,
-        phoneCredential: phoneCredential,
-      );
-    } catch (err) {
-      errorMessage = 'Update profile error: $err';
-      log(errorMessage!);
-    }
   }
 }
