@@ -17,6 +17,80 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/09/04 - version: 0.1.1+6
+
+Refactor and Enhance User Authentication and Management
+
+This commit refactors several parts of the codebase to enhance user authentication, user management, and general structure for better maintainability and functionality.
+
+1. `lib/common/models/user.dart`
+   - Fixed a typo in the `userStatus` map conversion from `map['UserStatus']` to `map['userStatus']` to align with camelCase naming conventions.
+
+2. `lib/common/settings/app_settings.dart`
+   - Updated the import path for `local_storage_service.dart` from `../storage/` to `../../services/` for consistency with the new directory structure.
+
+3. `lib/components/widgets/message_snack_bar.dart`
+   - Imported `app_text_style.dart` for consistent text styling.
+   - Changed `message` parameter type from `Widget` to `String`.
+   - Updated `time` default value from `3` to `5` seconds for longer visibility.
+   - Adjusted `SnackBar` content to use a `Text` widget with styling from `AppTextStyle`.
+   - Added `textColor` for `SnackBarAction` to enhance visual clarity.
+
+4. `lib/components/widgets/password_text_field.dart`
+   - Introduced a new optional callback `onFieldSubmitted`.
+   - Adjusted constructor parameters for better flexibility and default values.
+   - Enhanced `TextField` submission logic to unfocus and call `onFieldSubmitted` if provided.
+
+5. `lib/features/home/home_controller.dart`
+   - Removed unused imports and Firebase authentication logic for a cleaner, more focused controller.
+   - Simplified `init` method by removing the subscription to user status changes.
+
+6. `lib/features/home/widgets/home_drawer.dart`
+   - Updated color handling to consider both light and dark themes, improving UI consistency.
+
+7. `lib/features/sign_in/sign_in_controller.dart`
+   - Added import for `data_result.dart`.
+   - Refactored `signIn` method to return a `DataResult<UserModel>` for more explicit error handling and response management.
+
+8. `lib/features/sign_in/sign_in_page.dart`
+   - Added import for `mobx.dart`.
+   - Introduced a `ReactionDisposer` to manage MobX reactions.
+   - Updated `_signIn` method to handle responses with detailed error messages.
+
+9. `lib/features/sign_up/sign_up_controller.dart`
+   - Added a getter `isLoggedIn` to check if the user is logged in.
+
+10. `lib/features/sign_up/sign_up_page.dart`
+    - Added import for `mobx.dart`.
+    - Introduced a `ReactionDisposer` to manage MobX reactions for user login state changes.
+    - Improved feedback messages in the `_signUp` method for better user guidance.
+
+11. `lib/locator.dart`
+    - Updated import path for `local_storage_service.dart` to reflect the new directory structure.
+
+12. `lib/repository/firebase/auth_repository.dart`
+    - Created a new `AuthRepository` class for handling all authentication-related tasks.
+    - Implemented various methods for user authentication, profile updates, and monitoring authentication state.
+
+13. `lib/repository/firestore/user_firestore_repository.dart`
+    - Standardized log messages for consistency and clarity.
+    - Updated method names for better alignment with functionality.
+
+14. `lib/services/local_storage_service.dart`
+    - Renamed from `lib/common/storage/local_storage_service.dart` to `lib/services/local_storage_service.dart` to follow new directory organization.
+    - Adjusted import paths accordingly.
+
+15. `lib/stores/user/user_store.dart`
+    - Refactored to use the new `AuthRepository` for authentication tasks.
+    - Simplified user state management and initialization logic.
+    - Improved login, sign-up, and logout methods for better error handling and response management.
+
+16. `lib/stores/user/user_store.g.dart`
+    - Updated generated code to reflect changes in the `UserStore` for MobX state management.
+
+This commit enhances the overall structure and usability of the authentication system, providing a more streamlined and error-resilient approach to user management.
+
+
 ## 2024/09/03 - version: 0.1.0+5
 
 Refactor: Implement local storage service and enhance user management

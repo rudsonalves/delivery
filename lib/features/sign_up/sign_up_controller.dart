@@ -20,6 +20,7 @@ class SignUpController {
 
   UserState get state => store.state;
   bool get isValid => pageStore.isValid;
+  bool get isLoggedIn => store.isLoggedIn;
   bool get adminChecked => app.adminChecked;
 
   void init() {

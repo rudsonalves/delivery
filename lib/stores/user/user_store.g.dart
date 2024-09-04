@@ -76,7 +76,7 @@ mixin _$UserStore on _UserStore, Store {
       AsyncAction('_UserStore.signUp', context: context);
 
   @override
-  Future<void> signUp(UserModel user) {
+  Future<DataResult<UserModel>> signUp(UserModel user) {
     return _$signUpAsyncAction.run(() => super.signUp(user));
   }
 
@@ -84,7 +84,7 @@ mixin _$UserStore on _UserStore, Store {
       AsyncAction('_UserStore.login', context: context);
 
   @override
-  Future<void> login(String email, String password) {
+  Future<DataResult<UserModel>> login(String email, String password) {
     return _$loginAsyncAction.run(() => super.login(email, password));
   }
 
@@ -92,24 +92,8 @@ mixin _$UserStore on _UserStore, Store {
       AsyncAction('_UserStore.logout', context: context);
 
   @override
-  Future<void> logout() {
+  Future<DataResult<void>> logout() {
     return _$logoutAsyncAction.run(() => super.logout());
-  }
-
-  late final _$updateProfileAsyncAction =
-      AsyncAction('_UserStore.updateProfile', context: context);
-
-  @override
-  Future<void> updateProfile(
-      {String? displayName,
-      String? photoURL,
-      String? newPassword,
-      PhoneAuthCredential? phoneCredential}) {
-    return _$updateProfileAsyncAction.run(() => super.updateProfile(
-        displayName: displayName,
-        photoURL: photoURL,
-        newPassword: newPassword,
-        phoneCredential: phoneCredential));
   }
 
   late final _$_UserStoreActionController =

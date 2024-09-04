@@ -4,23 +4,28 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'auth_repository.dart';
 import '../../common/models/user.dart';
 import '../../common/settings/app_settings.dart';
 import '../../common/utils/data_result.dart';
 import '../../locator.dart';
+import '../../services/local_storage_service.dart';
 import '../firestore/user_firestore_repository.dart';
 
-class FirebaseAuthRepository {
-  FirebaseAuthRepository._();
+class FirebaseAuthRepository implements AuthRepository {
+  FirebaseAuthRepository();
 
   static const collectionAppSettings = 'appSettings';
   static const docAdminConfig = 'adminConfig';
   static const keyAdminId = 'adminId';
 
-  static FirebaseAuth auth = FirebaseAuth.instance;
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  final localService = locator<LocalStorageService>();
 
-  static Future<DataResult<UserModel>> create(UserModel user) async {
+  @override
+  Future<DataResult<UserModel>> create(UserModel user) async {
     try {
+      // Create user in firebase
       final userCredential = await auth.createUserWithEmailAndPassword(
         email: user.email,
         password: user.password!,
@@ -30,18 +35,19 @@ class FirebaseAuthRepository {
         throw Exception('unknown FirebaseAuth error');
       }
 
-      final currentUser = await updateProfile(
+      // Update user name (displayName)
+      final currentUser = await _updateProfile(
         currentUser: userCredential.user!,
         displayName: user.name,
       );
 
-      // await sendSignInLinkToEmail(currentUser!);
-
-      // await signOut();
-
       if (currentUser == null) {
-        throw Exception('unknown FirebaseAuth error');
+        throw Exception('unknown FirebaseAuth error in updateProfile');
       }
+
+      // FIXME: Request authentication by email
+      // await sendSignInLinkToEmail(currentUser!);
+      // await signOut();
 
       // Set user uid
       user.id = currentUser.uid;
@@ -52,7 +58,8 @@ class FirebaseAuthRepository {
       // Update the user model with the appropriate role
       user.role = isFirstUser ? UserRole.admin : user.role;
 
-      // Save user in Farestore
+      // Save user in Farestore using set, to insert user with same uid from
+      // FirebaseAuth
       final result = await UserFirestoreRepository.set(user);
       if (result.isFailure) {
         throw Exception(result.error);
@@ -66,7 +73,7 @@ class FirebaseAuthRepository {
     }
   }
 
-  static Future<bool> _checkAndSetFirstAdmin(String userId) async {
+  Future<bool> _checkAndSetFirstAdmin(String userId) async {
     final app = locator<AppSettings>();
     if (app.adminChecked) {
       // It has been verified before, so it is not the first user
@@ -97,7 +104,8 @@ class FirebaseAuthRepository {
   // FIXME: For now I have disable account verification by email so that I don´t
   //        have to use Dynamic Link in farebase, as the will be discontinued in
   //        August 2025.
-  static Future<void> sendSignInLinkToEmail(User user) async {
+  @override
+  Future<void> sendSignInLinkToEmail(String email) async {
     final acs = ActionCodeSettings(
       url: 'https://rralves.dev.br/delivery/',
       androidPackageName: 'br.dev.rralves.delivery',
@@ -111,7 +119,7 @@ class FirebaseAuthRepository {
 
     auth
         .sendSignInLinkToEmail(
-          email: user.email!,
+          email: email,
           actionCodeSettings: acs,
         )
         .catchError(
@@ -119,7 +127,8 @@ class FirebaseAuthRepository {
         .then((onValue) => log('Successfully sent email verification'));
   }
 
-  static Future<User?> updateProfile({
+  // Update firebase profile with displayname, photoURL, PhoneAuthCredendial
+  Future<User?> _updateProfile({
     required User currentUser,
     String? displayName,
     String? photoURL,
@@ -144,7 +153,8 @@ class FirebaseAuthRepository {
     }
   }
 
-  static Future<DataResult<User>> signIn({
+  @override
+  Future<DataResult<UserModel>> signIn({
     required String email,
     required String password,
   }) async {
@@ -157,7 +167,9 @@ class FirebaseAuthRepository {
         throw Exception('unknown FirebaseAuth error');
       }
 
-      return DataResult.success(userCredential.user!);
+      final user = await _recoverUserModel(userCredential.user!.uid);
+
+      return DataResult.success(user);
     } catch (err) {
       final message = 'FirebaseAuthRepository.signIn error: $err';
       log(message);
@@ -165,7 +177,29 @@ class FirebaseAuthRepository {
     }
   }
 
-  static Future<void> signOut() async {
+  Future<UserModel> _recoverUserModel(String userId) async {
+    // Recover user from local server
+    UserModel? user = localService.getCachedUser();
+    if (user != null) {
+      if (user.id == userId) return user;
+      // New user conect in local device
+      await localService.clearCachedUser();
+    }
+
+    // Recover user from firebase
+    final result = await UserFirestoreRepository.get(userId);
+    if (result.isFailure) {
+      throw Exception('user not found!');
+    }
+    user = result.data;
+    if (user == null) {
+      throw Exception('unknown error');
+    }
+    return user;
+  }
+
+  @override
+  Future<void> signOut() async {
     try {
       await auth.signOut();
     } catch (err) {
@@ -176,37 +210,53 @@ class FirebaseAuthRepository {
   }
 
   // Check user authentication status
-  static bool isUserLoggedIn() {
+  @override
+  bool isUserLoggedIn() {
     final currentUser = auth.currentUser;
     return currentUser != null;
   }
 
   // Get current authenticated user
-  static User? getCurrentUser() {
-    return auth.currentUser;
+  @override
+  Future<UserModel?> getCurrentUser() async {
+    try {
+      final user = auth.currentUser;
+      if (user == null) {
+        localService.clearCachedUser();
+        return null;
+      }
+      return await _recoverUserModel(user.uid);
+    } catch (err) {
+      log('getCurrentUser: $err');
+      return null;
+    }
   }
 
   // Observing changes in authentication state
-  static Stream<User?> authStateChanges() {
-    return auth.authStateChanges();
-  }
+  // Stream<User?> authStateChanges() {
+  //   return auth.authStateChanges();
+  // }
 
   // Listen for autentication state changes
-  static StreamSubscription<User?> userChanges({
+  @override
+  StreamSubscription<UserModel?> userChanges({
     required void Function() notLogged,
-    required void Function() logged,
+    required void Function(UserModel) logged,
     Function(dynamic error)? onError,
   }) {
-    return FirebaseAuth.instance.userChanges().listen(
-      (User? user) {
-        if (user == null) {
-          notLogged();
-          log('User is currently signed out!');
-        } else {
-          logged();
-          log('User is signed in!');
-        }
-      },
+    return FirebaseAuth.instance.userChanges().asyncMap((User? user) async {
+      if (user == null) {
+        notLogged();
+        log('User is currently signed out!');
+        return null;
+      } else {
+        final userModel = await _recoverUserModel(user.uid);
+        logged(userModel);
+        log('User is signed in!');
+        return userModel;
+      }
+    }).listen(
+      (UserModel? userModel) {},
       onError:
           onError ?? (error) => log('Erro no stream de autenticação: $error'),
     );

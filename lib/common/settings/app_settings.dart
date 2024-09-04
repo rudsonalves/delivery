@@ -1,7 +1,7 @@
 import 'package:delivery/locator.dart';
 import 'package:flutter/material.dart';
 
-import '../storage/local_storage_service.dart';
+import '../../services/local_storage_service.dart';
 
 class AppSettings {
   final _brightness = ValueNotifier<Brightness>(Brightness.dark);
