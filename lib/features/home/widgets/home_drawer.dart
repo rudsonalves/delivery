@@ -49,7 +49,9 @@ class HomeDrawer extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: colorScheme.onSecondary.withOpacity(0.7),
+                      color: controller.isDark
+                          ? colorScheme.onSecondary.withOpacity(0.7)
+                          : colorScheme.secondary.withOpacity(0.7),
                       borderRadius: BorderRadius.circular(25),
                     ),
                   ),

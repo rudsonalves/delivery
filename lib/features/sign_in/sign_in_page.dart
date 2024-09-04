@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 
 import '/features/sign_in/sign_in_controller.dart';
 import '/stores/user/user_store.dart';
@@ -22,13 +23,15 @@ class SignInPage extends StatefulWidget {
 
 class _SignInPageState extends State<SignInPage> {
   final ctrl = SignInController();
+  late ReactionDisposer _disposer;
 
   @override
   void initState() {
     super.initState();
     ctrl.init();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    // Reaction to monitor isLoggedIn changes
+    _disposer = reaction<bool>((_) => ctrl.isLoggedIn, (isLoggedIn) {
       if (ctrl.isLoggedIn) {
         Navigator.pop(context);
       }
@@ -39,29 +42,31 @@ class _SignInPageState extends State<SignInPage> {
   void dispose() {
     ctrl.dispose();
 
+    _disposer();
     super.dispose();
   }
 
   Future<void> _signIn() async {
+    FocusScope.of(context).unfocus();
     if (ctrl.isValid) {
-      await ctrl.signIn();
-      if (ctrl.state == UserState.stateSuccess) {
-        if (mounted) {
-          Navigator.pop(context);
-        }
+      final result = await ctrl.signIn();
+      if (result.isSuccess) {
+        return;
       } else {
+        final message = result.error!.message!.contains('invalid-credential')
+            ? 'Verifique suas credenciais: Email e/ou Senha podem estar erradas.'
+            : 'Ocorreu algum erro. Por favor, tente mais tarde!';
         if (mounted) {
           showMessageSnackBar(
             context,
-            message:
-                const Text('Ocorreu algum erro. Por favor, tente mais tarde!'),
+            message: message,
           );
         }
       }
     } else {
       showMessageSnackBar(
         context,
-        message: const Text('Por favor, corrija os erros no formulário.'),
+        message: 'Por favor, corrija os erros no formulário.',
       );
     }
   }
@@ -97,19 +102,22 @@ class _SignInPageState extends State<SignInPage> {
                       controller: ctrl.passwordController,
                       labelText: 'Senha',
                       onChanged: ctrl.pageStore.setPassword,
+                      onFieldSubmitted: _signIn,
                     ),
                     BigButton(
                       color: Colors.green,
                       label: 'Entrar',
                       onPressed: _signIn,
                     ),
-                    ElevatedButton(
+                    FilledButton.tonal(
                       onPressed: () => Navigator.pushReplacementNamed(
                           context, SignUpPage.routeName),
                       child: RichText(
                         text: TextSpan(
                           children: [
-                            const TextSpan(text: 'Não possui conta? '),
+                            TextSpan(
+                                text: 'Não possui conta? ',
+                                style: TextStyle(color: colorScheme.onSurface)),
                             TextSpan(
                               text: 'Cadastrar!',
                               style: AppTextStyle.font14Bold(

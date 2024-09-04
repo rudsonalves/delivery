@@ -1,7 +1,7 @@
 import 'package:get_it/get_it.dart';
 
 import '/common/settings/app_settings.dart';
-import 'common/storage/local_storage_service.dart';
+import 'services/local_storage_service.dart';
 import 'stores/user/user_store.dart';
 
 final locator = GetIt.instance;
