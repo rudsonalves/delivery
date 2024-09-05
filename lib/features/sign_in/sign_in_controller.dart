@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../common/models/user.dart';
+import '../../common/settings/app_settings.dart';
 import '../../common/utils/data_result.dart';
 import '../../locator.dart';
 import '../../stores/mobx/sign_in_store.dart';
@@ -8,6 +9,7 @@ import '../../stores/user/user_store.dart';
 
 class SignInController {
   final store = locator<UserStore>();
+  final app = locator<AppSettings>();
   final pageStore = SignInStore();
 
   final emailController = TextEditingController();
@@ -19,7 +21,7 @@ class SignInController {
   UserState get state => store.state;
 
   Future<void> init() async {
-    store.initializeUser();
+    await store.initializeUser();
   }
 
   void dispose() {
@@ -28,6 +30,6 @@ class SignInController {
   }
 
   Future<DataResult<UserModel>> signIn() async {
-    return await store.login(emailController.text, passwordController.text);
+    return await store.signIn(emailController.text, passwordController.text);
   }
 }

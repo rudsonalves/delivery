@@ -21,6 +21,11 @@ class FirebaseAuthRepository implements AuthRepository {
 
   final FirebaseAuth auth = FirebaseAuth.instance;
   final localService = locator<LocalStorageService>();
+  final userFirestore = UserFirestoreRepository();
+
+  String _phoneVerificationId = '';
+
+  // User? get currentUser => FirebaseAuth.instance.currentUser;
 
   @override
   Future<DataResult<UserModel>> create(UserModel user) async {
@@ -45,12 +50,10 @@ class FirebaseAuthRepository implements AuthRepository {
         throw Exception('unknown FirebaseAuth error in updateProfile');
       }
 
-      // FIXME: Request authentication by email
-      // await sendSignInLinkToEmail(currentUser!);
-      // await signOut();
-
-      // Set user uid
+      // Set user attributes
       user.id = currentUser.uid;
+      user.creationAt = currentUser.metadata.creationTime;
+      user.lastSignIn = currentUser.metadata.lastSignInTime;
 
       // Check in AppSettings before querying Firestore
       final isFirstUser = await _checkAndSetFirstAdmin(user.id!);
@@ -60,7 +63,7 @@ class FirebaseAuthRepository implements AuthRepository {
 
       // Save user in Farestore using set, to insert user with same uid from
       // FirebaseAuth
-      final result = await UserFirestoreRepository.set(user);
+      final result = await userFirestore.set(user);
       if (result.isFailure) {
         throw Exception(result.error);
       }
@@ -80,17 +83,18 @@ class FirebaseAuthRepository implements AuthRepository {
       return false;
     }
 
-    final adminConfigRef = FirebaseFirestore.instance
-        .collection(collectionAppSettings)
-        .doc(docAdminConfig);
-
+    // Check by first registred user
     try {
+      final adminConfigRef = FirebaseFirestore.instance
+          .collection(collectionAppSettings)
+          .doc(docAdminConfig);
+
       final docSnapshot = await adminConfigRef.get();
 
       if (docSnapshot.exists) return false;
       // First time: Set this user as admin
       await adminConfigRef.set({keyAdminId: userId});
-      // Update the local status to indicate that the check was successful
+      // Update the local store status to indicate that the check was successful
       await app.checkAdminChecked();
       return true;
     } catch (err) {
@@ -167,35 +171,48 @@ class FirebaseAuthRepository implements AuthRepository {
         throw Exception('unknown FirebaseAuth error');
       }
 
-      final user = await _recoverUserModel(userCredential.user!.uid);
+      final userAux = _getUserFrom(userCredential.user!);
+      final user = await _recoverUserModel(userAux);
+      log(user.toString());
 
       return DataResult.success(user);
     } catch (err) {
+      await signOut();
       final message = 'FirebaseAuthRepository.signIn error: $err';
       log(message);
       return DataResult.failure(FireAuthFailure(message));
     }
   }
 
-  Future<UserModel> _recoverUserModel(String userId) async {
+  Future<UserModel> _recoverUserModel(UserModel user) async {
     // Recover user from local server
-    UserModel? user = localService.getCachedUser();
-    if (user != null) {
-      if (user.id == userId) return user;
+    UserModel user1 = user.copyWith();
+
+    // recover from local store
+    UserModel? localUser = localService.getCachedUser();
+    if (localUser != null) {
+      if (localUser.id == user1.id) {
+        user1.role = localUser.role;
+        user1.userStatus = localUser.userStatus;
+        return user1;
+      }
       // New user conect in local device
       await localService.clearCachedUser();
     }
 
     // Recover user from firebase
-    final result = await UserFirestoreRepository.get(userId);
+    final result = await userFirestore.get(user1);
     if (result.isFailure) {
-      throw Exception('user not found!');
+      throw Exception('get user in firebase error');
     }
-    user = result.data;
-    if (user == null) {
-      throw Exception('unknown error');
+    if (result.data == null) {
+      throw Exception('user data not found!');
     }
-    return user;
+    final user2 = result.data as UserModel;
+
+    // Save in local store
+    localService.setCachedUser(user2);
+    return user2;
   }
 
   @override
@@ -222,14 +239,75 @@ class FirebaseAuthRepository implements AuthRepository {
     try {
       final user = auth.currentUser;
       if (user == null) {
-        localService.clearCachedUser();
+        await localService.clearCachedUser();
         return null;
       }
-      return await _recoverUserModel(user.uid);
+
+      final newUser = _getUserFrom(user);
+      return await _recoverUserModel(newUser);
     } catch (err) {
       log('getCurrentUser: $err');
       return null;
     }
+  }
+
+  UserModel _getUserFrom(User user) {
+    return UserModel(
+      id: user.uid,
+      name: user.displayName!,
+      email: user.email!,
+      phone: user.phoneNumber,
+      emailVerified: user.emailVerified,
+      photoURL: user.photoURL,
+      creationAt: user.metadata.creationTime,
+      lastSignIn: user.metadata.lastSignInTime,
+    );
+  }
+
+  @override
+  Future<void> requestPhoneNumberVerification(String phoneNumber) async {
+    await auth.verifyPhoneNumber(
+      verificationCompleted: (PhoneAuthCredential credential) async {
+        log('Verificatin completed');
+        await auth.currentUser!.updatePhoneNumber(credential);
+      },
+      verificationFailed: (FirebaseAuthException err) {
+        log('Verificatin failed: $err');
+      },
+      codeSent: (String verificationId, int? resendToken) {
+        log('Verification code send. Verification ID: $verificationId');
+        _phoneVerificationId = verificationId;
+      },
+      codeAutoRetrievalTimeout: (String verificationId) {
+        log('Timeout for automatic verification');
+      },
+    );
+  }
+
+  @override
+  Future<DataResult<void>> updatePhoneInAuth(String smsCode) async {
+    User? user = auth.currentUser;
+
+    if (user != null) {
+      try {
+        final credential = PhoneAuthProvider.credential(
+          verificationId: _phoneVerificationId,
+          smsCode: smsCode,
+        );
+        await user.updatePhoneNumber(credential);
+        log('Phone number updated successfully!');
+        return DataResult.success(null);
+      } catch (err) {
+        final message = 'FirebaseAuthRepository.updatePhoneInAuth: $err';
+        log(message);
+        return DataResult.failure(FireAuthFailure(message));
+      }
+    }
+
+    const message =
+        'FirebaseAuthRepository.updatePhoneInAuth: user is not logged!';
+    log(message);
+    return DataResult.failure(const FireAuthFailure(message));
   }
 
   // Observing changes in authentication state
@@ -238,27 +316,28 @@ class FirebaseAuthRepository implements AuthRepository {
   // }
 
   // Listen for autentication state changes
-  @override
-  StreamSubscription<UserModel?> userChanges({
-    required void Function() notLogged,
-    required void Function(UserModel) logged,
-    Function(dynamic error)? onError,
-  }) {
-    return FirebaseAuth.instance.userChanges().asyncMap((User? user) async {
-      if (user == null) {
-        notLogged();
-        log('User is currently signed out!');
-        return null;
-      } else {
-        final userModel = await _recoverUserModel(user.uid);
-        logged(userModel);
-        log('User is signed in!');
-        return userModel;
-      }
-    }).listen(
-      (UserModel? userModel) {},
-      onError:
-          onError ?? (error) => log('Erro no stream de autenticação: $error'),
-    );
-  }
+  // @override
+  // StreamSubscription<UserModel?> userChanges({
+  //   required void Function() notLogged,
+  //   required void Function(UserModel) logged,
+  //   Function(dynamic error)? onError,
+  // }) {
+  //   return FirebaseAuth.instance.userChanges().asyncMap((User? user) async {
+  //     if (user == null) {
+  //       notLogged();
+  //       log('User is currently signed out!');
+  //       return null;
+  //     } else {
+  //       final newUser = _getUserFrom(user);
+  //       final userModel = await _recoverUserModel(newUser);
+  //       logged(userModel);
+  //       log('User is signed in!');
+  //       return userModel;
+  //     }
+  //   }).listen(
+  //     (UserModel? userModel) {},
+  //     onError:
+  //         onError ?? (error) => log('Erro no stream de autenticação: $error'),
+  //   );
+  // }
 }

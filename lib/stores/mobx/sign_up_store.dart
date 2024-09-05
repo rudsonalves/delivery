@@ -19,11 +19,6 @@ abstract class _SignUpStore with Store {
   @observable
   String? errorEmail;
 
-  String? phoneNumber;
-
-  @observable
-  String? errorPhoneNumber;
-
   String? password;
 
   @observable
@@ -57,20 +52,6 @@ abstract class _SignUpStore with Store {
     errorEmail = StoreFunc.itsNotEmail(email)
         ? 'Por favor, insira um email válido'
         : null;
-  }
-
-  void setPhone(String value) {
-    phoneNumber = value;
-    _validatePhoneNumber();
-  }
-
-  @action
-  void _validatePhoneNumber() {
-    errorPhoneNumber = null;
-    final numbers = phoneNumber!.replaceAll(RegExp(r'[^\d]'), '');
-    if (numbers.length != 11) {
-      errorPhoneNumber = 'Número de telefone inválido';
-    }
   }
 
   void setPassword(String value) {
@@ -109,13 +90,11 @@ abstract class _SignUpStore with Store {
   bool get isValid {
     _validateName();
     _validateEmail();
-    _validatePhoneNumber();
     _validatePassword();
     _validateCheckPassword();
 
     return errorName == null &&
         errorEmail == null &&
-        errorPhoneNumber == null &&
         errorPassword == null &&
         errorCheckPassword == null;
   }
@@ -124,12 +103,10 @@ abstract class _SignUpStore with Store {
   void reset() {
     name = null;
     email = null;
-    phoneNumber = null;
     password = null;
     checkPassword = null;
     errorName = null;
     errorEmail = null;
-    errorPhoneNumber = null;
     errorPassword = null;
     errorCheckPassword = null;
   }
