@@ -41,22 +41,6 @@ mixin _$SignUpStore on _SignUpStore, Store {
     });
   }
 
-  late final _$errorPhoneNumberAtom =
-      Atom(name: '_SignUpStore.errorPhoneNumber', context: context);
-
-  @override
-  String? get errorPhoneNumber {
-    _$errorPhoneNumberAtom.reportRead();
-    return super.errorPhoneNumber;
-  }
-
-  @override
-  set errorPhoneNumber(String? value) {
-    _$errorPhoneNumberAtom.reportWrite(value, super.errorPhoneNumber, () {
-      super.errorPhoneNumber = value;
-    });
-  }
-
   late final _$errorPasswordAtom =
       Atom(name: '_SignUpStore.errorPassword', context: context);
 
@@ -130,17 +114,6 @@ mixin _$SignUpStore on _SignUpStore, Store {
   }
 
   @override
-  void _validatePhoneNumber() {
-    final _$actionInfo = _$_SignUpStoreActionController.startAction(
-        name: '_SignUpStore._validatePhoneNumber');
-    try {
-      return super._validatePhoneNumber();
-    } finally {
-      _$_SignUpStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
   void _validatePassword() {
     final _$actionInfo = _$_SignUpStoreActionController.startAction(
         name: '_SignUpStore._validatePassword');
@@ -189,7 +162,6 @@ mixin _$SignUpStore on _SignUpStore, Store {
     return '''
 errorName: ${errorName},
 errorEmail: ${errorEmail},
-errorPhoneNumber: ${errorPhoneNumber},
 errorPassword: ${errorPassword},
 errorCheckPassword: ${errorCheckPassword},
 role: ${role}

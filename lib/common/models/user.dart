@@ -1,4 +1,7 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+
+import 'package:flutter/material.dart';
 
 /// role descriptions
 /// - admin: administrador do sistema.
@@ -18,6 +21,10 @@ class UserModel {
   String? password;
   UserRole role;
   UserStatus userStatus;
+  bool emailVerified;
+  String? photoURL;
+  DateTime? creationAt;
+  DateTime? lastSignIn;
 
   UserModel({
     this.id,
@@ -27,7 +34,36 @@ class UserModel {
     this.password,
     this.role = UserRole.delivery,
     this.userStatus = UserStatus.offline,
+    this.emailVerified = false,
+    this.photoURL,
+    this.creationAt,
+    this.lastSignIn,
   });
+
+  static (String, IconData) ptUserRole(UserRole userRole) {
+    String title;
+    IconData icon;
+    switch (userRole) {
+      case UserRole.admin:
+        title = 'Administrador';
+        icon = Icons.admin_panel_settings_rounded;
+        break;
+      case UserRole.delivery:
+        title = 'Entregador';
+        icon = Icons.delivery_dining_rounded;
+        break;
+      case UserRole.client:
+        title = 'Produtor';
+        icon = Icons.store_outlined;
+        break;
+      case UserRole.consumer:
+        title = 'Consumidor';
+        icon = Icons.person_rounded;
+        break;
+    }
+
+    return (title, icon);
+  }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
@@ -35,9 +71,13 @@ class UserModel {
       'name': name,
       'email': email,
       'phone': phone,
-      // 'password': password,
+      'password': password,
       'role': role.index,
       'userStatus': userStatus.index,
+      'emailVerified': emailVerified,
+      'photoURL': photoURL,
+      'creationAt': creationAt?.millisecondsSinceEpoch,
+      'lastSignIn': lastSignIn?.millisecondsSinceEpoch,
     };
   }
 
@@ -47,9 +87,17 @@ class UserModel {
       name: map['name'] as String,
       email: map['email'] as String,
       phone: map['phone'] != null ? map['phone'] as String : null,
-      // password: map['password'] != null ? map['password'] as String : null,
+      password: map['password'] != null ? map['password'] as String : null,
       role: UserRole.values[map['role'] as int],
       userStatus: UserStatus.values[map['userStatus'] as int],
+      emailVerified: map['emailVerified'] as bool,
+      photoURL: map['photoURL'] != null ? map['photoURL'] as String : null,
+      creationAt: map['creationAt'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['creationAt'] as int)
+          : null,
+      lastSignIn: map['lastSignIn'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['lastSignIn'] as int)
+          : null,
     );
   }
 
@@ -57,4 +105,47 @@ class UserModel {
 
   factory UserModel.fromJson(String source) =>
       UserModel.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  UserModel copyWith({
+    String? id,
+    String? name,
+    String? email,
+    String? phone,
+    String? password,
+    UserRole? role,
+    UserStatus? userStatus,
+    bool? emailVerified,
+    String? photoURL,
+    DateTime? creationAt,
+    DateTime? lastSignIn,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      password: password ?? this.password,
+      role: role ?? this.role,
+      userStatus: userStatus ?? this.userStatus,
+      emailVerified: emailVerified ?? this.emailVerified,
+      photoURL: photoURL ?? this.photoURL,
+      creationAt: creationAt ?? this.creationAt,
+      lastSignIn: lastSignIn ?? this.lastSignIn,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'UserModel(id: $id\n,'
+        ' name: $name\n,'
+        ' email: $email\n,'
+        ' phone: $phone\n,'
+        ' password: $password\n,'
+        ' role: ${role.name}\n,'
+        ' userStatus: ${userStatus.name}\n,'
+        ' emailVerified: $emailVerified\n,'
+        ' photoURL: $photoURL\n,'
+        ' creationAt: $creationAt\n,'
+        ' lastSignIn: $lastSignIn)';
+  }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
 
 import '../../common/models/user.dart';
 import '../../components/widgets/message_snack_bar.dart';
@@ -25,7 +24,7 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   final ctrl = SignUpController();
   final focusNode = FocusNode();
-  late ReactionDisposer _disposer;
+  // late ReactionDisposer _disposer;
 
   @override
   void initState() {
@@ -34,18 +33,18 @@ class _SignUpPageState extends State<SignUpPage> {
     ctrl.init();
 
     // Reaction to monitor isLoggedIn changes
-    _disposer = reaction<bool>((_) => ctrl.isLoggedIn, (isLoggedIn) {
-      if (ctrl.isLoggedIn) {
-        Navigator.pop(context);
-      }
-    });
+    // _disposer = reaction<bool>((_) => ctrl.isLoggedIn, (isLoggedIn) {
+    //   if (ctrl.isLoggedIn) {
+    //     Navigator.pop(context);
+    //   }
+    // });
   }
 
   @override
   void dispose() {
     ctrl.dispose();
 
-    _disposer();
+    // _disposer();
     super.dispose();
   }
 
@@ -58,8 +57,12 @@ class _SignUpPageState extends State<SignUpPage> {
         if (mounted) {
           showMessageSnackBar(
             context,
-            message: 'Sua conta foi criada com sucesso.',
+            time: 60,
+            message: 'Sua conta foi criada com sucesso. \n\nUma mensagem foi'
+                ' encaminhada para sua conta de email. Acesse para confirmar sua'
+                ' inscrição.',
           );
+          Navigator.pushReplacementNamed(context, SignInPage.routeName);
         }
         return;
       } else {
@@ -90,6 +93,17 @@ class _SignUpPageState extends State<SignUpPage> {
           onPressed: Navigator.of(context).pop,
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
         ),
+        actions: [
+          ValueListenableBuilder(
+            valueListenable: ctrl.app.brightnessNotifier,
+            builder: (context, value, _) => IconButton(
+              isSelected: value == Brightness.dark,
+              onPressed: ctrl.app.toogleBrightness,
+              icon: const Icon(Icons.light_mode),
+              selectedIcon: const Icon(Icons.dark_mode),
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -118,16 +132,6 @@ class _SignUpPageState extends State<SignUpPage> {
                           textInputAction: TextInputAction.next,
                           onChanged: ctrl.pageStore.setEmail,
                           errorText: ctrl.pageStore.errorEmail,
-                        ),
-                      ),
-                      Observer(
-                        builder: (_) => CustomTextField(
-                          labelText: 'Telefone',
-                          controller: ctrl.phoneController,
-                          textInputAction: TextInputAction.next,
-                          keyboardType: TextInputType.number,
-                          onChanged: ctrl.pageStore.setPhone,
-                          errorText: ctrl.pageStore.errorPhoneNumber,
                         ),
                       ),
                       Observer(
@@ -160,26 +164,10 @@ class _SignUpPageState extends State<SignUpPage> {
                                   : ctrl.adminChecked
                                       ? false
                                       : true;
+
                               String title = '';
                               IconData icon;
-                              switch (role) {
-                                case UserRole.admin:
-                                  title = 'Administrador';
-                                  icon = Icons.admin_panel_settings_rounded;
-                                  break;
-                                case UserRole.delivery:
-                                  title = 'Entregador';
-                                  icon = Icons.delivery_dining_rounded;
-                                  break;
-                                case UserRole.client:
-                                  title = 'Produtor';
-                                  icon = Icons.store_outlined;
-                                  break;
-                                case UserRole.consumer:
-                                  title = 'Consumidor';
-                                  icon = Icons.person_rounded;
-                                  break;
-                              }
+                              (title, icon) = UserModel.ptUserRole(role);
                               return DropdownMenuItem<UserRole>(
                                 value: role,
                                 enabled: enable,

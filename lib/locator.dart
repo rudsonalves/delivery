@@ -14,4 +14,6 @@ void setupDependencies() {
   locator.registerLazySingleton<UserStore>(() => UserStore());
 }
 
-void disposeDependencies() {}
+void disposeDependencies() {
+  locator<UserStore>().dispose();
+}

@@ -74,9 +74,13 @@ abstract class AuthRepository {
   /// - [onError]: An optional callback function for handling errors.
   ///
   /// Returns a [StreamSubscription<UserModel?>] for managing the stream.
-  StreamSubscription<UserModel?> userChanges({
-    required void Function() notLogged,
-    required void Function(UserModel) logged,
-    Function(dynamic error)? onError,
-  });
+  // StreamSubscription<UserModel?> userChanges({
+  //   required void Function() notLogged,
+  //   required void Function(UserModel) logged,
+  //   Function(dynamic error)? onError,
+  // });
+
+  Future<void> requestPhoneNumberVerification(String phoneNumber);
+
+  Future<DataResult<void>> updatePhoneInAuth(String smsCode);
 }
