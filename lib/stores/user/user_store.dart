@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:mobx/mobx.dart';
@@ -19,6 +20,7 @@ enum UserState { stateLoading, stateSuccess, stateError, stateInitial }
 abstract class _UserStore with Store {
   final localStore = locator<LocalStorageService>();
   final AuthRepository auth = FirebaseAuthRepository();
+  // late StreamSubscription<UserModel?> authSubscription;
 
   @observable
   UserModel? currentUser;
@@ -32,26 +34,41 @@ abstract class _UserStore with Store {
   @observable
   UserState state = UserState.stateInitial;
 
+  void dispose() {
+    // authSubscription.cancel();
+  }
+
   @action
-  void initializeUser() {
+  Future<void> initializeUser() async {
     state = UserState.stateLoading;
-    auth.userChanges(
-      logged: (UserModel userModel) async {
-        currentUser = userModel;
-        isLoggedIn = true;
-        state = UserState.stateSuccess;
-      },
-      notLogged: () async {
-        currentUser = null;
-        isLoggedIn = false;
-        state = UserState.stateSuccess;
-      },
-      onError: (error) {
-        errorMessage = 'Error monitoring authentication changes: $error';
-        log(errorMessage!);
-        state = UserState.stateError;
-      },
-    );
+
+    final user = await auth.getCurrentUser();
+    if (user != null) {
+      currentUser = user;
+      isLoggedIn = true;
+      state = UserState.stateSuccess;
+    } else {
+      currentUser = null;
+      isLoggedIn = false;
+      state = UserState.stateInitial;
+    }
+    // authSubscription = auth.userChanges(
+    //   logged: (UserModel userModel) async {
+    //     currentUser = userModel;
+    //     isLoggedIn = true;
+    //     state = UserState.stateSuccess;
+    //   },
+    //   notLogged: () async {
+    //     currentUser = null;
+    //     isLoggedIn = false;
+    //     state = UserState.stateSuccess;
+    //   },
+    //   onError: (error) {
+    //     errorMessage = 'Error monitoring authentication changes: $error';
+    //     log(errorMessage!);
+    //     state = UserState.stateError;
+    //   },
+    // );
   }
 
   @action
@@ -80,7 +97,7 @@ abstract class _UserStore with Store {
   }
 
   @action
-  Future<DataResult<UserModel>> login(String email, String password) async {
+  Future<DataResult<UserModel>> signIn(String email, String password) async {
     state = UserState.stateLoading;
     final result = await auth.signIn(
       email: email,
@@ -128,5 +145,20 @@ abstract class _UserStore with Store {
   @action
   setState(UserState newState) {
     state = newState;
+  }
+
+  @action
+  Future<DataResult<void>> sendSignInLinkToEmail(String email) async {
+    try {
+      if (isLoggedIn) await logout();
+      await auth.sendSignInLinkToEmail(email);
+      return DataResult.success(null);
+    } catch (err) {
+      await logout();
+      errorMessage = 'Erro ao fazer logout';
+      log(errorMessage!);
+      state = UserState.stateError;
+      return DataResult.failure(GenericFailure(errorMessage));
+    }
   }
 }

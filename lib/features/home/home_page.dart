@@ -59,13 +59,14 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
         elevation: 5,
         actions: [
-          IconButton(
-            onPressed: ctrl.app.toogleBrightness,
-            icon: ValueListenableBuilder(
-                valueListenable: ctrl.app.brightnessNotifier,
-                builder: (context, __, _) {
-                  return Icon(ctrl.isDark ? Icons.dark_mode : Icons.light_mode);
-                }),
+          ValueListenableBuilder(
+            valueListenable: ctrl.app.brightnessNotifier,
+            builder: (context, value, _) => IconButton(
+              isSelected: value == Brightness.dark,
+              onPressed: ctrl.app.toogleBrightness,
+              icon: const Icon(Icons.light_mode),
+              selectedIcon: const Icon(Icons.dark_mode),
+            ),
           ),
         ],
       ),

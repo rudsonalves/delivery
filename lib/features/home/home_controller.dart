@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../../common/models/user.dart';
 import '../../common/settings/app_settings.dart';
 import '../../locator.dart';
 import '../../stores/user/user_store.dart';
@@ -13,6 +14,7 @@ class HomeController {
 
   bool get isLoggedIn => userStore.isLoggedIn;
   bool get isDark => app.isDark;
+  UserModel? get currentUser => userStore.currentUser;
 
   init() {}
 

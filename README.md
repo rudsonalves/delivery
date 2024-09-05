@@ -17,7 +17,87 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
-## 2024/09/04 - version: 0.1.1+6
+## 2024/09/05 - version: 0.1.3+7
+
+Add Project Delivery Scrum Plan and Firebase Configuration
+
+This commit introduces detailed planning for the Project Delivery using Scrum methodology and updates to the Firebase configuration and authentication flow.
+
+1. `Projeto Delivery Scrum.md`
+   - Added a comprehensive project planning document, including initial setup, user authentication, profile management, delivery request handling, geolocation, notifications, and admin control.
+
+2. `database.rules.json`
+   - Added default Firebase database security rules to disable read and write access by default for all users.
+
+3. `firebase.json`
+   - Configured Firebase emulators for authentication, Firestore, and storage.
+   - Linked database rules and Firestore index settings to the project.
+
+4. `firestore.indexes.json`
+   - Created an empty Firestore index configuration for future usage.
+
+5. `firestore.rules`
+   - Added Firestore security rules, defining permissions for user documents and app settings.
+
+6. `lib/common/models/user.dart`
+   - Extended the `UserModel` class to include new fields: `emailVerified`, `photoURL`, `creationAt`, and `lastSignIn`.
+   - Introduced a new method `ptUserRole` to map user roles to titles and icons.
+
+7. `lib/common/theme/app_text_style.dart`
+   - Added several new text styles for different font sizes and weights.
+
+8. `lib/features/home/home_controller.dart`
+   - Integrated current user data retrieval into the `HomeController`.
+
+9. `lib/features/home/home_page.dart`
+   - Refactored the theme toggle button for better readability and consistency.
+
+10. `lib/features/home/widgets/custom_drawer_header.dart`
+    - Created a new custom widget for the drawer header that displays user information and a dynamic background image.
+
+11. `lib/features/home/widgets/home_drawer.dart`
+    - Refactored to use `CustomDrawerHeader` for better modularization.
+
+12. `lib/features/sign_in/sign_in_controller.dart`
+    - Refactored the `signIn` method to align with new authentication flow.
+
+13. `lib/features/sign_in/sign_in_page.dart`
+    - Added a theme toggle button to the app bar for improved UI consistency.
+
+14. `lib/features/sign_up/sign_up_controller.dart`
+    - Removed phone number validation and integrated email verification upon signup.
+
+15. `lib/features/sign_up/sign_up_page.dart`
+    - Updated the signup flow to guide the user to confirm their email for account activation.
+
+16. `lib/locator.dart`
+    - Registered and disposed of user-related services.
+
+17. `lib/repository/firebase/auth_repository.dart`
+    - Refactored authentication repository to support email and phone verification.
+
+18. `lib/repository/firebase/firebase_auth_repository.dart`
+    - Enhanced authentication logic, including phone verification and email confirmation handling.
+
+19. `lib/repository/firestore/user_firestore_repository.dart`
+    - Refactored user repository to handle Firestore interactions with extended attributes.
+
+20. `lib/repository/firestore/user_repository.dart`
+    - Added a new abstract repository for user-related Firestore operations.
+
+21. `lib/stores/mobx/sign_up_store.dart`
+    - Removed phone validation logic from the sign-up store.
+
+22. `lib/stores/user/user_store.dart`
+    - Refactored user store to support email link verification and new user authentication flow.
+
+23. `pubspec.lock`, `pubspec.yaml`
+    - Adjusted dependencies to move `build_runner` to dev dependencies for optimization.
+
+This commit structures the project with clear deliverables, improved user authentication logic, and enhanced modularization for future scalability.
+
+
+## 2024/09/05 - version: 0.1.2+6
 
 Refactor and Enhance User Authentication and Management
 
