@@ -83,6 +83,17 @@ class _SignInPageState extends State<SignInPage> {
           onPressed: Navigator.of(context).pop,
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
         ),
+        actions: [
+          ValueListenableBuilder(
+            valueListenable: ctrl.app.brightnessNotifier,
+            builder: (context, value, _) => IconButton(
+              isSelected: value == Brightness.dark,
+              onPressed: ctrl.app.toogleBrightness,
+              icon: const Icon(Icons.light_mode),
+              selectedIcon: const Icon(Icons.dark_mode),
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(

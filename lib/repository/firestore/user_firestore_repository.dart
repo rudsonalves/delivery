@@ -2,36 +2,22 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'user_repository.dart';
 import '../../common/models/user.dart';
 import '../../common/utils/data_result.dart';
 
 const keyUsers = 'users';
 
-class UserFirestoreRepository {
-  UserFirestoreRepository._();
-
+class UserFirestoreRepository implements UserRepository {
   static final _firebase = FirebaseFirestore.instance;
 
-  /// Add a new user to Firestore and return the result
-  static Future<DataResult<UserModel>> add(UserModel user) async {
-    try {
-      final docRef = await _firebase.collection(keyUsers).add(user.toMap());
-      user.id = docRef.id;
-      return DataResult.success(user);
-    } catch (err) {
-      final message = 'UserFirestoreRepository.add: $err';
-      log(message);
-      return DataResult.failure(FireStoreFailure(message));
-    }
-  }
-
-  /// Set a user document in Firestore with a specified ID and return the result
-  static Future<DataResult<UserModel>> set(UserModel user) async {
+  @override
+  Future<DataResult<UserModel>> set(UserModel user) async {
     try {
       if (user.id == null) {
         throw Exception('User ID cannot be null for set operation.');
       }
-      await _firebase.collection(keyUsers).doc(user.id).set(user.toMap());
+      await _firebase.collection(keyUsers).doc(user.id).set(_userMapAttr(user));
       return DataResult.success(user);
     } catch (err) {
       final message = 'UserFirestoreRepository.set: $err';
@@ -40,8 +26,29 @@ class UserFirestoreRepository {
     }
   }
 
-  /// Update an existing user document in Firestore and return the result
-  static Future<DataResult<UserModel>> update(UserModel user) async {
+  Map<String, dynamic> _userMapAttr(UserModel user) {
+    return {
+      'role': user.role.index,
+      'userStatus': user.userStatus.index,
+    };
+  }
+
+  @override
+  Future<void> setEmailVerification(String userId, bool emailVerified) async {
+    try {
+      await _firebase.collection(keyUsers).doc(userId).update(
+        {'emailVerified': emailVerified},
+      );
+      return;
+    } catch (err) {
+      final message = 'UserFirestoreRepository.setEmailVerification: $err';
+      log(message);
+      return;
+    }
+  }
+
+  @override
+  Future<DataResult<UserModel>> update(UserModel user) async {
     try {
       if (user.id == null) {
         throw Exception('User ID cannot be null for update operation.');
@@ -55,8 +62,8 @@ class UserFirestoreRepository {
     }
   }
 
-  /// Delete a user document from Firestore and return the result
-  static Future<DataResult<void>> delete(String userId) async {
+  @override
+  Future<DataResult<void>> delete(String userId) async {
     try {
       await _firebase.collection(keyUsers).doc(userId).delete();
       return DataResult.success(null);
@@ -67,17 +74,17 @@ class UserFirestoreRepository {
     }
   }
 
-  /// Fetch a single user document from Firestore and return the result
-  static Future<DataResult<UserModel>> get(String userId) async {
+  @override
+  Future<DataResult<UserModel?>> get(UserModel user) async {
     try {
       final docSnapshot =
-          await _firebase.collection(keyUsers).doc(userId).get();
+          await _firebase.collection(keyUsers).doc(user.id).get();
       if (!docSnapshot.exists) {
         throw Exception('User not found');
       }
-      final user =
-          UserModel.fromMap(docSnapshot.data() as Map<String, dynamic>);
-      return DataResult.success(user);
+      final map = docSnapshot.data() as Map<String, dynamic>;
+      final newUser = _setUserAttr(user, map);
+      return DataResult.success(newUser);
     } catch (err) {
       final message = 'UserFirestoreRepository.get: $err';
       log(message);
@@ -85,34 +92,10 @@ class UserFirestoreRepository {
     }
   }
 
-  /// Fetch all users from Firestore and return the result
-  static Future<DataResult<List<UserModel>>> getAll() async {
-    try {
-      final querySnapshot = await _firebase.collection(keyUsers).get();
-      final users = querySnapshot.docs
-          .map((doc) => UserModel.fromMap(doc.data()))
-          .toList();
-      return DataResult.success(users);
-    } catch (err) {
-      final message = 'UserFirestoreRepository.getAll: $err';
-      log(message);
-      return DataResult.failure(FireStoreFailure(message));
-    }
-  }
-
-  /// Listen to real-time updates of all users from Firestore
-  static Stream<DataResult<List<UserModel>>> getStream() {
-    return _firebase.collection(keyUsers).snapshots().map((querySnapshot) {
-      try {
-        final users = querySnapshot.docs.map((doc) {
-          return UserModel.fromMap(doc.data());
-        }).toList();
-        return DataResult.success(users);
-      } catch (err) {
-        final message = 'UserFirestoreRepository.getStream: $err';
-        log(message);
-        return DataResult.failure(FireStoreFailure(message));
-      }
-    });
+  UserModel _setUserAttr(UserModel user, Map<String, dynamic> map) {
+    return user.copyWith(
+      role: UserRole.values[map['role'] as int],
+      userStatus: UserStatus.values[map['userStatus'] as int],
+    );
   }
 }

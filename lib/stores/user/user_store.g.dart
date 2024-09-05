@@ -72,6 +72,14 @@ mixin _$UserStore on _UserStore, Store {
     });
   }
 
+  late final _$initializeUserAsyncAction =
+      AsyncAction('_UserStore.initializeUser', context: context);
+
+  @override
+  Future<void> initializeUser() {
+    return _$initializeUserAsyncAction.run(() => super.initializeUser());
+  }
+
   late final _$signUpAsyncAction =
       AsyncAction('_UserStore.signUp', context: context);
 
@@ -80,12 +88,12 @@ mixin _$UserStore on _UserStore, Store {
     return _$signUpAsyncAction.run(() => super.signUp(user));
   }
 
-  late final _$loginAsyncAction =
-      AsyncAction('_UserStore.login', context: context);
+  late final _$signInAsyncAction =
+      AsyncAction('_UserStore.signIn', context: context);
 
   @override
-  Future<DataResult<UserModel>> login(String email, String password) {
-    return _$loginAsyncAction.run(() => super.login(email, password));
+  Future<DataResult<UserModel>> signIn(String email, String password) {
+    return _$signInAsyncAction.run(() => super.signIn(email, password));
   }
 
   late final _$logoutAsyncAction =
@@ -96,19 +104,17 @@ mixin _$UserStore on _UserStore, Store {
     return _$logoutAsyncAction.run(() => super.logout());
   }
 
-  late final _$_UserStoreActionController =
-      ActionController(name: '_UserStore', context: context);
+  late final _$sendSignInLinkToEmailAsyncAction =
+      AsyncAction('_UserStore.sendSignInLinkToEmail', context: context);
 
   @override
-  void initializeUser() {
-    final _$actionInfo = _$_UserStoreActionController.startAction(
-        name: '_UserStore.initializeUser');
-    try {
-      return super.initializeUser();
-    } finally {
-      _$_UserStoreActionController.endAction(_$actionInfo);
-    }
+  Future<DataResult<void>> sendSignInLinkToEmail(String email) {
+    return _$sendSignInLinkToEmailAsyncAction
+        .run(() => super.sendSignInLinkToEmail(email));
   }
+
+  late final _$_UserStoreActionController =
+      ActionController(name: '_UserStore', context: context);
 
   @override
   dynamic setState(UserState newState) {
