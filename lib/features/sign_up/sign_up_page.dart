@@ -50,6 +50,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
   Future<void> signUp() async {
     FocusScope.of(context).nextFocus();
+    final colorScheme = Theme.of(context).colorScheme;
 
     if (ctrl.isValid) {
       await ctrl.signUp();
@@ -58,9 +59,12 @@ class _SignUpPageState extends State<SignUpPage> {
           showMessageSnackBar(
             context,
             time: 60,
-            message: 'Sua conta foi criada com sucesso. \n\nUma mensagem foi'
-                ' encaminhada para sua conta de email. Acesse para confirmar sua'
-                ' inscrição.',
+            message: Text(
+              'Sua conta foi criada com sucesso. \n\nUma mensagem foi'
+              ' encaminhada para sua conta de email. Acesse para confirmar sua'
+              ' inscrição.',
+              style: AppTextStyle.font14Bold(color: colorScheme.onSurface),
+            ),
           );
           Navigator.pushReplacementNamed(context, SignInPage.routeName);
         }
@@ -69,14 +73,20 @@ class _SignUpPageState extends State<SignUpPage> {
         if (mounted) {
           showMessageSnackBar(
             context,
-            message: 'Ocorreu algum erro. Por favor, tente mais tarde!',
+            message: Text(
+              'Ocorreu algum erro. Por favor, tente mais tarde!',
+              style: AppTextStyle.font14Bold(color: colorScheme.onSurface),
+            ),
           );
         }
       }
     } else {
       showMessageSnackBar(
         context,
-        message: 'Por favor, corrija os erros no formulário.',
+        message: Text(
+          'Por favor, corrija os erros no formulário.',
+          style: AppTextStyle.font14Bold(color: colorScheme.onSurface),
+        ),
       );
     }
   }
@@ -89,10 +99,6 @@ class _SignUpPageState extends State<SignUpPage> {
       appBar: AppBar(
         title: const Text('Cadastrar'),
         centerTitle: true,
-        // leading: IconButton(
-        //   onPressed: Navigator.pu(context),
-        //   icon: const Icon(Icons.arrow_back_ios_new_rounded),
-        // ),
         actions: [
           ValueListenableBuilder(
             valueListenable: ctrl.app.brightnessNotifier,

@@ -48,15 +48,20 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   Future<void> _signIn() async {
+    final colorScheme = Theme.of(context).colorScheme;
+
     FocusScope.of(context).unfocus();
     if (ctrl.isValid) {
       final result = await ctrl.signIn();
       if (result.isSuccess) {
         return;
       } else {
-        final message = result.error!.message!.contains('invalid-credential')
-            ? 'Verifique suas credenciais: Email e/ou Senha podem estar erradas.'
-            : 'Ocorreu algum erro. Por favor, tente mais tarde!';
+        final message = Text(
+          result.error!.message!.contains('invalid-credential')
+              ? 'Verifique suas credenciais: Email e/ou Senha podem estar erradas.'
+              : 'Ocorreu algum erro. Por favor, tente mais tarde!',
+          style: AppTextStyle.font14Bold(color: colorScheme.onSurface),
+        );
         if (mounted) {
           showMessageSnackBar(
             context,
@@ -67,8 +72,39 @@ class _SignInPageState extends State<SignInPage> {
     } else {
       showMessageSnackBar(
         context,
-        message: 'Por favor, corrija os erros no formulário.',
+        message: Text(
+          'Por favor, corrija os erros no formulário.',
+          style: AppTextStyle.font14Bold(color: colorScheme.onSurface),
+        ),
       );
+    }
+  }
+
+  void _recoverPassword() {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    FocusScope.of(context).unfocus();
+    if (ctrl.pageStore.isEmailValid()) {
+      showMessageSnackBar(
+        context,
+        time: 5,
+        title: const SnackBarTitle('Recuperar Senha'),
+        message: RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: 'Um e-mail de redefinição de senha foi enviado para: ',
+                style: AppTextStyle.font15(color: colorScheme.onSurface),
+              ),
+              TextSpan(
+                text: '"${ctrl.pageStore.email}"',
+                style: AppTextStyle.font15Bold(color: colorScheme.primary),
+              ),
+            ],
+          ),
+        ),
+      );
+      ctrl.sendPasswordResetEmail();
     }
   }
 
@@ -78,12 +114,8 @@ class _SignInPageState extends State<SignInPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: const Text('Entrar'),
         centerTitle: true,
-        // leading: IconButton(
-        //   onPressed: Navigator.of(context).pop,
-        //   icon: const Icon(Icons.arrow_back_ios_new_rounded),
-        // ),
         actions: [
           ValueListenableBuilder(
             valueListenable: ctrl.app.brightnessNotifier,
@@ -109,6 +141,21 @@ class _SignInPageState extends State<SignInPage> {
                       labelText: 'Endereço de E-mail',
                       controller: ctrl.emailController,
                       onChanged: ctrl.pageStore.setEmail,
+                      errorText: ctrl.pageStore.errorEmail,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: _recoverPassword,
+                          child: Text(
+                            ' Recuperar senha! ',
+                            style: AppTextStyle.font12Bold(
+                              color: colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     PasswordTextField(
                       controller: ctrl.passwordController,
@@ -147,6 +194,28 @@ class _SignInPageState extends State<SignInPage> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class SnackBarTitle extends StatelessWidget {
+  final String title;
+
+  const SnackBarTitle(
+    this.title, {
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Text(
+        title,
+        style: AppTextStyle.font22Bold(color: colorScheme.primary),
       ),
     );
   }

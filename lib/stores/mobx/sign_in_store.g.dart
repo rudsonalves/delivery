@@ -45,6 +45,17 @@ mixin _$SignInStore on _SignInStore, Store {
       ActionController(name: '_SignInStore', context: context);
 
   @override
+  bool isEmailValid() {
+    final _$actionInfo = _$_SignInStoreActionController.startAction(
+        name: '_SignInStore.isEmailValid');
+    try {
+      return super.isEmailValid();
+    } finally {
+      _$_SignInStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void _validateEmail() {
     final _$actionInfo = _$_SignInStoreActionController.startAction(
         name: '_SignInStore._validateEmail');
