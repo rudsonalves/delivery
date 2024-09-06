@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:delivery/features/clients/clients_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -63,6 +64,11 @@ class _HomePageState extends State<HomePage> {
     Navigator.pushReplacementNamed(context, SignInPage.routeName);
   }
 
+  void _clients() {
+    Navigator.pop(context);
+    Navigator.pushNamed(context, ClientsPage.routeName);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,6 +90,7 @@ class _HomePageState extends State<HomePage> {
       ),
       drawer: HomeDrawer(
         controller: ctrl,
+        clients: _clients,
         login: _login,
         logout: _logout,
       ),

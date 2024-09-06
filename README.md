@@ -17,6 +17,53 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/09/06 - version: 0.1.6+10
+
+Refactored and improved address management, added client-related features, and enhanced UI components.
+
+1. lib/common/models/address.dart
+   - Renamed file from `adreess.dart` to `address.dart`.
+   - Updated `addressString` method to use "Endereço" and handle cases where the address number is not provided (`S/N` for "sem número").
+
+2. lib/common/models/client.dart
+   - Updated the import of `address.dart` after the file rename.
+
+3. lib/common/theme/app_text_style.dart
+   - Added `font12Height` text style with adjustable line height.
+
+4. lib/features/add_client/add_cliend_page.dart *(New File)*
+   - Created the `AddCliendPage` for adding clients, with fields for name, email, phone, and address.
+   - Added dropdown for address type selection and error handling for invalid inputs.
+
+5. lib/features/add_client/add_client_controller.dart *(New File)*
+   - Created the `AddClientController` to manage state and handle form inputs for the client creation page.
+
+6. lib/features/clients/clients_controller.dart *(New File)*
+   - Created a simple controller `ClientsController` with an `init` method for the clients page.
+
+7. lib/features/clients/clients_page.dart *(New File)*
+   - Created the `ClientsPage` to display a list of clients and a button to add new clients.
+
+8. lib/features/home/home_page.dart
+   - Added the `_clients` method to navigate to the `ClientsPage`.
+   - Updated the `HomeDrawer` to include a "Clientes" option.
+
+9. lib/features/home/widgets/home_drawer.dart
+   - Updated `HomeDrawer` to include a `ListTile` for navigating to the clients section.
+
+10. lib/my_material_app.dart
+    - Added routes for `ClientsPage` and `AddCliendPage`.
+
+11. lib/stores/mobx/add_client_store.dart *(New File)*
+    - Created the `AddClientStore` using MobX to manage the state of the client form, including address validation via the ViaCep API.
+    - Added error handling and validation for name, email, phone, and CPF.
+
+12. lib/stores/mobx/personal_data_store.dart
+    - Updated the import of `address.dart` after the file rename.
+
+This commit introduces a new client management feature, improves address handling, and adds several new UI components and stores for better form validation and data handling.
+
+
 ## 2024/09/06 - version: 0.1.5+9
 
 Added new text styles and updated various UI components to enhance user experience.

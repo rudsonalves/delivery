@@ -1,0 +1,3 @@
+class ClientsController {
+  void init() {}
+}

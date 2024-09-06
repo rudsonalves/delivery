@@ -5,6 +5,8 @@ import '/features/home/home_page.dart';
 import 'common/settings/app_settings.dart';
 import 'common/theme/theme.dart';
 import 'common/theme/util.dart';
+import 'features/add_client/add_cliend_page.dart';
+import 'features/clients/clients_page.dart';
 import 'features/person_data/person_data_page.dart';
 import '/features/sign_in/sign_in_page.dart';
 import '/features/sign_up/sign_up_page.dart';
@@ -42,6 +44,8 @@ class _MyMaterialAppState extends State<MyMaterialApp> {
               SignUpPage.routeName: (_) => const SignUpPage(),
               SignInPage.routeName: (_) => const SignInPage(),
               PersonDataPage.routeName: (_) => const PersonDataPage(),
+              ClientsPage.routeName: (_) => const ClientsPage(),
+              AddCliendPage.routeName: (_) => const AddCliendPage(),
             },
           );
         });

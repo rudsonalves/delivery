@@ -34,9 +34,9 @@ class AddressModel {
         updatedAt = updatedAt ?? DateTime.now();
 
   String addressString() {
-    return 'Adress ($type): $street, '
-        'N° $number, '
-        '${complement != null && complement!.isNotEmpty ? 'Complemento $complement, ' : ''}'
+    return 'Endereço ($type): $street, '
+        'N° ${number.isNotEmpty ? number : 'S/N'}, '
+        '${complement != null && complement!.isNotEmpty ? '$complement, ' : ''}'
         'Bairro $neighborhood, '
         '$city - $state, '
         'CEP: $zipCode';
