@@ -24,6 +24,12 @@ abstract class _SignInStore with Store {
   }
 
   @action
+  bool isEmailValid() {
+    _validateEmail();
+    return errorEmail == null;
+  }
+
+  @action
   void _validateEmail() {
     errorEmail = StoreFunc.itsNotEmail(email)
         ? 'Por favor, insira um email válido'

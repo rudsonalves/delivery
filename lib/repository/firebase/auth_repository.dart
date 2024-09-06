@@ -83,4 +83,6 @@ abstract class AuthRepository {
   Future<void> requestPhoneNumberVerification(String phoneNumber);
 
   Future<DataResult<void>> updatePhoneInAuth(String smsCode);
+
+  Future<void> sendPasswordResetEmail(String email);
 }
