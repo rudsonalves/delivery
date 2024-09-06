@@ -17,6 +17,48 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/09/06 - version: 0.1.5+9
+
+Added new text styles and updated various UI components to enhance user experience.
+
+1. lib/common/theme/app_text_style.dart
+   - Added new text styles: `font12Bold`, `font14SemiBold`, `font15`, `font15Bold`, `font16`, `font16Bold`, and `font18`.
+   - These styles provide more flexibility for different text sizes and weights across the application.
+
+2. lib/components/widgets/message_snack_bar.dart
+   - Refactored `showMessageSnackBar` to include an optional `title` parameter and updated the `message` parameter to accept a `Widget`.
+   - Added `closeIcon` and `animation` for improved user interaction.
+   - Modified `SnackBar` shape for better alignment and visual appearance.
+
+3. lib/components/widgets/simple_message.dart *(New File)*
+   - Created `SimpleMessage` widget for displaying simple messages with optional icons based on message type.
+   - Added a `MessageType` enum to support different message types: `none`, `error`, and `warning`.
+   - Provided a static `open` method for easily displaying the message in a dialog.
+
+4. lib/features/sign_in/sign_in_controller.dart
+   - Added `sendPasswordResetEmail` method for sending a password reset email.
+
+5. lib/features/sign_in/sign_in_page.dart
+   - Updated `_signIn` and `_recoverPassword` methods to display rich text messages with different styles based on conditions.
+   - Added a button for users to recover their password via email, integrating with the new reset password functionality.
+   - Created a `SnackBarTitle` widget to display titles in the `SnackBar`.
+
+6. lib/features/sign_up/sign_up_page.dart
+   - Enhanced the `signUp` method to display the message using the `Text` widget with custom styles.
+   - Improved the error and success feedback to the user when signing up.
+
+7. lib/repository/firebase/auth_repository.dart
+   - Added the `sendPasswordResetEmail` method definition for password reset functionality.
+
+8. lib/repository/firebase/firebase_auth_repository.dart
+   - Implemented `sendPasswordResetEmail` method to send password reset emails using Firebase's `auth` API.
+
+9. lib/stores/mobx/sign_in_store.dart
+   - Added `isEmailValid` method to validate email format and ensure it's correct before performing actions.
+
+This commit introduces several new text styles and UI improvements, along with the ability to send password reset emails. It enhances the feedback provided to users in various flows like sign-in and sign-up.
+
+
 ## 2024/09/06 - version: 0.1.4+8
 
 Implement personal data handling and splash screen initialization

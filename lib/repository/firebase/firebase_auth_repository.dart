@@ -312,4 +312,15 @@ class FirebaseAuthRepository implements AuthRepository {
     log(message);
     return DataResult.failure(const FireAuthFailure(message));
   }
+
+  @override
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      await auth.sendPasswordResetEmail(email: email);
+      log('Password rest email sent to $email');
+    } catch (err) {
+      final message = 'UserFirestoreRepository.sendPasswordResetEmail: $err';
+      log(message);
+    }
+  }
 }
