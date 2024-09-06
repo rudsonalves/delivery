@@ -31,4 +31,8 @@ class SignInController {
   Future<DataResult<UserModel>> signIn() async {
     return await store.signIn(emailController.text, passwordController.text);
   }
+
+  Future<void> sendPasswordResetEmail() async {
+    await store.auth.sendPasswordResetEmail(pageStore.email!);
+  }
 }
