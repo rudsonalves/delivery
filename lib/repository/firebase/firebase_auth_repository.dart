@@ -173,7 +173,7 @@ class FirebaseAuthRepository implements AuthRepository {
 
       final userAux = _getUserFrom(userCredential.user!);
       final user = await _recoverUserModel(userAux);
-      log(user.toString());
+      // log(user.toString());
 
       return DataResult.success(user);
     } catch (err) {
@@ -266,7 +266,10 @@ class FirebaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> requestPhoneNumberVerification(String phoneNumber) async {
+    String formattedPhoneNumber =
+        '+55${phoneNumber.replaceAll(RegExp(r'[^\d]'), '')}';
     await auth.verifyPhoneNumber(
+      phoneNumber: formattedPhoneNumber,
       verificationCompleted: (PhoneAuthCredential credential) async {
         log('Verificatin completed');
         await auth.currentUser!.updatePhoneNumber(credential);
@@ -309,35 +312,4 @@ class FirebaseAuthRepository implements AuthRepository {
     log(message);
     return DataResult.failure(const FireAuthFailure(message));
   }
-
-  // Observing changes in authentication state
-  // Stream<User?> authStateChanges() {
-  //   return auth.authStateChanges();
-  // }
-
-  // Listen for autentication state changes
-  // @override
-  // StreamSubscription<UserModel?> userChanges({
-  //   required void Function() notLogged,
-  //   required void Function(UserModel) logged,
-  //   Function(dynamic error)? onError,
-  // }) {
-  //   return FirebaseAuth.instance.userChanges().asyncMap((User? user) async {
-  //     if (user == null) {
-  //       notLogged();
-  //       log('User is currently signed out!');
-  //       return null;
-  //     } else {
-  //       final newUser = _getUserFrom(user);
-  //       final userModel = await _recoverUserModel(newUser);
-  //       logged(userModel);
-  //       log('User is signed in!');
-  //       return userModel;
-  //     }
-  //   }).listen(
-  //     (UserModel? userModel) {},
-  //     onError:
-  //         onError ?? (error) => log('Erro no stream de autenticação: $error'),
-  //   );
-  // }
 }

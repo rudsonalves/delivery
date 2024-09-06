@@ -3,20 +3,14 @@ import 'package:mobx/mobx.dart';
 import '../../common/models/adreess.dart';
 import '../../repository/viacep/via_cep_repository.dart';
 
-part 'delivery_person_store.g.dart';
+part 'personal_data_store.g.dart';
 
 enum Status { initial, loading, success, error }
 
 // ignore: library_private_types_in_public_api
-class DeliveryPersonStore = _DeliveryPersonStore with _$DeliveryPersonStore;
+class PersonalDataStore = _PersonalDataStore with _$PersonalDataStore;
 
-abstract class _DeliveryPersonStore with Store {
-  @observable
-  String? name;
-
-  @observable
-  String? errorNameMsg;
-
+abstract class _PersonalDataStore with Store {
   @observable
   String? phone;
 
@@ -46,39 +40,6 @@ abstract class _DeliveryPersonStore with Store {
 
   @observable
   String? errorCpfMsg;
-
-  @observable
-  String? password;
-
-  @observable
-  String? errorPasswordMsg;
-
-  @observable
-  String? errorCheckPasswordMsg;
-
-  @observable
-  String? checkPassword;
-
-  @observable
-  String? email;
-
-  @observable
-  String? errorEmailMsg;
-
-  @action
-  void setName(String value) {
-    name = value.trim();
-    _validName();
-  }
-
-  @action
-  void _validName() {
-    if (name == null || name!.isEmpty) {
-      errorNameMsg = 'Nome é obrigatório';
-      return;
-    }
-    errorNameMsg = null;
-  }
 
   @action
   void setNumber(String value) {
@@ -111,41 +72,6 @@ abstract class _DeliveryPersonStore with Store {
   }
 
   @action
-  void setPassword(String value) {
-    password = value;
-    _validPassword();
-  }
-
-  @action
-  void _validPassword() {
-    if (password == null || password!.length < 6) {
-      errorPasswordMsg = 'Senha menor que 6 caracteres';
-      return;
-    }
-    final regex = RegExp(r'^(?=.*[a-z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$');
-    if (!regex.hasMatch(password!)) {
-      errorPasswordMsg = 'Senha deve conter números e letras';
-      return;
-    }
-    errorPasswordMsg = null;
-  }
-
-  @action
-  void setCheckPassword(String value) {
-    checkPassword = value.trim();
-    _validCheckPassword();
-  }
-
-  @action
-  void _validCheckPassword() {
-    if (password == null || password != checkPassword) {
-      errorCheckPasswordMsg = 'Senhas diferem';
-      return;
-    }
-    errorCheckPasswordMsg = null;
-  }
-
-  @action
   void setZipCode(String value) {
     zipCode = _removeNonNumber(value);
     _validZipCode();
@@ -161,22 +87,6 @@ abstract class _DeliveryPersonStore with Store {
   }
 
   @action
-  void setEmail(String value) {
-    email = value;
-    validEmail();
-  }
-
-  @action
-  void validEmail() {
-    final regex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
-    if (email == null || email!.isEmpty || !regex.hasMatch(email!)) {
-      errorEmailMsg = 'E-mail válido';
-      return;
-    }
-    errorEmailMsg = null;
-  }
-
-  @action
   void setCpf(String value) {
     cpf = _removeNonNumber(value);
     _validCpf();
@@ -184,7 +94,9 @@ abstract class _DeliveryPersonStore with Store {
 
   @action
   void _validCpf() {
-    if (cpf!.length != 11 || RegExp(r'^(\d)\1*$').hasMatch(cpf!)) {
+    if (cpf == null ||
+        cpf!.length != 11 ||
+        RegExp(r'^(\d)\1*$').hasMatch(cpf!)) {
       errorCpfMsg = 'CPF inválido';
       return;
     }
@@ -250,8 +162,6 @@ abstract class _DeliveryPersonStore with Store {
 
   @action
   void cleanFields() {
-    name = null;
-    errorNameMsg = null;
     phone = null;
     errorPhoneMsg = null;
     zipCode = null;
@@ -261,11 +171,6 @@ abstract class _DeliveryPersonStore with Store {
     errorNumberMsg = null;
     cpf = null;
     errorCpfMsg = null;
-    password = null;
-    errorPasswordMsg = null;
-    errorCheckPasswordMsg = null;
-    email = null;
-    errorEmailMsg = null;
     // errorMsg = null;
     status = Status.initial;
   }
@@ -281,20 +186,13 @@ abstract class _DeliveryPersonStore with Store {
 
   bool isValid() {
     _fetchAddress();
-    _validName();
     _validCpf();
     _validNumber();
-    _validPassword();
     _validPhone();
     _validZipCode();
-    _validCheckPassword();
 
-    return errorCheckPasswordMsg == null &&
-        errorCpfMsg == null &&
-        errorEmailMsg == null &&
-        errorNameMsg == null &&
+    return errorCpfMsg == null &&
         errorNumberMsg == null &&
-        errorPasswordMsg == null &&
         errorPhoneMsg == null &&
         errorZipCodeMsg == null;
   }
