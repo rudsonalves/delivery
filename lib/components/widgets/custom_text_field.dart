@@ -11,6 +11,7 @@ class CustomTextField extends StatelessWidget {
   final bool obscureText;
   final String? errorText;
   final bool fullBorder;
+  final TextCapitalization textCapitalization;
 
   const CustomTextField({
     super.key,
@@ -24,6 +25,7 @@ class CustomTextField extends StatelessWidget {
     this.obscureText = false,
     this.errorText,
     this.fullBorder = false,
+    this.textCapitalization = TextCapitalization.none,
   });
 
   @override
@@ -36,6 +38,7 @@ class CustomTextField extends StatelessWidget {
         textInputAction: textInputAction ?? TextInputAction.next,
         onChanged: onChanged,
         obscureText: obscureText,
+        textCapitalization: textCapitalization,
         decoration: InputDecoration(
           floatingLabelBehavior: floatingLabelBehavior,
           label: Text(

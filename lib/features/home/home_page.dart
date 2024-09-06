@@ -1,10 +1,11 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 import '/features/home/widgets/home_drawer.dart';
 import '../../locator.dart';
-import '../delivery_person/delivery_person_page.dart';
+import '../person_data/person_data_page.dart';
 import '../sign_in/sign_in_page.dart';
 import 'home_controller.dart';
 
@@ -27,6 +28,12 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (ctrl.doesNotHavePhone) {
+        Navigator.pushNamed(context, PersonDataPage.routeName);
+      }
+    });
+
     ctrl.init();
   }
 
@@ -42,13 +49,18 @@ class _HomePageState extends State<HomePage> {
     Navigator.pop(context);
     await ctrl.logout();
     if (!ctrl.isLoggedIn) {
-      if (mounted) Navigator.pushNamed(context, SignInPage.routeName);
+      if (mounted) {
+        Navigator.pushReplacementNamed(
+          context,
+          SignInPage.routeName,
+        );
+      }
     }
   }
 
   void _login() {
     Navigator.pop(context);
-    Navigator.pushNamed(context, SignInPage.routeName);
+    Navigator.pushReplacementNamed(context, SignInPage.routeName);
   }
 
   @override
@@ -76,8 +88,7 @@ class _HomePageState extends State<HomePage> {
         logout: _logout,
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () =>
-            Navigator.pushNamed(context, DeliveryPersonPage.routeName),
+        onPressed: () => Navigator.pushNamed(context, PersonDataPage.routeName),
         child: const Icon(Icons.person_add_alt_1_rounded),
       ),
     );

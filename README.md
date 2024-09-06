@@ -17,6 +17,98 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/09/06 - version: 0.1.4+8
+
+Implement personal data handling and splash screen initialization
+
+In this commit, several improvements and additions were made to the code. The AddressModel class now includes new fields such as type, latitude, longitude, and updatedAt, allowing better control over address types and geographical coordinates. The serialization and deserialization of the model were updated to handle these new attributes. Additionally, the string representation of the address was modified to include the address type.
+
+A new ClientModel class was introduced to manage client data, which includes fields for name, email, phone, and an associated AddressModel. Serialization methods and helper functions were added for easy handling of client data.
+
+Other significant changes include updates to the UserRole enum, which renamed client and consumer to business for better clarity. The HomeController and HomePage now check if the user has a phone number and redirects to the PersonDataPage if it's missing.
+
+Additionally, the DeliveryPersonController was removed and replaced by the PersonController to handle personal data. The PersonDataPage was introduced to manage and update user personal information, such as phone numbers and addresses.
+
+Finally, the commit adds a SplashPage and SplashController for handling the app's splash screen and initializing user data when the app launches. Several adjustments were made to controllers and routes to accommodate these new features.
+
+1. lib/common/models/adreess.dart
+   - Imported `dart:convert` to handle JSON serialization.
+   - Added `type`, `latitude`, and `longitude` properties to `AddressModel`.
+   - Updated the constructor to initialize `type` as 'Residencial', `latitude`, `longitude`, and `updatedAt` with default values.
+   - Modified the `addressString` method to include the `type` in the string representation.
+   - Added `updatedAt` to store the last update time.
+   - Updated `copyWith` to handle the new properties (`type`, `latitude`, `longitude`, `updatedAt`).
+   - Modified `toMap` and `fromMap` to serialize and deserialize the new properties.
+   - Added `toJson` and `fromJson` methods for JSON conversion.
+   - Overrode `==` and `hashCode` to include the new properties.
+
+2. lib/common/models/client.dart
+   - Created `ClientModel` to represent a client entity with fields such as `id`, `name`, `email`, `phone`, `address`, and timestamps (`createdAt`, `updatedAt`).
+   - Added `copyWith` method to create a copy of the object with modified values.
+   - Implemented `toMap` and `fromMap` methods for serialization and deserialization of the client model.
+   - Added `toJson` and `fromJson` methods for JSON conversion.
+   - Overrode `==` and `hashCode` for object comparison.
+   - Implemented `toString` method for string representation of the client model.
+
+3. lib/common/models/user.dart
+   - Renamed the `client` role to `business` in the `UserRole` enum to better reflect the role’s purpose.
+
+4. lib/components/widgets/custom_text_field.dart
+   - Added the `textCapitalization` parameter to customize text capitalization behavior.
+
+5. lib/features/home/home_controller.dart
+   - Added `store` as a new property initialized to `HomeStore`.
+   - Updated `init()` method to check if the user is logged in and set the `store.hasPhone` accordingly.
+
+6. lib/features/home/home_page.dart
+   - Updated the floating action button to navigate to `PersonDataPage` instead of the old delivery person page.
+   - Added post-frame callback in `initState` to redirect to `PersonDataPage` if the user does not have a phone number registered.
+
+7. lib/features/person_data/person_data_controller.dart
+   - Created `PersonController` to manage personal data input, including phone verification.
+   - Implemented `save()` method to request phone number verification and handle SMS code input through a custom dialog.
+
+8. lib/features/person_data/person_data_page.dart
+   - Renamed from `DeliveryPersonPage` to `PersonDataPage` to generalize the functionality for personal data input.
+   - Updated the UI to reflect personal data input (phone, ZIP code, etc.) instead of delivery person data.
+
+9. lib/features/person_data/widgets/text_input_dialog.dart
+   - Created a new widget `TextInputDialog` to display a dialog for SMS code input, allowing for future extensions.
+
+10. lib/features/sign_in/sign_in_controller.dart
+    - Refactored the `init()` method to no longer initialize the user directly since this is handled elsewhere.
+    - Added `userStatus` getter to expose the current user’s status.
+
+11. lib/features/sign_in/sign_in_page.dart
+    - Updated the navigation behavior to use `Navigator.pushReplacementNamed` for better user experience when transitioning between pages.
+
+12. lib/features/sign_up/sign_up_page.dart
+    - Removed the back button from the app bar for consistency during sign-up.
+
+13. lib/features/splash/splash_controller.dart
+    - Created `SplashController` to manage initialization logic for the splash screen, including checking if the user is logged in.
+
+14. lib/features/splash/splash_page.dart
+    - Created a new `SplashPage` to serve as the app’s initial screen, showing loading animations and handling navigation based on the user’s login state.
+
+15. lib/my_material_app.dart
+    - Set `SplashPage` as the initial route.
+    - Updated the route for `PersonDataPage` to replace the old delivery person route.
+
+16. lib/repository/firebase/firebase_auth_repository.dart
+    - Refactored `requestPhoneNumberVerification` to format the phone number properly and handle verification via Firebase’s phone authentication.
+
+17. lib/stores/mobx/home_store.dart
+    - Created `HomeStore` to manage user-specific states such as `hasPhone` and `hasAddress`.
+
+18. lib/stores/mobx/personal_data_store.dart
+    - Renamed from `DeliveryPersonStore` to `PersonalDataStore` to reflect its broader role in managing personal data.
+
+19. lib/stores/user/user_store.dart
+    - Added a new observable property `userStatus` to track user authentication status changes.
+    - Updated the `initializeUser`, `signUp`, and `logout` methods to toggle `userStatus` based on the user’s authentication state.
+
+
 ## 2024/09/05 - version: 0.1.3+7
 
 Add Project Delivery Scrum Plan and Firebase Configuration
