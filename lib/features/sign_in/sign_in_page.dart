@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
+import '../home/home_page.dart';
 import '/features/sign_in/sign_in_controller.dart';
 import '/stores/user/user_store.dart';
 import '../../common/theme/app_text_style.dart';
@@ -31,9 +32,9 @@ class _SignInPageState extends State<SignInPage> {
     ctrl.init();
 
     // Reaction to monitor isLoggedIn changes
-    _disposer = reaction<bool>((_) => ctrl.isLoggedIn, (isLoggedIn) {
+    _disposer = reaction<bool>((_) => ctrl.userStatus, (_) {
       if (ctrl.isLoggedIn) {
-        Navigator.pop(context);
+        Navigator.pushReplacementNamed(context, HomePage.routeName);
       }
     });
   }
@@ -79,10 +80,10 @@ class _SignInPageState extends State<SignInPage> {
       appBar: AppBar(
         title: const Text('Login'),
         centerTitle: true,
-        leading: IconButton(
-          onPressed: Navigator.of(context).pop,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-        ),
+        // leading: IconButton(
+        //   onPressed: Navigator.of(context).pop,
+        //   icon: const Icon(Icons.arrow_back_ios_new_rounded),
+        // ),
         actions: [
           ValueListenableBuilder(
             valueListenable: ctrl.app.brightnessNotifier,
