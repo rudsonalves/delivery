@@ -7,12 +7,14 @@ class HomeDrawer extends StatelessWidget {
   final HomeController controller;
   final void Function() login;
   final void Function() logout;
+  final void Function() clients;
 
   const HomeDrawer({
     super.key,
     required this.controller,
     required this.login,
     required this.logout,
+    required this.clients,
   });
 
   @override
@@ -30,6 +32,11 @@ class HomeDrawer extends StatelessWidget {
       child: ListView(
         children: [
           CustomDrawerHeader(controller: controller),
+          ListTile(
+            leading: const Icon(Icons.people),
+            title: const Text('Clientes'),
+            onTap: clients,
+          ),
           if (!controller.isLoggedIn)
             ListTile(
               leading: const Icon(Icons.login),

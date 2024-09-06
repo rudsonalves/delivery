@@ -3,6 +3,15 @@ import 'package:flutter/material.dart';
 class AppTextStyle {
   AppTextStyle._();
 
+  static TextStyle font12Height({Color? color, double? height}) {
+    return TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.w400,
+      color: color,
+      height: height,
+    );
+  }
+
   static TextStyle font12({Color? color}) {
     return TextStyle(
       fontSize: 12,
