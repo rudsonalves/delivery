@@ -5,18 +5,27 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../common/models/user.dart';
 import '../../common/settings/app_settings.dart';
 import '../../locator.dart';
+import '../../stores/mobx/home_store.dart';
 import '../../stores/user/user_store.dart';
 
 class HomeController {
   StreamSubscription<User?>? _authSubscription;
   final userStore = locator<UserStore>();
   final app = locator<AppSettings>();
+  final store = HomeStore();
 
   bool get isLoggedIn => userStore.isLoggedIn;
   bool get isDark => app.isDark;
+  bool get doesNotHavePhone =>
+      currentUser!.phone == null || currentUser!.phone!.isEmpty;
   UserModel? get currentUser => userStore.currentUser;
 
-  init() {}
+  init() {
+    if (isLoggedIn) {
+      store.setHasPhone(currentUser!.phone != null);
+      // store.setHasAddress(currentUser!.address != null);
+    }
+  }
 
   void dispose() {
     _authSubscription?.cancel();

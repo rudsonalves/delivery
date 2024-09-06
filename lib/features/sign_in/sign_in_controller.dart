@@ -19,10 +19,9 @@ class SignInController {
   bool get isLoggedIn => store.isLoggedIn;
   bool get isValid => pageStore.isValid;
   UserState get state => store.state;
+  bool get userStatus => store.userStatus;
 
-  Future<void> init() async {
-    await store.initializeUser();
-  }
+  Future<void> init() async {}
 
   void dispose() {
     emailController.dispose();

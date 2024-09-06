@@ -89,10 +89,10 @@ class _SignUpPageState extends State<SignUpPage> {
       appBar: AppBar(
         title: const Text('Cadastrar'),
         centerTitle: true,
-        leading: IconButton(
-          onPressed: Navigator.of(context).pop,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-        ),
+        // leading: IconButton(
+        //   onPressed: Navigator.pu(context),
+        //   icon: const Icon(Icons.arrow_back_ios_new_rounded),
+        // ),
         actions: [
           ValueListenableBuilder(
             valueListenable: ctrl.app.brightnessNotifier,

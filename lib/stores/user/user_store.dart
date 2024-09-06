@@ -20,7 +20,9 @@ enum UserState { stateLoading, stateSuccess, stateError, stateInitial }
 abstract class _UserStore with Store {
   final localStore = locator<LocalStorageService>();
   final AuthRepository auth = FirebaseAuthRepository();
-  // late StreamSubscription<UserModel?> authSubscription;
+
+  @observable
+  bool userStatus = true;
 
   @observable
   UserModel? currentUser;
@@ -34,9 +36,7 @@ abstract class _UserStore with Store {
   @observable
   UserState state = UserState.stateInitial;
 
-  void dispose() {
-    // authSubscription.cancel();
-  }
+  void dispose() {}
 
   @action
   Future<void> initializeUser() async {
@@ -52,24 +52,11 @@ abstract class _UserStore with Store {
       isLoggedIn = false;
       state = UserState.stateInitial;
     }
-    // authSubscription = auth.userChanges(
-    //   logged: (UserModel userModel) async {
-    //     currentUser = userModel;
-    //     isLoggedIn = true;
-    //     state = UserState.stateSuccess;
-    //   },
-    //   notLogged: () async {
-    //     currentUser = null;
-    //     isLoggedIn = false;
-    //     state = UserState.stateSuccess;
-    //   },
-    //   onError: (error) {
-    //     errorMessage = 'Error monitoring authentication changes: $error';
-    //     log(errorMessage!);
-    //     state = UserState.stateError;
-    //   },
-    // );
+    toogleUSerStatus();
   }
+
+  @action
+  void toogleUSerStatus() => userStatus = !userStatus;
 
   @action
   Future<DataResult<UserModel>> signUp(UserModel user) async {
@@ -116,11 +103,10 @@ abstract class _UserStore with Store {
         currentUser = user;
         isLoggedIn = true;
         errorMessage = null;
-        log('User logged: $user');
         state = UserState.stateSuccess;
       },
     );
-
+    toogleUSerStatus();
     return result;
   }
 
@@ -133,11 +119,13 @@ abstract class _UserStore with Store {
       errorMessage = null;
       currentUser = null;
       state = UserState.stateSuccess;
+      toogleUSerStatus();
       return DataResult.success(null);
     } catch (err) {
       errorMessage = 'Erro ao fazer logout';
       log(errorMessage!);
       state = UserState.stateError;
+      toogleUSerStatus();
       return DataResult.failure(GenericFailure(errorMessage));
     }
   }

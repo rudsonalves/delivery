@@ -6,10 +6,9 @@ import 'package:flutter/material.dart';
 /// role descriptions
 /// - admin: administrador do sistema.
 /// - delivery: the one who makes the deliveries.
-/// - client: the one who uses the service to deliver their products.
-/// - consumer: the one who consumes the delivery service and the customer's
+/// - business: the one who consumes the delivery service and the customer's
 ///   products.
-enum UserRole { admin, delivery, client, consumer }
+enum UserRole { admin, delivery, business }
 
 enum UserStatus { offline, online }
 
@@ -52,11 +51,7 @@ class UserModel {
         title = 'Entregador';
         icon = Icons.delivery_dining_rounded;
         break;
-      case UserRole.client:
-        title = 'Produtor';
-        icon = Icons.store_outlined;
-        break;
-      case UserRole.consumer:
+      case UserRole.business:
         title = 'Consumidor';
         icon = Icons.person_rounded;
         break;

@@ -1,23 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
+import '/components/widgets/big_bottom.dart';
 import '../../components/widgets/custom_text_field.dart';
-import '../../stores/mobx/delivery_person_store.dart';
-import 'delivery_person_controller.dart';
+import '../../stores/mobx/personal_data_store.dart';
+import 'person_data_controller.dart';
 
-class DeliveryPersonPage extends StatefulWidget {
-  const DeliveryPersonPage({
+class PersonDataPage extends StatefulWidget {
+  const PersonDataPage({
     super.key,
   });
 
   static const routeName = '/delivery_person';
 
   @override
-  State<DeliveryPersonPage> createState() => _DeliveryPersonPageState();
+  State<PersonDataPage> createState() => _PersonDataPageState();
 }
 
-class _DeliveryPersonPageState extends State<DeliveryPersonPage> {
-  final ctrl = DeliveryPersonController();
+class _PersonDataPageState extends State<PersonDataPage> {
+  final ctrl = PersonController();
+
+  void _backPage() {
+    if (ctrl.isValid) {
+      ctrl.save(context);
+      Navigator.of(context).pop();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,11 +33,11 @@ class _DeliveryPersonPageState extends State<DeliveryPersonPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Adicionar Entregador'),
+        title: const Text('Complete seu Cadastro'),
         centerTitle: true,
         elevation: 5,
         leading: IconButton(
-          onPressed: Navigator.of(context).pop,
+          onPressed: _backPage,
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
         ),
       ),
@@ -42,56 +50,47 @@ class _DeliveryPersonPageState extends State<DeliveryPersonPage> {
               children: [
                 Observer(
                   builder: (_) => CustomTextField(
-                    controller: ctrl.nameController,
-                    keyboardType: TextInputType.text,
-                    textInputAction: TextInputAction.next,
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                    labelText: 'Nome *',
-                    hintText: 'Nome Completo',
-                    onChanged: ctrl.deliveryPerson.setName,
-                    errorText: ctrl.deliveryPerson.errorNameMsg,
-                  ),
-                ),
-                Observer(
-                  builder: (_) => CustomTextField(
                     controller: ctrl.phoneController,
                     keyboardType: TextInputType.number,
                     textInputAction: TextInputAction.next,
                     floatingLabelBehavior: FloatingLabelBehavior.always,
                     labelText: 'Telefone *',
                     hintText: '(xx) xxxx-xxxxx',
-                    onChanged: ctrl.deliveryPerson.setPhone,
-                    errorText: ctrl.deliveryPerson.errorPhoneMsg,
+                    onChanged: ctrl.personalData.setPhone,
+                    errorText: ctrl.personalData.errorPhoneMsg,
                   ),
                 ),
                 Observer(
                   builder: (context) => CustomTextField(
-                    onChanged: (value) => ctrl.deliveryPerson.setZipCode(value),
+                    onChanged: (value) => ctrl.personalData.setZipCode(value),
                     controller: ctrl.cepController,
                     keyboardType: TextInputType.number,
                     textInputAction: TextInputAction.next,
                     floatingLabelBehavior: FloatingLabelBehavior.always,
                     labelText: 'CEP *',
                     hintText: 'xx-xxx.xxx',
-                    errorText: ctrl.deliveryPerson.errorZipCodeMsg,
+                    errorText: ctrl.personalData.errorZipCodeMsg,
                   ),
                 ),
                 Observer(
                   builder: (context) {
-                    if (ctrl.deliveryPerson.status == Status.loading) {
+                    if (ctrl.personalData.status == Status.loading) {
                       return const Center(
                         child: CircularProgressIndicator(),
                       );
-                    } else if (ctrl.deliveryPerson.status == Status.error) {
-                      return SnackBar(
-                        elevation: 5,
-                        content: Text(
-                          'Erro desconhecido.',
-                          style: TextStyle(color: colorScheme.error),
+                    } else if (ctrl.personalData.status == Status.error) {
+                      return Card(
+                        color: colorScheme.tertiaryContainer,
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 64,
+                            vertical: 12,
+                          ),
+                          child: Text('Endereço inválido'),
                         ),
                       );
-                    } else if (ctrl.deliveryPerson.status == Status.success) {
-                      final address = ctrl.deliveryPerson.address!;
+                    } else if (ctrl.personalData.status == Status.success) {
+                      final address = ctrl.personalData.address!;
                       return Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Card(
@@ -150,8 +149,8 @@ class _DeliveryPersonPageState extends State<DeliveryPersonPage> {
                     textInputAction: TextInputAction.next,
                     floatingLabelBehavior: FloatingLabelBehavior.always,
                     labelText: 'Número *',
-                    onChanged: ctrl.deliveryPerson.setNumber,
-                    errorText: ctrl.deliveryPerson.errorNumberMsg,
+                    onChanged: ctrl.personalData.setNumber,
+                    errorText: ctrl.personalData.errorNumberMsg,
                     // hintText: '',
                   ),
                 ),
@@ -160,74 +159,26 @@ class _DeliveryPersonPageState extends State<DeliveryPersonPage> {
                   keyboardType: TextInputType.text,
                   textInputAction: TextInputAction.next,
                   floatingLabelBehavior: FloatingLabelBehavior.always,
+                  textCapitalization: TextCapitalization.words,
                   labelText: 'Complemento',
                   hintText: '- * -',
                 ),
-                Observer(
-                  builder: (_) => CustomTextField(
-                    controller: ctrl.cpfController,
-                    keyboardType: TextInputType.number,
-                    textInputAction: TextInputAction.next,
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                    labelText: 'CPF *',
-                    hintText: '###.###.###-##',
-                    onChanged: ctrl.deliveryPerson.setCpf,
-                    errorText: ctrl.deliveryPerson.errorCpfMsg,
-                  ),
-                ),
-                Observer(
-                  builder: (_) => CustomTextField(
-                    controller: ctrl.emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    textInputAction: TextInputAction.next,
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                    labelText: 'E-mail *',
-                    hintText: 'seu@email.com.br',
-                    onChanged: ctrl.deliveryPerson.setEmail,
-                    errorText: ctrl.deliveryPerson.errorEmailMsg,
-                  ),
-                ),
-                Observer(
-                  builder: (_) => CustomTextField(
-                    controller: ctrl.passWordController,
-                    keyboardType: TextInputType.text,
-                    textInputAction: TextInputAction.next,
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                    labelText: 'Senha *',
-                    hintText: '6+ letras e números',
-                    obscureText: true,
-                    onChanged: ctrl.deliveryPerson.setPassword,
-                    errorText: ctrl.deliveryPerson.errorPasswordMsg,
-                  ),
-                ),
-                Observer(
-                  builder: (_) => CustomTextField(
-                    controller: ctrl.passWordCheckController,
-                    keyboardType: TextInputType.text,
-                    textInputAction: TextInputAction.done,
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                    labelText: 'Confirme a Senha *',
-                    hintText: '6+ letras e números',
-                    obscureText: true,
-                    onChanged: ctrl.deliveryPerson.setCheckPassword,
-                    errorText: ctrl.deliveryPerson.errorCheckPasswordMsg,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: OverflowBar(
-                    alignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      FilledButton.tonalIcon(
-                        onPressed: () {},
-                        label: const Text('Adicionar'),
-                      ),
-                      FilledButton.tonalIcon(
-                        onPressed: () {},
-                        label: const Text('Cancelar'),
-                      ),
-                    ],
-                  ),
+                // Observer(
+                //   builder: (_) => CustomTextField(
+                //     controller: ctrl.cpfController,
+                //     keyboardType: TextInputType.number,
+                //     textInputAction: TextInputAction.done,
+                //     floatingLabelBehavior: FloatingLabelBehavior.always,
+                //     labelText: 'CPF *',
+                //     hintText: '###.###.###-##',
+                //     onChanged: ctrl.personalData.setCpf,
+                //     errorText: ctrl.personalData.errorCpfMsg,
+                //   ),
+                // ),
+                BigButton(
+                  color: Colors.purpleAccent,
+                  label: 'Salvar',
+                  onPressed: _backPage,
                 ),
               ],
             ),
