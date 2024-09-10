@@ -33,6 +33,24 @@ class AddressModel {
   })  : createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now();
 
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      // 'id': id,
+      'type': type,
+      'zipCode': zipCode,
+      'street': street,
+      'number': number,
+      'complement': complement,
+      'neighborhood': neighborhood,
+      'state': state,
+      'city': city,
+      'latitude': latitude,
+      'longitude': longitude,
+      'createdAt': createdAt.millisecondsSinceEpoch,
+      'updatedAt': updatedAt.millisecondsSinceEpoch,
+    };
+  }
+
   String addressString() {
     return 'Endereço ($type): $street, '
         'N° ${number.isNotEmpty ? number : 'S/N'}, '
@@ -41,6 +59,9 @@ class AddressModel {
         '$city - $state, '
         'CEP: $zipCode';
   }
+
+  String get geoAddress =>
+      '$street, $number, $neighborhood, $city, $state, $zipCode';
 
   AddressModel copyWith({
     String? id,
@@ -72,24 +93,6 @@ class AddressModel {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
-  }
-
-  Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      'id': id,
-      'type': type,
-      'zipCode': zipCode,
-      'street': street,
-      'number': number,
-      'complement': complement,
-      'neighborhood': neighborhood,
-      'state': state,
-      'city': city,
-      'latitude': latitude,
-      'longitude': longitude,
-      'createdAt': createdAt.millisecondsSinceEpoch,
-      'updatedAt': updatedAt.millisecondsSinceEpoch,
-    };
   }
 
   factory AddressModel.fromMap(Map<String, dynamic> map) {

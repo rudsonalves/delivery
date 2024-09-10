@@ -12,6 +12,13 @@ import '../../locator.dart';
 import '../../services/local_storage_service.dart';
 import '../firestore/user_firestore_repository.dart';
 
+// Errors codes:
+// 200 - user needs to verify his email,
+// 201 - unknown FirebaseAuth error,
+// 202 - ApiError,
+// 203 - user is not logged,
+// 204 - credentials error
+
 class FirebaseAuthRepository implements AuthRepository {
   FirebaseAuthRepository();
 
@@ -72,7 +79,10 @@ class FirebaseAuthRepository implements AuthRepository {
     } catch (err) {
       final message = 'FirebaseAuthRepository.create error: $err';
       log(message);
-      return DataResult.failure(FireAuthFailure(message));
+      return DataResult.failure(FireAuthFailure(
+        message: message,
+        code: 202,
+      ));
     }
   }
 
@@ -168,19 +178,39 @@ class FirebaseAuthRepository implements AuthRepository {
         password: password,
       );
       if (userCredential.user == null) {
-        throw Exception('unknown FirebaseAuth error');
+        return DataResult.failure(
+          const GenericFailure(
+            message:
+                'FirebaseAuthRepository.signIn error: unknown FirebaseAuth error',
+            code: 201,
+          ),
+        );
       }
 
       final userAux = _getUserFrom(userCredential.user!);
       final user = await _recoverUserModel(userAux);
-      // log(user.toString());
+
+      if (user.role != UserRole.delivery && !user.emailVerified) {
+        return DataResult.failure(
+          const GenericFailure(
+            message:
+                'FirebaseAuthRepository.signIn error: user needs to verify his email',
+            code: 200,
+          ),
+        );
+      }
 
       return DataResult.success(user);
     } catch (err) {
       await signOut();
       final message = 'FirebaseAuthRepository.signIn error: $err';
       log(message);
-      return DataResult.failure(FireAuthFailure(message));
+      final code =
+          (message.contains('[firebase_auth/wrong-password]')) ? 204 : 202;
+      return DataResult.failure(FireAuthFailure(
+        message: message,
+        code: code,
+      ));
     }
   }
 
@@ -222,7 +252,7 @@ class FirebaseAuthRepository implements AuthRepository {
     } catch (err) {
       final message = 'FirebaseAuthRepository.signIn error: $err';
       log(message);
-      throw FireAuthFailure(message);
+      throw FireAuthFailure(message: message);
     }
   }
 
@@ -303,14 +333,20 @@ class FirebaseAuthRepository implements AuthRepository {
       } catch (err) {
         final message = 'FirebaseAuthRepository.updatePhoneInAuth: $err';
         log(message);
-        return DataResult.failure(FireAuthFailure(message));
+        return DataResult.failure(FireAuthFailure(
+          message: message,
+          code: 202,
+        ));
       }
     }
 
     const message =
         'FirebaseAuthRepository.updatePhoneInAuth: user is not logged!';
     log(message);
-    return DataResult.failure(const FireAuthFailure(message));
+    return DataResult.failure(const FireAuthFailure(
+      message: message,
+      code: 203,
+    ));
   }
 
   @override

@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 /// - delivery: the one who makes the deliveries.
 /// - business: the one who consumes the delivery service and the customer's
 ///   products.
-enum UserRole { admin, delivery, business }
+enum UserRole { admin, business, delivery }
 
 enum UserStatus { offline, online }
 
@@ -52,7 +52,7 @@ class UserModel {
         icon = Icons.delivery_dining_rounded;
         break;
       case UserRole.business:
-        title = 'Consumidor';
+        title = 'Comerciante';
         icon = Icons.person_rounded;
         break;
     }

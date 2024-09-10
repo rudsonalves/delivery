@@ -31,6 +31,10 @@ class _AddCliendPageState extends State<AddCliendPage> {
     Navigator.of(context).pop();
   }
 
+  void _save() {
+    ctrl.saveClient();
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -124,7 +128,7 @@ class _AddCliendPageState extends State<AddCliendPage> {
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   labelText: 'CEP *',
                   hintText: 'xx-xxx.xxx',
-                  errorText: ctrl.pageStore.errorZipCodeMsg,
+                  errorText: ctrl.pageStore.errorZipCode,
                 ),
               ),
               Observer(
@@ -171,7 +175,7 @@ class _AddCliendPageState extends State<AddCliendPage> {
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   labelText: 'Número *',
                   onChanged: ctrl.pageStore.setNumber,
-                  errorText: ctrl.pageStore.errorNumberMsg,
+                  errorText: ctrl.pageStore.errorNumber,
                   // hintText: '',
                 ),
               ),
@@ -200,7 +204,7 @@ class _AddCliendPageState extends State<AddCliendPage> {
               BigButton(
                 color: Colors.purpleAccent,
                 label: 'Salvar',
-                onPressed: _backPage,
+                onPressed: _save,
               ),
             ],
           ),

@@ -38,3 +38,7 @@ build_profile:
 	flutter clean
 	flutter pub get
 	flutter run --profile
+
+firebase_emu:
+	firebase emulators:start --import=./emulator_data --debug
+	

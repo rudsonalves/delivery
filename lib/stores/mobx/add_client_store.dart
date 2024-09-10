@@ -1,7 +1,9 @@
 import 'package:mobx/mobx.dart';
 
 import '../../common/models/address.dart';
+import '../../common/models/client.dart';
 import '../../repository/viacep/via_cep_repository.dart';
+import '../../services/geolocation_service.dart';
 import 'common/generic_functions.dart';
 
 part 'add_client_store.g.dart';
@@ -37,7 +39,7 @@ abstract class _AddClientStore with Store {
   String? zipCode;
 
   @observable
-  String? errorZipCodeMsg;
+  String? errorZipCode;
 
   @observable
   AddressModel? address;
@@ -46,7 +48,7 @@ abstract class _AddClientStore with Store {
   String? number;
 
   @observable
-  String? errorNumberMsg;
+  String? errorNumber;
 
   @observable
   Status status = Status.initial;
@@ -59,6 +61,31 @@ abstract class _AddClientStore with Store {
 
   @observable
   String? complement;
+
+  Future<ClientModel?> getClient() async {
+    if (address != null) {
+      if (address!.latitude != null && address!.longitude != null) {
+        return ClientModel(
+          name: name!,
+          email: email,
+          phone: phone!,
+          address: address!,
+        );
+      }
+      final result =
+          await GeolocationServiceGoogle.getCoordinatesFromAddress(address!);
+      if (result.isFailure || result.data == null) return null;
+
+      address = result.data;
+      return ClientModel(
+        name: name!,
+        email: email,
+        phone: phone!,
+        address: address!,
+      );
+    }
+    return null;
+  }
 
   @action
   void setComplement(String value) {
@@ -126,29 +153,36 @@ abstract class _AddClientStore with Store {
     number = value.trim();
     _validNumber();
     _updateAddress();
+    if (address != null) {
+      address!.latitude = null;
+      address!.longitude = null;
+    }
   }
 
   @action
   void _validNumber() {
     if (number == null || number!.isEmpty) {
-      errorNumberMsg = 'Número é obrigatório';
+      errorNumber = 'Número é obrigatório';
       return;
     }
-    errorNumberMsg = null;
+    errorNumber = null;
   }
 
   @action
   void setZipCode(String value) {
     zipCode = _removeNonNumber(value);
     _validZipCode();
+    if (errorZipCode == null) _fetchAddress();
   }
 
   @action
   void _validZipCode() {
-    if (zipCode != null && zipCode!.length == 8) {
-      _fetchAddress();
+    final numbers = _removeNonNumber(zipCode ?? '');
+
+    if (numbers.length == 8) {
+      errorZipCode = null;
     } else {
-      errorZipCodeMsg = 'CEP inválido';
+      errorZipCode = 'CEP inválido';
     }
   }
 
@@ -199,14 +233,14 @@ abstract class _AddClientStore with Store {
       final response = await ViaCepRepository.getLocalByCEP(zipCode!);
       if (!response.isSuccess) {
         _handleFetchError('Erro ao buscar o endereço: ${response.error}');
-        errorZipCodeMsg = 'CEP inválido';
+        errorZipCode = 'CEP inválido';
         return;
       }
 
       final viaAddress = response.data;
       if (viaAddress == null) {
         _handleFetchError('Endereço não encontrado');
-        errorZipCodeMsg = 'CEP inválido';
+        errorZipCode = 'CEP inválido';
         return;
       }
 
@@ -217,12 +251,14 @@ abstract class _AddClientStore with Store {
         complement: complement ?? '',
         type: addressType ?? 'Residencial',
         neighborhood: viaAddress.neighborhood,
+        latitude: null,
+        longitude: null,
         state: viaAddress.state,
         city: viaAddress.city,
       );
 
       status = Status.success;
-      errorZipCodeMsg = null;
+      errorZipCode = null;
       return;
     } catch (err) {
       _handleFetchError('erro desconhecido: $err');
@@ -245,5 +281,19 @@ abstract class _AddClientStore with Store {
     // errorMsg = message;
     status = Status.error;
     // log(errorMsg!);
+  }
+
+  @action
+  bool isValid() {
+    // _validCpf();
+    _validNumber();
+    _validZipCode();
+    _validateName();
+    _validatePhone();
+
+    return errorNumber == null &&
+        errorZipCode == null &&
+        errorName == null &&
+        errorPhone == null;
   }
 }

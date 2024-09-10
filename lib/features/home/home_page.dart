@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:delivery/features/clients/clients_page.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -31,6 +32,7 @@ class _HomePageState extends State<HomePage> {
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
       if (ctrl.doesNotHavePhone) {
+        if (kDebugMode) return;
         Navigator.pushNamed(context, PersonDataPage.routeName);
       }
     });
