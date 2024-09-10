@@ -52,6 +52,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '235384305125',
     projectId: 'delivery-16712',
     authDomain: 'delivery-16712.firebaseapp.com',
+    databaseURL: 'https://delivery-16712-default-rtdb.firebaseio.com',
     storageBucket: 'delivery-16712.appspot.com',
     measurementId: 'G-2RL3BKQJ9Q',
   );
@@ -61,6 +62,7 @@ class DefaultFirebaseOptions {
     appId: '1:235384305125:android:2dc58ad897e2e205492b0c',
     messagingSenderId: '235384305125',
     projectId: 'delivery-16712',
+    databaseURL: 'https://delivery-16712-default-rtdb.firebaseio.com',
     storageBucket: 'delivery-16712.appspot.com',
   );
 
@@ -69,7 +71,11 @@ class DefaultFirebaseOptions {
     appId: '1:235384305125:ios:4057b0827b43b43e492b0c',
     messagingSenderId: '235384305125',
     projectId: 'delivery-16712',
+    databaseURL: 'https://delivery-16712-default-rtdb.firebaseio.com',
     storageBucket: 'delivery-16712.appspot.com',
+    androidClientId: '235384305125-t5ujc3cmr2k5196r3gcvfi95fbs55tep.apps.googleusercontent.com',
+    iosClientId: '235384305125-ac83fe65bql6ejujfc0r3hau8ebfh4b9.apps.googleusercontent.com',
     iosBundleId: 'br.dev.rralves.delivery',
   );
+
 }

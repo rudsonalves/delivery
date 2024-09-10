@@ -56,10 +56,20 @@ class _SignInPageState extends State<SignInPage> {
       if (result.isSuccess) {
         return;
       } else {
+        String textMessage;
+        switch (result.error!.code) {
+          case 200:
+            textMessage =
+                'Sua conta ainda não verificada. Acesse seu email para concluir sua verificação.';
+            break;
+          case 204:
+            textMessage =
+                'Suas credenciais estão incorretas. Verifique seu email e senha e tente novamente.';
+          default:
+            textMessage = 'Ocorreu algum erro. Por favor, tente mais tarde!';
+        }
         final message = Text(
-          result.error!.message!.contains('invalid-credential')
-              ? 'Verifique suas credenciais: Email e/ou Senha podem estar erradas.'
-              : 'Ocorreu algum erro. Por favor, tente mais tarde!',
+          textMessage,
           style: AppTextStyle.font14Bold(color: colorScheme.onSurface),
         );
         if (mounted) {

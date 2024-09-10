@@ -23,6 +23,31 @@ class ClientModel {
   })  : createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now();
 
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      // 'id': id,
+      'name': name,
+      'email': email,
+      'phone': phone,
+      // 'address': address?.toMap(),
+      'createdAt': createdAt.millisecondsSinceEpoch,
+      'updatedAt': updatedAt?.millisecondsSinceEpoch,
+    };
+  }
+
+  factory ClientModel.fromMap(Map<String, dynamic> map) {
+    return ClientModel(
+      name: map['name'] as String,
+      email: map['email'] != null ? map['email'] as String : null,
+      phone: map['phone'] as String,
+      // address: AddressModel.fromMap(map['address'] as Map<String, dynamic>),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int),
+      updatedAt: map['updatedAt'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int)
+          : null,
+    );
+  }
+
   ClientModel copyWith({
     String? name,
     String? email,
@@ -38,31 +63,6 @@ class ClientModel {
       address: address ?? this.address,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      'id': id,
-      'name': name,
-      'email': email,
-      'phone': phone,
-      'address': address?.toMap(),
-      'createdAt': createdAt.millisecondsSinceEpoch,
-      'updatedAt': updatedAt?.millisecondsSinceEpoch,
-    };
-  }
-
-  factory ClientModel.fromMap(Map<String, dynamic> map) {
-    return ClientModel(
-      name: map['name'] as String,
-      email: map['email'] != null ? map['email'] as String : null,
-      phone: map['phone'] as String,
-      address: AddressModel.fromMap(map['address'] as Map<String, dynamic>),
-      createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int),
-      updatedAt: map['updatedAt'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int)
-          : null,
     );
   }
 

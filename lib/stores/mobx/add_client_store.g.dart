@@ -136,19 +136,19 @@ mixin _$AddClientStore on _AddClientStore, Store {
     });
   }
 
-  late final _$errorZipCodeMsgAtom =
-      Atom(name: '_AddClientStore.errorZipCodeMsg', context: context);
+  late final _$errorZipCodeAtom =
+      Atom(name: '_AddClientStore.errorZipCode', context: context);
 
   @override
-  String? get errorZipCodeMsg {
-    _$errorZipCodeMsgAtom.reportRead();
-    return super.errorZipCodeMsg;
+  String? get errorZipCode {
+    _$errorZipCodeAtom.reportRead();
+    return super.errorZipCode;
   }
 
   @override
-  set errorZipCodeMsg(String? value) {
-    _$errorZipCodeMsgAtom.reportWrite(value, super.errorZipCodeMsg, () {
-      super.errorZipCodeMsg = value;
+  set errorZipCode(String? value) {
+    _$errorZipCodeAtom.reportWrite(value, super.errorZipCode, () {
+      super.errorZipCode = value;
     });
   }
 
@@ -184,19 +184,19 @@ mixin _$AddClientStore on _AddClientStore, Store {
     });
   }
 
-  late final _$errorNumberMsgAtom =
-      Atom(name: '_AddClientStore.errorNumberMsg', context: context);
+  late final _$errorNumberAtom =
+      Atom(name: '_AddClientStore.errorNumber', context: context);
 
   @override
-  String? get errorNumberMsg {
-    _$errorNumberMsgAtom.reportRead();
-    return super.errorNumberMsg;
+  String? get errorNumber {
+    _$errorNumberAtom.reportRead();
+    return super.errorNumber;
   }
 
   @override
-  set errorNumberMsg(String? value) {
-    _$errorNumberMsgAtom.reportWrite(value, super.errorNumberMsg, () {
-      super.errorNumberMsg = value;
+  set errorNumber(String? value) {
+    _$errorNumberAtom.reportWrite(value, super.errorNumber, () {
+      super.errorNumber = value;
     });
   }
 
@@ -451,6 +451,17 @@ mixin _$AddClientStore on _AddClientStore, Store {
   }
 
   @override
+  bool isValid() {
+    final _$actionInfo = _$_AddClientStoreActionController.startAction(
+        name: '_AddClientStore.isValid');
+    try {
+      return super.isValid();
+    } finally {
+      _$_AddClientStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 name: ${name},
@@ -461,10 +472,10 @@ phone: ${phone},
 errorPhone: ${errorPhone},
 addressType: ${addressType},
 zipCode: ${zipCode},
-errorZipCodeMsg: ${errorZipCodeMsg},
+errorZipCode: ${errorZipCode},
 address: ${address},
 number: ${number},
-errorNumberMsg: ${errorNumberMsg},
+errorNumber: ${errorNumber},
 status: ${status},
 cpf: ${cpf},
 errorCpfMsg: ${errorCpfMsg},

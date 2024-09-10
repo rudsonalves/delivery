@@ -1,35 +1,50 @@
 rules_version = '2';
 
-// service cloud.firestore {
-//   match /databases/{database}/documents {
-//     match /{document=**} {
-//       allow read, write: if false;
-//     }
-//   }
-// }
-// Allow read/write access to a document keyed by the user's UID
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Regras para a coleção de usuários
-    match /users/{userId} {
-      // Permite a criação de um novo documento de usuário por qualquer usuário autenticado
-      allow create: if request.auth != null;
 
-      // Permite leitura e escrita no próprio documento do usuário
-      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
+    // Verifica se o usuário é admin
+    function isAdmin() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 0;
     }
 
-    // Regras para a configuração do aplicativo
-    match /appSettings/{document=**} {
-      // Permite leitura para qualquer usuário autenticado
-      allow read: if request.auth != null;
+    // Verifica se o usuário é comerciante
+    function isBusinessPerson() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 1;
+    }
 
-      // Permite escrita inicial para criar o documento 'adminConfig'
-      allow write: if request.auth != null && !exists(/databases/$(database)/documents/appSettings/$(document));
-      
-      // Permite atualização condicional
-      allow update: if request.auth != null && request.resource.data.keys().hasAny(['adminId']);
+    // Regras para a coleção de usuários
+    match /users/{userId} {
+      // Permitir a criação de entregadores (role = 2) sem autenticação
+      allow create: if request.resource.data.role == 2;
+
+      // Apenas admins podem criar outros admins (role = 0)
+      allow create: if request.auth != null && request.resource.data.role == 0 && isAdmin();
+
+      // Permitir a criação de comerciantes (role = 1) sem autenticação
+      allow create: if request.resource.data.role == 1;
+
+      // O próprio usuário pode ler e atualizar seus próprios dados
+      allow read, update: if request.auth != null && request.auth.uid == userId;
+
+      // Apenas admins podem deletar usuários
+      allow delete: if isAdmin();
+    }
+
+    // Regras para a coleção de clientes
+    match /clients/{clientId} {
+      // Permitir leitura e escrita para admin e comerciantes
+      allow read, write: if isAdmin() || isBusinessPerson();
+
+      // Regras para a subcoleção addresses dentro de clients
+      match /addresses/{addressId} {
+        // Permitir leitura e escrita para admin e comerciantes
+        allow read, write: if isAdmin() || isBusinessPerson();
+      }
     }
   }
 }

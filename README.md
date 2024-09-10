@@ -15,7 +15,78 @@ For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
+
 # Changelog
+
+## 2024/09/10 - version: 0.1.07+11
+
+Added Firebase emulator setup, enhanced client repository, and integrated Remote Config for Google API key.
+
+1. .gitignore
+   - Added `.env` files to the ignore list.
+
+2. Makefile
+   - Added `firebase_emu` command for starting Firebase emulators.
+
+3. android/app/build.gradle
+   - Added Firebase Remote Config and Analytics dependencies.
+
+4. android/app/google-services.json
+   - Added Firebase Realtime Database URL.
+
+5. android/app/src/main/AndroidManifest.xml
+   - Set `android:usesCleartextTraffic="true"` for development with an emulator.
+
+6. Firebase Emulator Data
+   - Added pre-configured data for the Firebase Auth and Firestore emulators.
+
+7. firebase.json
+   - Updated emulator ports and added configuration for Remote Config.
+
+8. firestore.rules
+   - Updated Firestore rules to include user roles (`admin`, `business`, `delivery`) and subcollection permissions for `clients` and `addresses`.
+
+9. Cloud Functions
+   - Initialized Python-based Firebase Cloud Functions setup.
+
+10. lib/common/models/address.dart
+    - Added `geoAddress` getter for geolocation and moved `toMap` method.
+
+11. lib/common/models/client.dart
+    - Added error handling and updates for address management.
+
+12. lib/features/add_client/add_cliend_page.dart
+    - Added functionality to save clients with geolocation.
+
+13. lib/features/add_client/add_client_controller.dart
+    - Implemented saving logic for client creation with Firebase Firestore.
+
+14. lib/main.dart
+    - Integrated Firebase emulator setup for development.
+
+15. lib/repository/firebase/firebase_auth_repository.dart
+    - Updated Firebase authentication error codes.
+
+16. lib/repository/firestore/client_firebase_repository.dart *(New)*
+    - Added methods to manage clients in Firebase Firestore, including adding, updating, and deleting clients.
+
+17. lib/services/geolocation_service.dart *(New)*
+    - Added geolocation service to retrieve coordinates from a Google API for client addresses.
+
+18. lib/services/remote_config.dart *(New)*
+    - Added Firebase Remote Config integration to fetch Google API key.
+
+19. lib/stores/mobx/add_client_store.dart
+    - Integrated geolocation for addresses during client creation.
+
+20. Firebase Remote Config
+    - Added template for remote configuration in `remoteconfig.template.json`.
+
+21. Tests
+    - Created tests for `ClientFirebaseRepository` using Firebase emulators.
+
+This commit introduces Firebase emulator setup, extends Firestore client repository functionalities, and integrates Firebase Remote Config for managing Google API keys, along with comprehensive tests.
+
 
 ## 2024/09/06 - version: 0.1.6+10
 

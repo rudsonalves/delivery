@@ -16,11 +16,11 @@ class ViaCepRepository {
 
     final response = await http.get(Uri.parse(urlCEP));
     if (response.statusCode != HttpStatus.ok) {
-      return DataResult.failure(const APIFailure('connection error'));
+      return DataResult.failure(const APIFailure(message: 'connection error'));
     }
     final map = json.decode(response.body) as Map<String, dynamic>;
     if (map['error'] == true) {
-      return DataResult.failure(const APIFailure('error with query'));
+      return DataResult.failure(const APIFailure(message: 'error with query'));
     }
 
     final addressCep = ViaCepAddressModel.fromPtMap(map);

@@ -22,7 +22,7 @@ class UserFirestoreRepository implements UserRepository {
     } catch (err) {
       final message = 'UserFirestoreRepository.set: $err';
       log(message);
-      return DataResult.failure(FireStoreFailure(message));
+      return DataResult.failure(FireStoreFailure(message: message));
     }
   }
 
@@ -58,7 +58,7 @@ class UserFirestoreRepository implements UserRepository {
     } catch (err) {
       final message = 'UserFirestoreRepository.update: $err';
       log(message);
-      return DataResult.failure(FireStoreFailure(message));
+      return DataResult.failure(FireStoreFailure(message: message));
     }
   }
 
@@ -70,7 +70,7 @@ class UserFirestoreRepository implements UserRepository {
     } catch (err) {
       final message = 'UserFirestoreRepository.delete: $err';
       log(message);
-      return DataResult.failure(FireStoreFailure(message));
+      return DataResult.failure(FireStoreFailure(message: message));
     }
   }
 
@@ -88,7 +88,7 @@ class UserFirestoreRepository implements UserRepository {
     } catch (err) {
       final message = 'UserFirestoreRepository.get: $err';
       log(message);
-      return DataResult.failure(FireStoreFailure(message));
+      return DataResult.failure(FireStoreFailure(message: message));
     }
   }
 

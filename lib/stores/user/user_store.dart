@@ -126,7 +126,7 @@ abstract class _UserStore with Store {
       log(errorMessage!);
       state = UserState.stateError;
       toogleUSerStatus();
-      return DataResult.failure(GenericFailure(errorMessage));
+      return DataResult.failure(GenericFailure(message: errorMessage));
     }
   }
 
@@ -146,7 +146,7 @@ abstract class _UserStore with Store {
       errorMessage = 'Erro ao fazer logout';
       log(errorMessage!);
       state = UserState.stateError;
-      return DataResult.failure(GenericFailure(errorMessage));
+      return DataResult.failure(GenericFailure(message: errorMessage));
     }
   }
 }
