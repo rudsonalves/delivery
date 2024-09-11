@@ -48,45 +48,34 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   Future<void> _signIn() async {
-    final colorScheme = Theme.of(context).colorScheme;
-
     FocusScope.of(context).unfocus();
     if (ctrl.isValid) {
       final result = await ctrl.signIn();
       if (result.isSuccess) {
         return;
       } else {
-        String textMessage;
+        String message;
         switch (result.error!.code) {
           case 200:
-            textMessage =
+            message =
                 'Sua conta ainda não verificada. Acesse seu email para concluir sua verificação.';
             break;
           case 204:
-            textMessage =
+            message =
                 'Suas credenciais estão incorretas. Verifique seu email e senha e tente novamente.';
           default:
-            textMessage = 'Ocorreu algum erro. Por favor, tente mais tarde!';
+            message = 'Ocorreu algum erro. Por favor, tente mais tarde!';
         }
-        final message = Text(
-          textMessage,
-          style: AppTextStyle.font14Bold(color: colorScheme.onSurface),
-        );
         if (mounted) {
           showMessageSnackBar(
             context,
-            message: message,
+            msg: message,
           );
         }
       }
     } else {
-      showMessageSnackBar(
-        context,
-        message: Text(
-          'Por favor, corrija os erros no formulário.',
-          style: AppTextStyle.font14Bold(color: colorScheme.onSurface),
-        ),
-      );
+      showMessageSnackBar(context,
+          msg: 'Por favor, corrija os erros no formulário.');
     }
   }
 
@@ -98,8 +87,8 @@ class _SignInPageState extends State<SignInPage> {
       showMessageSnackBar(
         context,
         time: 5,
-        title: const SnackBarTitle('Recuperar Senha'),
-        message: RichText(
+        title: 'Recuperar Senha',
+        msgWidget: RichText(
           text: TextSpan(
             children: [
               TextSpan(
@@ -204,28 +193,6 @@ class _SignInPageState extends State<SignInPage> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class SnackBarTitle extends StatelessWidget {
-  final String title;
-
-  const SnackBarTitle(
-    this.title, {
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Text(
-        title,
-        style: AppTextStyle.font22Bold(color: colorScheme.primary),
       ),
     );
   }

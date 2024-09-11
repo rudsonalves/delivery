@@ -18,6 +18,60 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/09/10 - version: 0.1.08+12
+
+Improve Firebase integration and repository refactor
+
+This commit introduces several changes and improvements related to Firebase integration, client management, and repository structure.
+
+Modified files:
+
+1. Makefile
+   - Added `firebase_emu` command to start Firebase emulators with data import.
+   - Added `firebase_emu_debug` command for starting Firebase emulators in debug mode.
+   - Introduced `build_runner` command to execute Dart build runner in watch mode.
+
+2. android/app/build.gradle
+   - Loaded `keystoreProperties` for signing configurations.
+   - Applied signing configurations for the release build.
+
+3. android/app/google-services.json
+   - Removed outdated `client_id` entry.
+
+4. emulator_data/auth_export/accounts.json
+   - Updated exported authentication data for the Firebase emulator.
+
+5. lib/components/widgets/message_snack_bar.dart
+   - Modified `showMessageSnackBar` to accept `TextStyle` for title and message, improving customization.
+
+6. lib/features/add_client/add_cliend_page.dart
+   - Enhanced form validation logic with `PageStatus` management.
+   - Adjusted the save client flow to handle errors and show messages using `showMessageSnackBar`.
+
+7. lib/features/add_client/add_client_controller.dart
+   - Reworked save client logic to utilize the new `PageStatus` system.
+   - Refactored controller to ensure compatibility with form validation changes.
+
+8. lib/features/clients/clients_page.dart
+   - Implemented `StreamBuilder` to display clients dynamically from the Firebase Firestore.
+
+9. lib/locator.dart
+   - Registered `AbstractClientRepository` and `ClientFirebaseRepository` to dependency injection.
+
+10. lib/repository/firestore/
+    - Refactored the repository structure, renaming files to `firebase_store` to reflect the Firebase store focus.
+    - Added abstraction for repositories: `AbstractClientRepository` and `AbstractAddressClientRepository`.
+
+11. lib/stores/mobx/add_client_store.dart
+    - Added `PageStatus` to manage page loading state.
+    - Improved error handling in the form submission process.
+
+12. test/repository/firestore/client_firebase_repository_test.dart
+    - Updated repository tests to reflect the new structure and naming conventions.
+
+This update enhances Firebase emulator handling, improves client management with better error handling and state management, and refactors the repository structure to be more scalable and consistent.
+
+
 ## 2024/09/10 - version: 0.1.07+11
 
 Added Firebase emulator setup, enhanced client repository, and integrated Remote Config for Google API key.

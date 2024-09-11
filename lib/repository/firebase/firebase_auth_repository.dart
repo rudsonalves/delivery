@@ -10,7 +10,7 @@ import '../../common/settings/app_settings.dart';
 import '../../common/utils/data_result.dart';
 import '../../locator.dart';
 import '../../services/local_storage_service.dart';
-import '../firestore/user_firestore_repository.dart';
+import '../firebase_store/user_firestore_repository.dart';
 
 // Errors codes:
 // 200 - user needs to verify his email,

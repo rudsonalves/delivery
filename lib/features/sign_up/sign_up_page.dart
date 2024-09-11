@@ -50,7 +50,6 @@ class _SignUpPageState extends State<SignUpPage> {
 
   Future<void> signUp() async {
     FocusScope.of(context).nextFocus();
-    final colorScheme = Theme.of(context).colorScheme;
 
     if (ctrl.isValid) {
       await ctrl.signUp();
@@ -59,12 +58,9 @@ class _SignUpPageState extends State<SignUpPage> {
           showMessageSnackBar(
             context,
             time: 60,
-            message: Text(
-              'Sua conta foi criada com sucesso. \n\nUma mensagem foi'
-              ' encaminhada para sua conta de email. Acesse para confirmar sua'
-              ' inscrição.',
-              style: AppTextStyle.font14Bold(color: colorScheme.onSurface),
-            ),
+            msg: 'Sua conta foi criada com sucesso. \n\nUma mensagem foi'
+                ' encaminhada para sua conta de email. Acesse para confirmar sua'
+                ' inscrição.',
           );
           Navigator.pushReplacementNamed(context, SignInPage.routeName);
         }
@@ -73,20 +69,14 @@ class _SignUpPageState extends State<SignUpPage> {
         if (mounted) {
           showMessageSnackBar(
             context,
-            message: Text(
-              'Ocorreu algum erro. Por favor, tente mais tarde!',
-              style: AppTextStyle.font14Bold(color: colorScheme.onSurface),
-            ),
+            msg: 'Ocorreu algum erro. Por favor, tente mais tarde!',
           );
         }
       }
     } else {
       showMessageSnackBar(
         context,
-        message: Text(
-          'Por favor, corrija os erros no formulário.',
-          style: AppTextStyle.font14Bold(color: colorScheme.onSurface),
-        ),
+        msg: 'Por favor, corrija os erros no formulário.',
       );
     }
   }
