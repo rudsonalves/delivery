@@ -40,5 +40,11 @@ build_profile:
 	flutter run --profile
 
 firebase_emu:
+	firebase emulators:start --import=./emulator_data
+
+firebase_emu_debug:
 	firebase emulators:start --import=./emulator_data --debug
+
+build_runner:
+	dart run build_runner watch
 	

@@ -5,14 +5,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../common/models/address.dart';
 import '/common/models/client.dart';
 import '/common/utils/data_result.dart';
-import 'client_repository.dart';
+import 'abstract_client_repository.dart';
 
 const keyClient = 'clients';
 const keyAddress = 'addresses';
 const keyPhone = 'phone';
 const keyName = 'name';
 
-class ClientFirebaseRepository implements ClientRepository {
+// Error codes
+// 300 - generic error
+// 301 - client ID cannot be null for update operation
+// 302 - client not found in clientId
+class ClientFirebaseRepository implements AbstractClientRepository {
   static final _firebase = FirebaseFirestore.instance;
 
   @override
@@ -33,7 +37,10 @@ class ClientFirebaseRepository implements ClientRepository {
     } catch (err) {
       final message = 'ClientFirebaseRepository.add: $err';
       log(message);
-      return DataResult.failure(FireStoreFailure(message: message));
+      return DataResult.failure(FireStoreFailure(
+        message: message,
+        code: 300,
+      ));
     }
   }
 
@@ -41,7 +48,13 @@ class ClientFirebaseRepository implements ClientRepository {
   Future<DataResult<ClientModel>> update(ClientModel client) async {
     try {
       if (client.id == null) {
-        throw Exception('Client ID cannot be null for update operation.');
+        const message =
+            'ClientFirebaseRepository.update: client ID cannot be null for update operation.';
+        log(message);
+        return DataResult.failure(const GenericFailure(
+          message: message,
+          code: 301,
+        ));
       }
 
       // Updae client data in the main document
@@ -71,7 +84,10 @@ class ClientFirebaseRepository implements ClientRepository {
     } catch (err) {
       final message = 'ClientFirebaseRepository.update: $err';
       log(message);
-      return DataResult.failure(FireStoreFailure(message: message));
+      return DataResult.failure(FireStoreFailure(
+        message: message,
+        code: 300,
+      ));
     }
   }
 
@@ -93,7 +109,10 @@ class ClientFirebaseRepository implements ClientRepository {
     } catch (err) {
       final message = 'ClientFirebaseRepository.delete: $err';
       log(message);
-      return DataResult.failure(FireStoreFailure(message: message));
+      return DataResult.failure(FireStoreFailure(
+        message: message,
+        code: 300,
+      ));
     }
   }
 
@@ -103,7 +122,12 @@ class ClientFirebaseRepository implements ClientRepository {
       final docSnapshot =
           await _firebase.collection(keyClient).doc(clientId).get();
       if (!docSnapshot.exists) {
-        throw Exception('Client not found');
+        const message = 'ClientFirebaseRepository.get: client not found';
+        log(message);
+        return DataResult.failure(const GenericFailure(
+          message: message,
+          code: 302,
+        ));
       }
 
       final data = docSnapshot.data()!;
@@ -114,7 +138,10 @@ class ClientFirebaseRepository implements ClientRepository {
     } catch (err) {
       final message = 'ClientFirebaseRepository.get: $err';
       log(message);
-      return DataResult.failure(FireStoreFailure(message: message));
+      return DataResult.failure(FireStoreFailure(
+        message: message,
+        code: 300,
+      ));
     }
   }
 
@@ -142,30 +169,6 @@ class ClientFirebaseRepository implements ClientRepository {
     }
   }
 
-  Future<DataResult<ClientModel?>> getClientByPhone(String phone) async {
-    try {
-      final querySnapshot = await _firebase
-          .collection(keyClient)
-          .where(keyPhone, isEqualTo: phone)
-          .limit(1)
-          .get();
-
-      if (querySnapshot.docs.isEmpty) {
-        log('No client found with phone $phone.');
-      }
-
-      final data = querySnapshot.docs.first.data();
-      final client = ClientModel.fromMap(data);
-      final address = await getAddressesForClient(client.id!);
-      client.address = address?.first;
-      return DataResult.success(client);
-    } catch (err) {
-      final message = 'ClientFirebaseRepository.getClientByPhone: $err';
-      log(message);
-      return DataResult.failure(FireStoreFailure(message: message));
-    }
-  }
-
   @override
   Future<DataResult<List<ClientModel>>> getClientsByName(String name) async {
     try {
@@ -177,19 +180,41 @@ class ClientFirebaseRepository implements ClientRepository {
 
       if (querySnapshot.docs.isEmpty) {
         log('No client found with name $name.');
+        return DataResult.success([]);
       }
 
-      // for (final doc in querySnapshot.docs) {
-      //   final client = ClientModel.fromMap(doc.data());
-      //   final address = await getAddressesForClient(client.id!);
-      //   client.address = address?.first;
-      //   clients.add(client);
-      // }
+      for (final doc in querySnapshot.docs) {
+        final client = ClientModel.fromMap(doc.data());
+        // final address = await getAddressesForClient(client.id!);
+        // client.address = address?.first;
+        clients.add(client);
+      }
       return DataResult.success(clients);
     } catch (err) {
       final message = 'ClientFirebaseRepository.getClientsByName: $err';
       log(message);
-      return DataResult.failure(FireStoreFailure(message: message));
+      return DataResult.failure(FireStoreFailure(
+        message: message,
+        code: 300,
+      ));
+    }
+  }
+
+  @override
+  Stream<List<ClientModel>> streamClientByName() {
+    try {
+      return _firebase
+          .collection(keyClient)
+          .orderBy(keyName)
+          .snapshots()
+          .map((snapshot) => snapshot.docs.map((doc) {
+                final client = ClientModel.fromMap(doc.data());
+                return client;
+              }).toList());
+    } catch (err) {
+      final message = 'ClientFirebaseRepository.streamClientsByName: $err';
+      log(message);
+      throw Exception(message);
     }
   }
 }

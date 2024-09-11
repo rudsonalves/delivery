@@ -1,7 +1,8 @@
-import 'package:delivery/features/add_client/add_cliend_page.dart';
 import 'package:flutter/material.dart';
 
+import '../../common/models/client.dart';
 import 'clients_controller.dart';
+import '/features/add_client/add_cliend_page.dart';
 
 class ClientsPage extends StatefulWidget {
   const ClientsPage({super.key});
@@ -39,7 +40,38 @@ class _ClientsPageState extends State<ClientsPage> {
         label: const Text('Adicionar Cliente'),
         icon: const Icon(Icons.person_add),
       ),
-      body: Column(),
+      body: StreamBuilder<List<ClientModel>>(
+        stream: ctrl.clientRepository.streamClientByName(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(
+              child: Text('No clients found.'),
+            );
+          }
+
+          final clients = snapshot.data!;
+
+          return ListView.builder(
+            itemCount: clients.length,
+            itemBuilder: (context, index) {
+              final client = clients[index];
+              return ListTile(
+                title: Text(client.name),
+                subtitle: Text(client.phone),
+                onTap: () {},
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

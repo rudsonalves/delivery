@@ -1,7 +1,7 @@
 import '../../common/models/user.dart';
 import '../../common/utils/data_result.dart';
 
-abstract class UserRepository {
+abstract class AbstractUserRepository {
   Future<DataResult<UserModel>> set(UserModel user);
   Future<void> setEmailVerification(String userId, bool emailVerified);
   Future<DataResult<UserModel>> update(UserModel user);

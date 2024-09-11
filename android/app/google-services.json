@@ -15,14 +15,6 @@
       },
       "oauth_client": [
         {
-          "client_id": "235384305125-t5ujc3cmr2k5196r3gcvfi95fbs55tep.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "br.dev.rralves.delivery",
-            "certificate_hash": "b8904a35d1065f1393e5af0aa2e5695e77d2689c"
-          }
-        },
-        {
           "client_id": "235384305125-m95v9m4m5tofimc35ugasf90q0eb835i.apps.googleusercontent.com",
           "client_type": 3
         }

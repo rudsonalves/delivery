@@ -2,13 +2,13 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'user_repository.dart';
+import 'abstract_user_repository.dart';
 import '../../common/models/user.dart';
 import '../../common/utils/data_result.dart';
 
 const keyUsers = 'users';
 
-class UserFirestoreRepository implements UserRepository {
+class UserFirestoreRepository implements AbstractUserRepository {
   static final _firebase = FirebaseFirestore.instance;
 
   @override
