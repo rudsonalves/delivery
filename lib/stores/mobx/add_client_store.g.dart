@@ -200,19 +200,35 @@ mixin _$AddClientStore on _AddClientStore, Store {
     });
   }
 
-  late final _$statusAtom =
-      Atom(name: '_AddClientStore.status', context: context);
+  late final _$zipStatusAtom =
+      Atom(name: '_AddClientStore.zipStatus', context: context);
 
   @override
-  Status get status {
-    _$statusAtom.reportRead();
-    return super.status;
+  ZipStatus get zipStatus {
+    _$zipStatusAtom.reportRead();
+    return super.zipStatus;
   }
 
   @override
-  set status(Status value) {
-    _$statusAtom.reportWrite(value, super.status, () {
-      super.status = value;
+  set zipStatus(ZipStatus value) {
+    _$zipStatusAtom.reportWrite(value, super.zipStatus, () {
+      super.zipStatus = value;
+    });
+  }
+
+  late final _$pageStatusAtom =
+      Atom(name: '_AddClientStore.pageStatus', context: context);
+
+  @override
+  PageStatus get pageStatus {
+    _$pageStatusAtom.reportRead();
+    return super.pageStatus;
+  }
+
+  @override
+  set pageStatus(PageStatus value) {
+    _$pageStatusAtom.reportWrite(value, super.pageStatus, () {
+      super.pageStatus = value;
     });
   }
 
@@ -269,6 +285,14 @@ mixin _$AddClientStore on _AddClientStore, Store {
   @override
   Future<void> _fetchAddress() {
     return _$_fetchAddressAsyncAction.run(() => super._fetchAddress());
+  }
+
+  late final _$saveClientAsyncAction =
+      AsyncAction('_AddClientStore.saveClient', context: context);
+
+  @override
+  Future<DataResult<ClientModel?>> saveClient() {
+    return _$saveClientAsyncAction.run(() => super.saveClient());
   }
 
   late final _$_AddClientStoreActionController =
@@ -451,6 +475,17 @@ mixin _$AddClientStore on _AddClientStore, Store {
   }
 
   @override
+  void setPageStatus(PageStatus status) {
+    final _$actionInfo = _$_AddClientStoreActionController.startAction(
+        name: '_AddClientStore.setPageStatus');
+    try {
+      return super.setPageStatus(status);
+    } finally {
+      _$_AddClientStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   bool isValid() {
     final _$actionInfo = _$_AddClientStoreActionController.startAction(
         name: '_AddClientStore.isValid');
@@ -476,7 +511,8 @@ errorZipCode: ${errorZipCode},
 address: ${address},
 number: ${number},
 errorNumber: ${errorNumber},
-status: ${status},
+zipStatus: ${zipStatus},
+pageStatus: ${pageStatus},
 cpf: ${cpf},
 errorCpfMsg: ${errorCpfMsg},
 complement: ${complement}

@@ -1,7 +1,7 @@
 import 'package:delivery/common/models/address.dart';
 import 'package:delivery/common/models/client.dart';
 import 'package:delivery/firebase_options.dart';
-import 'package:delivery/repository/firestore/client_firebase_repository.dart';
+import 'package:delivery/repository/firebase_store/client_firebase_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
