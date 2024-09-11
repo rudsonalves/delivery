@@ -2,16 +2,21 @@ import 'package:mobx/mobx.dart';
 
 import '../../common/models/address.dart';
 import '../../common/models/client.dart';
+import '../../common/utils/data_result.dart';
+import '../../repository/firebase_store/client_firebase_repository.dart';
 import '../../repository/viacep/via_cep_repository.dart';
 import '../../services/geolocation_service.dart';
 import 'common/generic_functions.dart';
 
 part 'add_client_store.g.dart';
 
-enum Status { initial, loading, success, error }
+enum ZipStatus { initial, loading, success, error }
+
+enum PageStatus { initial, loading, success, error }
 
 // ignore: library_private_types_in_public_api
 class AddClientStore = _AddClientStore with _$AddClientStore;
+final repository = ClientFirebaseRepository();
 
 abstract class _AddClientStore with Store {
   @observable
@@ -51,7 +56,10 @@ abstract class _AddClientStore with Store {
   String? errorNumber;
 
   @observable
-  Status status = Status.initial;
+  ZipStatus zipStatus = ZipStatus.initial;
+
+  @observable
+  PageStatus pageStatus = PageStatus.initial;
 
   @observable
   String? cpf;
@@ -62,9 +70,11 @@ abstract class _AddClientStore with Store {
   @observable
   String? complement;
 
-  Future<ClientModel?> getClient() async {
+  Future<ClientModel?> getClientFromForm() async {
+    pageStatus = PageStatus.loading;
     if (address != null) {
       if (address!.latitude != null && address!.longitude != null) {
+        pageStatus = PageStatus.success;
         return ClientModel(
           name: name!,
           email: email,
@@ -74,9 +84,13 @@ abstract class _AddClientStore with Store {
       }
       final result =
           await GeolocationServiceGoogle.getCoordinatesFromAddress(address!);
-      if (result.isFailure || result.data == null) return null;
+      if (result.isFailure || result.data == null) {
+        pageStatus = PageStatus.error;
+        return null;
+      }
 
       address = result.data;
+      pageStatus = PageStatus.success;
       return ClientModel(
         name: name!,
         email: email,
@@ -228,7 +242,7 @@ abstract class _AddClientStore with Store {
   @action
   Future<void> _fetchAddress() async {
     try {
-      status = Status.loading;
+      zipStatus = ZipStatus.loading;
 
       final response = await ViaCepRepository.getLocalByCEP(zipCode!);
       if (!response.isSuccess) {
@@ -257,7 +271,7 @@ abstract class _AddClientStore with Store {
         city: viaAddress.city,
       );
 
-      status = Status.success;
+      zipStatus = ZipStatus.success;
       errorZipCode = null;
       return;
     } catch (err) {
@@ -279,8 +293,13 @@ abstract class _AddClientStore with Store {
   @action
   void _handleFetchError(String message) {
     // errorMsg = message;
-    status = Status.error;
+    zipStatus = ZipStatus.error;
     // log(errorMsg!);
+  }
+
+  @action
+  void setPageStatus(PageStatus status) {
+    pageStatus = status;
   }
 
   @action
@@ -295,5 +314,29 @@ abstract class _AddClientStore with Store {
         errorZipCode == null &&
         errorName == null &&
         errorPhone == null;
+  }
+
+  @action
+  Future<DataResult<ClientModel?>> saveClient() async {
+    pageStatus = PageStatus.loading;
+    await Future.delayed(const Duration(seconds: 5));
+    if (!isValid()) {
+      pageStatus = PageStatus.error;
+      return DataResult.failure(const GenericFailure(
+        message: 'Form fields are invalid.',
+        code: 350,
+      ));
+    }
+    final client = await getClientFromForm();
+    if (client == null) {
+      pageStatus = PageStatus.error;
+      return DataResult.failure(const GenericFailure(
+        message: 'Unexpected error: Client return null.',
+        code: 350,
+      ));
+    }
+    final result = await repository.add(client);
+    pageStatus = result.isSuccess ? PageStatus.success : PageStatus.error;
+    return result;
   }
 }

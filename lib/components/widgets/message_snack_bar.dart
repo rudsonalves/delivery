@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../../common/theme/app_text_style.dart';
+
 void showMessageSnackBar(
   BuildContext context, {
-  Widget? title,
-  required Widget message,
+  String? title,
+  TextStyle? titleStyle,
+  String? msg,
+  Widget? msgWidget,
+  TextStyle? msgStyle,
   int time = 5,
 }) {
   final colorScheme = Theme.of(context).colorScheme;
@@ -24,8 +29,19 @@ void showMessageSnackBar(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          if (title != null) title,
-          message,
+          if (title != null)
+            Text(title,
+                style: titleStyle ??
+                    AppTextStyle.font22Bold(color: colorScheme.primary)),
+          if (msg != null)
+            Text(
+              msg,
+              style: msgStyle ??
+                  AppTextStyle.font14Bold(
+                    color: colorScheme.onSurface,
+                  ),
+            ),
+          if (msgWidget != null) msgWidget,
         ],
       ),
     ),
