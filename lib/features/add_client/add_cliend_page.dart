@@ -1,9 +1,9 @@
-import 'dart:developer';
-
-import 'package:delivery/components/widgets/message_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
+import '../../common/models/client.dart';
+import '../../common/utils/data_result.dart';
+import '../../components/widgets/message_snack_bar.dart';
 import '../../components/widgets/state_loading.dart';
 import '/common/theme/app_text_style.dart';
 import '/features/add_client/add_client_controller.dart';
@@ -11,13 +11,18 @@ import '../../components/widgets/big_bottom.dart';
 import '../../components/widgets/custom_text_field.dart';
 import '../../stores/mobx/add_client_store.dart';
 
-class AddCliendPage extends StatefulWidget {
-  const AddCliendPage({super.key});
+class AddClientPage extends StatefulWidget {
+  final ClientModel? client;
+
+  const AddClientPage({
+    super.key,
+    this.client,
+  });
 
   static const routeName = '/addclient';
 
   @override
-  State<AddCliendPage> createState() => _AddCliendPageState();
+  State<AddClientPage> createState() => _AddClientPageState();
 }
 
 const addressTypes = [
@@ -28,45 +33,52 @@ const addressTypes = [
   'Trabalho',
 ];
 
-class _AddCliendPageState extends State<AddCliendPage> {
+class _AddClientPageState extends State<AddClientPage> {
   final ctrl = AddClientController();
 
   @override
   void initState() {
     super.initState();
-    ctrl.init();
+    ctrl.init(widget.client);
   }
 
   void _backPage() {
     Navigator.of(context).pop();
   }
 
-  Future<void> _save() async {
-    final result = await ctrl.saveClient();
-    if (result.isFailure) {
-      String msg = '';
-      switch (result.error?.code ?? 300) {
-        case 300:
-          msg = result.error?.message ?? 'Erro desconhecido';
-          break;
-        case 350:
-          msg =
-              'Preencha os campos obrigatórios (*) do formulário para adicionar o cliente.';
-          break;
-        default:
-          msg = result.error?.message ?? 'Erro desconhecido';
+  Future<void> _saveClient() async {
+    if (ctrl.isEdited) {
+      DataResult<ClientModel?> result;
+      if (ctrl.isAddMode) {
+        result = await ctrl.saveClient();
+      } else {
+        result = await ctrl.updateClient();
       }
 
-      if (mounted) {
-        showMessageSnackBar(
-          context,
-          title: 'Erro',
-          msg: msg,
-        );
+      if (result.isFailure) {
+        String msg = '';
+        switch (result.error?.code ?? 300) {
+          case 300:
+            msg = result.error?.message ?? 'Erro desconhecido';
+            break;
+          case 350:
+            msg =
+                'Preencha os campos obrigatórios (*) do formulário para adicionar o cliente.';
+            break;
+          default:
+            msg = result.error?.message ?? 'Erro desconhecido';
+        }
+
+        if (mounted) {
+          showMessageSnackBar(
+            context,
+            title: 'Erro',
+            msg: msg,
+          );
+        }
+        return;
       }
-      return;
     }
-
     _backPage();
   }
 
@@ -76,24 +88,13 @@ class _AddCliendPageState extends State<AddCliendPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cliente'),
+        title: Text(ctrl.isAddMode ? 'Adicionar Cliente' : 'Editar Cliente'),
         centerTitle: true,
         elevation: 5,
         leading: IconButton(
           onPressed: _backPage,
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
         ),
-        actions: [
-          IconButton(
-              onPressed: () {
-                ctrl.pageStore.setPageStatus(
-                    ctrl.pageStatus == PageStatus.success
-                        ? PageStatus.loading
-                        : PageStatus.success);
-                log('PageSatus: ${ctrl.pageStatus}');
-              },
-              icon: Icon(Icons.circle))
-        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -232,22 +233,24 @@ class _AddCliendPageState extends State<AddCliendPage> {
                       onChanged: ctrl.pageStore.setComplement,
                       hintText: '- * -',
                     ),
-                    // Observer(
-                    //   builder: (_) => CustomTextField(
-                    //     controller: ctrl.cpfController,
-                    //     keyboardType: TextInputType.number,
-                    //     textInputAction: TextInputAction.done,
-                    //     floatingLabelBehavior: FloatingLabelBehavior.always,
-                    //     labelText: 'CPF *',
-                    //     hintText: '###.###.###-##',
-                    //     onChanged: ctrl.pageStore.setCpf,
-                    //     errorText: ctrl.pageStore.errorCpfMsg,
-                    //   ),
+                    // CustomTextField(
+                    //   controller: ctrl.cpfController,
+                    //   keyboardType: TextInputType.number,
+                    //   textInputAction: TextInputAction.done,
+                    //   floatingLabelBehavior: FloatingLabelBehavior.always,
+                    //   labelText: 'CPF *',
+                    //   hintText: '###.###.###-##',
+                    //   onChanged: ctrl.pageStore.setCpf,
+                    //   errorText: ctrl.pageStore.errorCpfMsg,
                     // ),
                     BigButton(
                       color: Colors.purpleAccent,
-                      label: 'Salvar',
-                      onPressed: _save,
+                      label: ctrl.isEdited
+                          ? ctrl.isAddMode
+                              ? 'Salvar'
+                              : 'Atualizar'
+                          : 'Cancelar',
+                      onPressed: _saveClient,
                     ),
                   ],
                 ),

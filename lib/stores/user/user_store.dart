@@ -76,7 +76,7 @@ abstract class _UserStore with Store {
         currentUser = result.data!;
         isLoggedIn = true;
         errorMessage = null;
-        log('User created: $user');
+        log('User created');
       },
     );
 

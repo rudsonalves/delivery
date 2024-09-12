@@ -70,6 +70,11 @@ abstract class _AddClientStore with Store {
   @observable
   String? complement;
 
+  @observable
+  bool isEdited = false;
+
+  String? id;
+
   Future<ClientModel?> getClientFromForm() async {
     pageStatus = PageStatus.loading;
     if (address != null) {
@@ -102,19 +107,43 @@ abstract class _AddClientStore with Store {
   }
 
   @action
+  void setClientFromClient(ClientModel client) {
+    id = client.id;
+    setName(client.name);
+    setEmail(client.email ?? '');
+    setPhone(client.phone);
+    setAddressType(client.address?.type ?? 'Residencial');
+    setNumber(client.address?.number ?? 'S/N');
+    // setZipCode(client.address?.zipCode ?? '');
+    zipCode = client.address?.zipCode ?? '';
+    setComplement(client.address?.complement ?? '');
+    address = client.address?.copyWith();
+    zipStatus = address != null ? ZipStatus.success : ZipStatus.initial;
+    isEdited = false;
+  }
+
+  @action
   void setComplement(String value) {
+    _checkIsEdited(complement, value);
     complement = value;
     _updateAddress();
   }
 
   @action
+  _checkIsEdited(String? value, String? newValue) {
+    isEdited = value != newValue;
+  }
+
+  @action
   void setAddressType(String value) {
+    _checkIsEdited(addressType, value);
     addressType = value;
     _updateAddress();
   }
 
   @action
   void setName(String value) {
+    _checkIsEdited(name, value);
     name = value;
     _validateName();
   }
@@ -129,6 +158,7 @@ abstract class _AddClientStore with Store {
 
   @action
   void setEmail(String value) {
+    _checkIsEdited(email, value);
     email = value;
     _validateEmail();
   }
@@ -148,6 +178,7 @@ abstract class _AddClientStore with Store {
 
   @action
   void setPhone(String value) {
+    _checkIsEdited(phone, value);
     phone = value;
     _validatePhone();
   }
@@ -164,7 +195,8 @@ abstract class _AddClientStore with Store {
 
   @action
   void setNumber(String value) {
-    number = value.trim();
+    _checkIsEdited(number, value);
+    number = value;
     _validNumber();
     _updateAddress();
     if (address != null) {
@@ -184,7 +216,8 @@ abstract class _AddClientStore with Store {
 
   @action
   void setZipCode(String value) {
-    zipCode = _removeNonNumber(value);
+    _checkIsEdited(zipCode, value);
+    zipCode = value;
     _validZipCode();
     if (errorZipCode == null) _fetchAddress();
   }
@@ -202,6 +235,7 @@ abstract class _AddClientStore with Store {
 
   @action
   void setCpf(String value) {
+    _checkIsEdited(cpf, value);
     cpf = _removeNonNumber(value);
     _validCpf();
   }
@@ -319,7 +353,6 @@ abstract class _AddClientStore with Store {
   @action
   Future<DataResult<ClientModel?>> saveClient() async {
     pageStatus = PageStatus.loading;
-    await Future.delayed(const Duration(seconds: 5));
     if (!isValid()) {
       pageStatus = PageStatus.error;
       return DataResult.failure(const GenericFailure(
@@ -336,6 +369,30 @@ abstract class _AddClientStore with Store {
       ));
     }
     final result = await repository.add(client);
+    pageStatus = result.isSuccess ? PageStatus.success : PageStatus.error;
+    return result;
+  }
+
+  @action
+  Future<DataResult<ClientModel?>> updateClient() async {
+    pageStatus = PageStatus.loading;
+    if (!isValid()) {
+      pageStatus = PageStatus.error;
+      return DataResult.failure(const GenericFailure(
+        message: 'Form fields are invalid.',
+        code: 350,
+      ));
+    }
+    final client = await getClientFromForm();
+    if (client == null) {
+      pageStatus = PageStatus.error;
+      return DataResult.failure(const GenericFailure(
+        message: 'Unexpected error: Client return null.',
+        code: 350,
+      ));
+    }
+    client.id = id;
+    final result = await repository.update(client);
     pageStatus = result.isSuccess ? PageStatus.success : PageStatus.error;
     return result;
   }

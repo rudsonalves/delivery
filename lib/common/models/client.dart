@@ -37,6 +37,7 @@ class ClientModel {
 
   factory ClientModel.fromMap(Map<String, dynamic> map) {
     return ClientModel(
+      id: map['id'] as String?,
       name: map['name'] as String,
       email: map['email'] != null ? map['email'] as String : null,
       phone: map['phone'] as String,
@@ -49,6 +50,7 @@ class ClientModel {
   }
 
   ClientModel copyWith({
+    String? id,
     String? name,
     String? email,
     String? phone,
@@ -57,6 +59,7 @@ class ClientModel {
     DateTime? updatedAt,
   }) {
     return ClientModel(
+      id: id ?? this.id,
       name: name ?? this.name,
       email: email ?? this.email,
       phone: phone ?? this.phone,
@@ -73,7 +76,9 @@ class ClientModel {
 
   @override
   String toString() {
-    return 'ClientModel(name: $name,'
+    return 'ClientModel('
+        ' id: $id,'
+        ' name: $name,'
         ' email: $email,'
         ' phone: $phone,'
         ' address: $address,'

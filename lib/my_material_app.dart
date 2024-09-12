@@ -1,15 +1,16 @@
-import 'package:delivery/features/splash/splash_page.dart';
 import 'package:flutter/material.dart';
 
-import '/features/home/home_page.dart';
+import 'features/splash/splash_page.dart';
+import 'features/home/home_page.dart';
+import 'common/models/client.dart';
 import 'common/settings/app_settings.dart';
 import 'common/theme/theme.dart';
 import 'common/theme/util.dart';
 import 'features/add_client/add_cliend_page.dart';
 import 'features/clients/clients_page.dart';
 import 'features/person_data/person_data_page.dart';
-import '/features/sign_in/sign_in_page.dart';
-import '/features/sign_up/sign_up_page.dart';
+import 'features/sign_in/sign_in_page.dart';
+import 'features/sign_up/sign_up_page.dart';
 import 'locator.dart';
 
 class MyMaterialApp extends StatefulWidget {
@@ -45,7 +46,18 @@ class _MyMaterialAppState extends State<MyMaterialApp> {
               SignInPage.routeName: (_) => const SignInPage(),
               PersonDataPage.routeName: (_) => const PersonDataPage(),
               ClientsPage.routeName: (_) => const ClientsPage(),
-              AddCliendPage.routeName: (_) => const AddCliendPage(),
+            },
+            onGenerateRoute: (settings) {
+              switch (settings.name) {
+                case AddClientPage.routeName:
+                  return MaterialPageRoute(builder: (context) {
+                    final client = (settings.arguments
+                        as Map<String, dynamic>?)?['client'] as ClientModel?;
+                    return AddClientPage(client: client);
+                  });
+                default:
+                  return null;
+              }
             },
           );
         });

@@ -1,8 +1,8 @@
 import 'dart:math';
 
-import 'package:delivery/common/theme/app_text_style.dart';
 import 'package:flutter/material.dart';
 
+import '/common/theme/app_text_style.dart';
 import '../../../common/models/user.dart';
 import '../home_controller.dart';
 

@@ -18,6 +18,62 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/09/12 - version: 0.1.09+13
+
+Add Firebase Functions for User Claims and remove `users` collection
+
+Firebase Functions were added to manage User Claims, storing the `role` and `status` attributes of users. This replaces the need for a `users` collection. Adjustments were also made to the Firebase emulator setup to accommodate these changes.
+
+1. Makefile
+   - Added `firebase_emu_make_cache` target to export emulator data using Firebase emulators.
+
+2. firebase.json
+   - Added configuration for the Functions emulator, setting the port to 5001.
+   - Included Firebase Functions deployment setup, specifying the `nodejs18` runtime and adding ignored directories like `node_modules` and `.git`.
+
+3. firestore.rules
+   - Removed `users` collection access checks since user attributes are now handled via Custom Claims.
+   - Updated rules to allow any user to create new users, but only admins (role = 0) can modify or delete them.
+   - Simplified the `adminConfig` creation and update logic, allowing any user to create it, but restricting updates to admins.
+
+4. lib/common/models/client.dart
+   - Added `id` field to the `ClientModel` class to store Firebase UID.
+
+5. lib/common/settings/app_settings.dart
+   - Updated import paths.
+
+6. lib/components/widgets/base_dismissible_container.dart
+   - Added a new reusable widget `baseDismissibleContainer`, allowing the configuration of alignment, color, and icons for dismissible containers.
+
+7. lib/components/widgets/custom_text_field.dart
+   - Added `focusNode` and `nextFocusNode` to support focus navigation between text fields.
+
+8. lib/features/add_client/add_cliend_page.dart
+   - Refactored the page to handle client updates. Added logic to check if a client is being added or edited and adjusted the UI accordingly.
+   - Replaced `_save()` with `_saveClient()` method to differentiate between adding and updating clients.
+
+9. lib/features/add_client/add_client_controller.dart
+   - Added `updateClient()` method to support updating existing clients.
+   - Modified `init()` to handle client updates by populating fields if a client is passed to the page.
+
+10. lib/features/clients/clients_page.dart
+    - Integrated dismissible containers to allow for editing and deleting clients directly from the list.
+    - Added methods `_editClient()` and `_deleteClient()` to handle client modification and deletion actions.
+
+11. lib/repository/firebase/firebase_auth_repository.dart
+    - Removed logic related to the `users` collection.
+    - Added `_setUserClaims()` method to set Firebase Custom Claims for `role` and `status`.
+    - Refactored `getCurrentUser()` to retrieve user claims from Firebase instead of fetching from Firestore.
+
+12. lib/repository/firebase_store/client_firebase_repository.dart
+    - Refactored client retrieval methods to handle `id` properly when interacting with Firestore.
+
+13. pubspec.yaml
+    - Added `cloud_functions` dependency for Firebase Functions integration.
+
+Changes were successfully applied to implement Firebase Functions for managing User Claims and removing the `users` collection.
+
+
 ## 2024/09/10 - version: 0.1.08+12
 
 Improve Firebase integration and repository refactor
