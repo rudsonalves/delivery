@@ -1,50 +1,27 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Verifica se o usuário é admin
-    function isAdmin() {
-      return request.auth != null &&
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 0;
+    // Permitir qualquer pessoa criar o primeiro adminConfig
+    match /appSettings/adminConfig {
+      allow create: if true;  // Qualquer pessoa pode criar o primeiro adminConfig
+
+      // Apenas admins podem modificar o adminConfig
+      allow update: if request.auth.token.role == 0;
+
+      // Permitir leitura para usuários autenticados
+      allow read: if request.auth != null;
     }
 
-    // Verifica se o usuário é comerciante
-    function isBusinessPerson() {
-      return request.auth != null &&
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 1;
-    }
-
-    // Regras para a coleção de usuários
+    // Permitir que qualquer um crie um usuário (sem necessidade de autenticação ou role)
     match /users/{userId} {
-      // Permitir a criação de entregadores (role = 2) sem autenticação
-      allow create: if request.resource.data.role == 2;
+      allow create: if true;  // Qualquer pessoa pode criar um usuário
 
-      // Apenas admins podem criar outros admins (role = 0)
-      allow create: if request.auth != null && request.resource.data.role == 0 && isAdmin();
+      // Apenas admins (role = 0) podem deletar ou modificar outros usuários
+      allow delete, update: if request.auth.token.role == 0;
 
-      // Permitir a criação de comerciantes (role = 1) sem autenticação
-      allow create: if request.resource.data.role == 1;
-
-      // O próprio usuário pode ler e atualizar seus próprios dados
-      allow read, update: if request.auth != null && request.auth.uid == userId;
-
-      // Apenas admins podem deletar usuários
-      allow delete: if isAdmin();
-    }
-
-    // Regras para a coleção de clientes
-    match /clients/{clientId} {
-      // Permitir leitura e escrita para admin e comerciantes
-      allow read, write: if isAdmin() || isBusinessPerson();
-
-      // Regras para a subcoleção addresses dentro de clients
-      match /addresses/{addressId} {
-        // Permitir leitura e escrita para admin e comerciantes
-        allow read, write: if isAdmin() || isBusinessPerson();
-      }
+      // Permitir leitura apenas para o próprio usuário
+      allow read: if request.auth != null && request.auth.uid == userId;
     }
   }
 }

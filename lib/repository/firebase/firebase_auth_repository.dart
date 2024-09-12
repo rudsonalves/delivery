@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'auth_repository.dart';
@@ -10,7 +11,6 @@ import '../../common/settings/app_settings.dart';
 import '../../common/utils/data_result.dart';
 import '../../locator.dart';
 import '../../services/local_storage_service.dart';
-import '../firebase_store/user_firestore_repository.dart';
 
 // Errors codes:
 // 200 - user needs to verify his email,
@@ -28,11 +28,8 @@ class FirebaseAuthRepository implements AuthRepository {
 
   final FirebaseAuth auth = FirebaseAuth.instance;
   final localService = locator<LocalStorageService>();
-  final userFirestore = UserFirestoreRepository();
 
   String _phoneVerificationId = '';
-
-  // User? get currentUser => FirebaseAuth.instance.currentUser;
 
   @override
   Future<DataResult<UserModel>> create(UserModel user) async {
@@ -68,12 +65,8 @@ class FirebaseAuthRepository implements AuthRepository {
       // Update the user model with the appropriate role
       user.role = isFirstUser ? UserRole.admin : user.role;
 
-      // Save user in Farestore using set, to insert user with same uid from
-      // FirebaseAuth
-      final result = await userFirestore.set(user);
-      if (result.isFailure) {
-        throw Exception(result.error);
-      }
+      // set claims
+      await _setUserClaims(user);
 
       return DataResult.success(user);
     } catch (err) {
@@ -83,6 +76,29 @@ class FirebaseAuthRepository implements AuthRepository {
         message: message,
         code: 202,
       ));
+    }
+  }
+
+  Future<void> _setUserClaims(UserModel user) async {
+    try {
+      final firebaseUser = FirebaseAuth.instance.currentUser;
+      if (firebaseUser != null) {
+        // Revalidar o token de autenticação do usuário
+        await firebaseUser.getIdToken(true);
+
+        HttpsCallable callable =
+            FirebaseFunctions.instance.httpsCallable('setUserClaims');
+        await callable.call(<String, dynamic>{
+          'uid': user.id,
+          'role': user.role.index,
+          'status': user.userStatus.index,
+        });
+      } else {
+        throw Exception("User not authenticated");
+      }
+    } catch (err) {
+      final message = 'Error setting user claims: $err';
+      throw Exception(message);
     }
   }
 
@@ -115,9 +131,6 @@ class FirebaseAuthRepository implements AuthRepository {
     }
   }
 
-  // FIXME: For now I have disable account verification by email so that I don´t
-  //        have to use Dynamic Link in farebase, as the will be discontinued in
-  //        August 2025.
   @override
   Future<void> sendSignInLinkToEmail(String email) async {
     final acs = ActionCodeSettings(
@@ -187,8 +200,11 @@ class FirebaseAuthRepository implements AuthRepository {
         );
       }
 
-      final userAux = _getUserFrom(userCredential.user!);
-      final user = await _recoverUserModel(userAux);
+      UserModel user = _getUserFrom(userCredential.user!);
+
+      // Recuperar os custom claims
+      final firebaseUser = userCredential.user!;
+      user = await _getClaims(firebaseUser, user);
 
       if (user.role != UserRole.delivery && !user.emailVerified) {
         return DataResult.failure(
@@ -214,36 +230,36 @@ class FirebaseAuthRepository implements AuthRepository {
     }
   }
 
-  Future<UserModel> _recoverUserModel(UserModel user) async {
-    // Recover user from local server
-    UserModel user1 = user.copyWith();
+  // Future<UserModel> _recoverUserModel(UserModel user) async {
+  //   // Recover user from local server
+  //   UserModel user1 = user.copyWith();
 
-    // recover from local store
-    UserModel? localUser = localService.getCachedUser();
-    if (localUser != null) {
-      if (localUser.id == user1.id) {
-        user1.role = localUser.role;
-        user1.userStatus = localUser.userStatus;
-        return user1;
-      }
-      // New user conect in local device
-      await localService.clearCachedUser();
-    }
+  //   // recover from local store
+  //   UserModel? localUser = localService.getCachedUser();
+  //   if (localUser != null) {
+  //     if (localUser.id == user1.id) {
+  //       user1.role = localUser.role;
+  //       user1.userStatus = localUser.userStatus;
+  //       return user1;
+  //     }
+  //     // New user conect in local device
+  //     await localService.clearCachedUser();
+  //   }
 
-    // Recover user from firebase
-    final result = await userFirestore.get(user1);
-    if (result.isFailure) {
-      throw Exception('get user in firebase error');
-    }
-    if (result.data == null) {
-      throw Exception('user data not found!');
-    }
-    final user2 = result.data as UserModel;
+  //   // Recover user from firebase
+  //   final result = await userFirestore.get(user1);
+  //   if (result.isFailure) {
+  //     throw Exception('get user in firebase error');
+  //   }
+  //   if (result.data == null) {
+  //     throw Exception('user data not found!');
+  //   }
+  //   final user2 = result.data as UserModel;
 
-    // Save in local store
-    localService.setCachedUser(user2);
-    return user2;
-  }
+  //   // Save in local store
+  //   localService.setCachedUser(user2);
+  //   return user2;
+  // }
 
   @override
   Future<void> signOut() async {
@@ -267,18 +283,29 @@ class FirebaseAuthRepository implements AuthRepository {
   @override
   Future<UserModel?> getCurrentUser() async {
     try {
-      final user = auth.currentUser;
-      if (user == null) {
+      final firebaseUser = auth.currentUser;
+      if (firebaseUser == null) {
         await localService.clearCachedUser();
         return null;
       }
 
-      final newUser = _getUserFrom(user);
-      return await _recoverUserModel(newUser);
+      final user = _getUserFrom(firebaseUser);
+      return _getClaims(firebaseUser, user);
     } catch (err) {
       log('getCurrentUser: $err');
       return null;
     }
+  }
+
+  // Recover user claims
+  Future<UserModel> _getClaims(User firebaseUser, UserModel user) async {
+    final idTokenResult = await firebaseUser.getIdTokenResult(true);
+    final claims = idTokenResult.claims!;
+    return user.copyWith(
+      role: UserRole.values[claims['role'] as int],
+      userStatus: UserStatus.values[claims['status'] as int],
+      // emailVerified: claims['email_verified'] as bool,
+    );
   }
 
   UserModel _getUserFrom(User user) {

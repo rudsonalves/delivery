@@ -3,6 +3,8 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../common/models/address.dart';
+import '../../locator.dart';
+import '../../stores/user/user_store.dart';
 import '/common/models/client.dart';
 import '/common/utils/data_result.dart';
 import 'abstract_client_repository.dart';
@@ -57,11 +59,10 @@ class ClientFirebaseRepository implements AbstractClientRepository {
         ));
       }
 
-      // Updae client data in the main document
-      await _firebase
-          .collection(keyAddress)
-          .doc(client.id)
-          .update(client.toMap());
+      // Update client data in the main document
+      await _firebase.collection(keyAddress).doc(client.id).update(
+            client.toMap(),
+          );
 
       // Update the address if it exists and has a id
       if (client.address != null && client.address!.id != null) {
@@ -84,6 +85,8 @@ class ClientFirebaseRepository implements AbstractClientRepository {
     } catch (err) {
       final message = 'ClientFirebaseRepository.update: $err';
       log(message);
+      final currentUser = locator<UserStore>().currentUser!;
+      log('${currentUser.role.name}: ${currentUser.role.index}');
       return DataResult.failure(FireStoreFailure(
         message: message,
         code: 300,
@@ -131,7 +134,7 @@ class ClientFirebaseRepository implements AbstractClientRepository {
       }
 
       final data = docSnapshot.data()!;
-      final client = ClientModel.fromMap(data);
+      final client = ClientModel.fromMap(data).copyWith(id: clientId);
       final addresses = await getAddressesForClient(clientId);
       client.address = addresses?.first;
       return DataResult.success(client);
@@ -156,9 +159,7 @@ class ClientFirebaseRepository implements AbstractClientRepository {
 
       // Map each document in the subcollection to an AddressModel object
       final addreseses = querySnapshot.docs
-          .map((doc) => AddressModel.fromMap(
-                doc.data(),
-              ))
+          .map((doc) => AddressModel.fromMap(doc.data()).copyWith(id: doc.id))
           .toList();
 
       return addreseses;
@@ -184,7 +185,38 @@ class ClientFirebaseRepository implements AbstractClientRepository {
       }
 
       for (final doc in querySnapshot.docs) {
-        final client = ClientModel.fromMap(doc.data());
+        final client = ClientModel.fromMap(doc.data()).copyWith(id: doc.id);
+        // final address = await getAddressesForClient(client.id!);
+        // client.address = address?.first;
+        clients.add(client);
+      }
+      return DataResult.success(clients);
+    } catch (err) {
+      final message = 'ClientFirebaseRepository.getClientsByName: $err';
+      log(message);
+      return DataResult.failure(FireStoreFailure(
+        message: message,
+        code: 300,
+      ));
+    }
+  }
+
+  @override
+  Future<DataResult<List<ClientModel>>> getClientsByPhone(String phone) async {
+    try {
+      final List<ClientModel> clients = [];
+      final querySnapshot = await _firebase
+          .collection(keyClient)
+          .where(keyPhone, isEqualTo: phone)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        log('No client found with name $phone.');
+        return DataResult.success([]);
+      }
+
+      for (final doc in querySnapshot.docs) {
+        final client = ClientModel.fromMap(doc.data()).copyWith(id: doc.id);
         // final address = await getAddressesForClient(client.id!);
         // client.address = address?.first;
         clients.add(client);
@@ -208,7 +240,8 @@ class ClientFirebaseRepository implements AbstractClientRepository {
           .orderBy(keyName)
           .snapshots()
           .map((snapshot) => snapshot.docs.map((doc) {
-                final client = ClientModel.fromMap(doc.data());
+                final client =
+                    ClientModel.fromMap(doc.data()).copyWith(id: doc.id);
                 return client;
               }).toList());
     } catch (err) {

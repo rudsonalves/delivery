@@ -112,43 +112,36 @@ class _SignUpPageState extends State<SignUpPage> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Observer(
-                        builder: (_) => CustomTextField(
-                          labelText: 'Nome',
-                          controller: ctrl.nameController,
-                          textInputAction: TextInputAction.next,
-                          onChanged: ctrl.pageStore.setName,
-                          errorText: ctrl.pageStore.errorName,
-                        ),
+                      CustomTextField(
+                        labelText: 'Nome',
+                        controller: ctrl.nameController,
+                        textInputAction: TextInputAction.next,
+                        textCapitalization: TextCapitalization.words,
+                        onChanged: ctrl.pageStore.setName,
+                        errorText: ctrl.pageStore.errorName,
                       ),
-                      Observer(
-                        builder: (_) => CustomTextField(
-                          labelText: 'Endereço de E-mail',
-                          controller: ctrl.emailController,
-                          textInputAction: TextInputAction.next,
-                          onChanged: ctrl.pageStore.setEmail,
-                          errorText: ctrl.pageStore.errorEmail,
-                        ),
+                      CustomTextField(
+                        labelText: 'Endereço de E-mail',
+                        controller: ctrl.emailController,
+                        textInputAction: TextInputAction.next,
+                        onChanged: ctrl.pageStore.setEmail,
+                        errorText: ctrl.pageStore.errorEmail,
                       ),
-                      Observer(
-                        builder: (_) => PasswordTextField(
-                          controller: ctrl.passwordController,
-                          labelText: 'Senha',
-                          onChanged: ctrl.pageStore.setPassword,
-                          errorText: ctrl.pageStore.errorPassword,
-                          textInputAction: TextInputAction.next,
-                          nextFocus: focusNode,
-                        ),
+                      PasswordTextField(
+                        controller: ctrl.passwordController,
+                        labelText: 'Senha',
+                        onChanged: ctrl.pageStore.setPassword,
+                        errorText: ctrl.pageStore.errorPassword,
+                        textInputAction: TextInputAction.next,
+                        nextFocus: focusNode,
                       ),
-                      Observer(
-                        builder: (_) => PasswordTextField(
-                          controller: ctrl.passwordCheckController,
-                          labelText: 'Confirme a Senha',
-                          onChanged: ctrl.pageStore.setCheckPassword,
-                          errorText: ctrl.pageStore.errorCheckPassword,
-                          textInputAction: TextInputAction.done,
-                          focusNode: focusNode,
-                        ),
+                      PasswordTextField(
+                        controller: ctrl.passwordCheckController,
+                        labelText: 'Confirme a Senha',
+                        onChanged: ctrl.pageStore.setCheckPassword,
+                        errorText: ctrl.pageStore.errorCheckPassword,
+                        textInputAction: TextInputAction.done,
+                        focusNode: focusNode,
                       ),
                       Observer(
                         builder: (_) => DropdownButton<UserRole>(

@@ -279,6 +279,22 @@ mixin _$AddClientStore on _AddClientStore, Store {
     });
   }
 
+  late final _$isEditedAtom =
+      Atom(name: '_AddClientStore.isEdited', context: context);
+
+  @override
+  bool get isEdited {
+    _$isEditedAtom.reportRead();
+    return super.isEdited;
+  }
+
+  @override
+  set isEdited(bool value) {
+    _$isEditedAtom.reportWrite(value, super.isEdited, () {
+      super.isEdited = value;
+    });
+  }
+
   late final _$_fetchAddressAsyncAction =
       AsyncAction('_AddClientStore._fetchAddress', context: context);
 
@@ -295,8 +311,27 @@ mixin _$AddClientStore on _AddClientStore, Store {
     return _$saveClientAsyncAction.run(() => super.saveClient());
   }
 
+  late final _$updateClientAsyncAction =
+      AsyncAction('_AddClientStore.updateClient', context: context);
+
+  @override
+  Future<DataResult<ClientModel?>> updateClient() {
+    return _$updateClientAsyncAction.run(() => super.updateClient());
+  }
+
   late final _$_AddClientStoreActionController =
       ActionController(name: '_AddClientStore', context: context);
+
+  @override
+  void setClientFromClient(ClientModel client) {
+    final _$actionInfo = _$_AddClientStoreActionController.startAction(
+        name: '_AddClientStore.setClientFromClient');
+    try {
+      return super.setClientFromClient(client);
+    } finally {
+      _$_AddClientStoreActionController.endAction(_$actionInfo);
+    }
+  }
 
   @override
   void setComplement(String value) {
@@ -304,6 +339,17 @@ mixin _$AddClientStore on _AddClientStore, Store {
         name: '_AddClientStore.setComplement');
     try {
       return super.setComplement(value);
+    } finally {
+      _$_AddClientStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  dynamic _checkIsEdited(String? value, String? newValue) {
+    final _$actionInfo = _$_AddClientStoreActionController.startAction(
+        name: '_AddClientStore._checkIsEdited');
+    try {
+      return super._checkIsEdited(value, newValue);
     } finally {
       _$_AddClientStoreActionController.endAction(_$actionInfo);
     }
@@ -515,7 +561,8 @@ zipStatus: ${zipStatus},
 pageStatus: ${pageStatus},
 cpf: ${cpf},
 errorCpfMsg: ${errorCpfMsg},
-complement: ${complement}
+complement: ${complement},
+isEdited: ${isEdited}
     ''';
   }
 }

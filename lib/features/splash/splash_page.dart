@@ -1,8 +1,8 @@
-import 'package:delivery/features/splash/splash_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
+import '/features/splash/splash_controller.dart';
 import '../../stores/user/user_store.dart';
 import '/features/home/home_page.dart';
 import '/features/sign_in/sign_in_page.dart';
