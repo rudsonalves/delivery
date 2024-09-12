@@ -12,6 +12,8 @@ class CustomTextField extends StatelessWidget {
   final String? errorText;
   final bool fullBorder;
   final TextCapitalization textCapitalization;
+  final FocusNode? focusNode;
+  final FocusNode? nextFocusNode;
 
   const CustomTextField({
     super.key,
@@ -26,6 +28,8 @@ class CustomTextField extends StatelessWidget {
     this.errorText,
     this.fullBorder = false,
     this.textCapitalization = TextCapitalization.none,
+    this.focusNode,
+    this.nextFocusNode,
   });
 
   @override
@@ -33,10 +37,18 @@ class CustomTextField extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: TextFormField(
+        focusNode: focusNode,
         controller: controller,
         keyboardType: keyboardType ?? TextInputType.text,
         textInputAction: textInputAction ?? TextInputAction.next,
         onChanged: onChanged,
+        onEditingComplete: () {
+          if (nextFocusNode != null) {
+            FocusScope.of(context).requestFocus(nextFocusNode!);
+          } else {
+            FocusScope.of(context).nextFocus();
+          }
+        },
         obscureText: obscureText,
         textCapitalization: textCapitalization,
         decoration: InputDecoration(

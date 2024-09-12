@@ -60,6 +60,9 @@ class _SignInPageState extends State<SignInPage> {
             message =
                 'Sua conta ainda não verificada. Acesse seu email para concluir sua verificação.';
             break;
+          case 202:
+            message = 'Verifique seu email e senha e tente novamente.';
+            break;
           case 204:
             message =
                 'Suas credenciais estão incorretas. Verifique seu email e senha e tente novamente.';
@@ -141,6 +144,9 @@ class _SignInPageState extends State<SignInPage> {
                       controller: ctrl.emailController,
                       onChanged: ctrl.pageStore.setEmail,
                       errorText: ctrl.pageStore.errorEmail,
+                      keyboardType: TextInputType.emailAddress,
+                      focusNode: ctrl.focusNode,
+                      nextFocusNode: ctrl.nextFocusNode,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -158,6 +164,7 @@ class _SignInPageState extends State<SignInPage> {
                     ),
                     PasswordTextField(
                       controller: ctrl.passwordController,
+                      focusNode: ctrl.nextFocusNode,
                       labelText: 'Senha',
                       onChanged: ctrl.pageStore.setPassword,
                       onFieldSubmitted: _signIn,

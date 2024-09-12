@@ -1,10 +1,10 @@
 import 'dart:math';
 
-import 'package:delivery/features/clients/clients_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
+import '/features/clients/clients_page.dart';
 import '/features/home/widgets/home_drawer.dart';
 import '../../locator.dart';
 import '../person_data/person_data_page.dart';
