@@ -14,6 +14,8 @@ class SignInController {
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final focusNode = FocusNode();
+  final nextFocusNode = FocusNode();
 
   UserModel? get currentUser => store.currentUser;
   bool get isLoggedIn => store.isLoggedIn;
@@ -26,6 +28,8 @@ class SignInController {
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
+    focusNode.dispose();
+    nextFocusNode.dispose();
   }
 
   Future<DataResult<UserModel>> signIn() async {

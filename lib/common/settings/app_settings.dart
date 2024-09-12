@@ -1,6 +1,6 @@
-import 'package:delivery/locator.dart';
 import 'package:flutter/material.dart';
 
+import '/locator.dart';
 import '../../services/local_storage_service.dart';
 
 class AppSettings {
