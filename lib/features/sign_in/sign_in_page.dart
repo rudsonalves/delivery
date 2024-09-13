@@ -82,6 +82,23 @@ class _SignInPageState extends State<SignInPage> {
     }
   }
 
+  void _resendVerifEmail() {
+    FocusScope.of(context).unfocus();
+    if (ctrl.pageStore.isEmailValid()) {
+      showMessageSnackBar(
+        context,
+        time: 5,
+        title: 'Recuperar Senha',
+        msg: 'Enviamos um novo e-mail de verificação para o seu'
+            ' endereço de e-mail cadastrado. Por favor, verifique sua caixa'
+            ' de entrada (e a pasta de spam) e siga as instruções para'
+            ' confirmar seu e-mail. Caso não receba o e-mail, tente'
+            ' novamente em alguns minutos.: ',
+      );
+      ctrl.resendVerificationEmail();
+    }
+  }
+
   void _recoverPassword() {
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -155,6 +172,15 @@ class _SignInPageState extends State<SignInPage> {
                           onPressed: _recoverPassword,
                           child: Text(
                             ' Recuperar senha! ',
+                            style: AppTextStyle.font12Bold(
+                              color: colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: _resendVerifEmail,
+                          child: Text(
+                            ' Reenviar E-mail de Verificação ',
                             style: AppTextStyle.font12Bold(
                               color: colorScheme.primary,
                             ),

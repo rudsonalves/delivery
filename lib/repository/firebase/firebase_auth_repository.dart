@@ -17,7 +17,8 @@ import '../../services/local_storage_service.dart';
 // 201 - unknown FirebaseAuth error,
 // 202 - ApiError,
 // 203 - user is not logged,
-// 204 - credentials error
+// 204 - credentials error,
+// 205 - this system already has an admin user
 
 class FirebaseAuthRepository implements AuthRepository {
   FirebaseAuthRepository();
@@ -30,6 +31,8 @@ class FirebaseAuthRepository implements AuthRepository {
   final localService = locator<LocalStorageService>();
 
   String _phoneVerificationId = '';
+
+  User? firebaseUser;
 
   @override
   Future<DataResult<UserModel>> create(UserModel user) async {
@@ -45,25 +48,29 @@ class FirebaseAuthRepository implements AuthRepository {
       }
 
       // Update user name (displayName)
-      final currentUser = await _updateProfile(
+      firebaseUser = await _updateProfile(
         currentUser: userCredential.user!,
         displayName: user.name,
       );
 
-      if (currentUser == null) {
+      if (firebaseUser == null) {
         throw Exception('unknown FirebaseAuth error in updateProfile');
       }
 
       // Set user attributes
-      user.id = currentUser.uid;
-      user.creationAt = currentUser.metadata.creationTime;
-      user.lastSignIn = currentUser.metadata.lastSignInTime;
+      user.id = firebaseUser!.uid;
+      user.creationAt = firebaseUser!.metadata.creationTime;
+      user.lastSignIn = firebaseUser!.metadata.lastSignInTime;
 
       // Check in AppSettings before querying Firestore
       final isFirstUser = await _checkAndSetFirstAdmin(user.id!);
 
       // Update the user model with the appropriate role
-      user.role = isFirstUser ? UserRole.admin : user.role;
+      if (isFirstUser) {
+        user.role = UserRole.admin;
+      } else if (user.role == UserRole.admin) {
+        throw Exception('this system already has an admin user');
+      }
 
       // set claims
       await _setUserClaims(user);
@@ -72,11 +79,21 @@ class FirebaseAuthRepository implements AuthRepository {
     } catch (err) {
       final message = 'FirebaseAuthRepository.create error: $err';
       log(message);
+      final code = await _deleteFirebaseUser(firebaseUser!);
       return DataResult.failure(FireAuthFailure(
         message: message,
-        code: 202,
+        code: code ?? 202,
       ));
     }
+  }
+
+  Future<int?> _deleteFirebaseUser(User? firebaseUser) async {
+    if (firebaseUser != null) {
+      await firebaseUser.delete();
+      log('User remove becouse of error: ${firebaseUser.uid}');
+      return 205;
+    }
+    return null;
   }
 
   Future<void> _setUserClaims(UserModel user) async {
@@ -118,6 +135,7 @@ class FirebaseAuthRepository implements AuthRepository {
       final docSnapshot = await adminConfigRef.get();
 
       if (docSnapshot.exists) return false;
+
       // First time: Set this user as admin
       await adminConfigRef.set({keyAdminId: userId});
       // Update the local store status to indicate that the check was successful
@@ -200,7 +218,7 @@ class FirebaseAuthRepository implements AuthRepository {
         );
       }
 
-      UserModel user = _getUserFrom(userCredential.user!);
+      UserModel user = await _getUserFrom(userCredential.user!);
 
       // Recuperar os custom claims
       final firebaseUser = userCredential.user!;
@@ -289,8 +307,8 @@ class FirebaseAuthRepository implements AuthRepository {
         return null;
       }
 
-      final user = _getUserFrom(firebaseUser);
-      return _getClaims(firebaseUser, user);
+      final user = await _getUserFrom(firebaseUser);
+      return await _getClaims(firebaseUser, user);
     } catch (err) {
       log('getCurrentUser: $err');
       return null;
@@ -308,7 +326,9 @@ class FirebaseAuthRepository implements AuthRepository {
     );
   }
 
-  UserModel _getUserFrom(User user) {
+  Future<UserModel> _getUserFrom(User user) async {
+    await user.reload();
+
     return UserModel(
       id: user.uid,
       name: user.displayName!,

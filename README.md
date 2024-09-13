@@ -18,6 +18,35 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/09/13 - version: 0.1.10+14
+
+Adjusted cleartext traffic setting and added email verification resend functionality
+
+This commit introduces changes in the AndroidManifest for debugging purposes and includes a new feature for resending email verification on the sign-in page.
+
+1. `android/app/src/main/AndroidManifest.xml`
+   - Changed `android:usesCleartextTraffic` from `false` to `true` to allow unencrypted traffic, which is useful for debugging in a local environment.
+
+2. `lib/features/sign_in/sign_in_controller.dart`
+   - Added `resendVerificationEmail()` method to resend the verification email to the user.
+   
+3. `lib/features/sign_in/sign_in_page.dart`
+   - Added `_resendVerifEmail()` method to handle the action of resending the email verification.
+   - Included a `TextButton` to trigger the resend email functionality on the sign-in page.
+
+4. `lib/main.dart`
+   - Re-enabled logging and connection to Firebase emulators in `kDebugMode`, including authentication, Firestore, and Firebase Functions emulators.
+
+5. `lib/repository/firebase/firebase_auth_repository.dart`
+   - Introduced a check to prevent multiple admin users by adding error handling for creating new admin users if one already exists.
+   - Refactored the `create()` method to use a local `firebaseUser` variable for easier access and management.
+   - Added a `_deleteFirebaseUser()` method to remove a user in case of an error during user creation.
+   - Enhanced error handling for setting user claims and checking admin status.
+   - Ensured `getUserFrom()` method reloads the user data to retrieve the latest user information.
+
+This update improves the system by allowing email verification to be resent and refining error handling for user creation, particularly for administrative accounts.
+
+
 ## 2024/09/12 - version: 0.1.09+13
 
 Add Firebase Functions for User Claims and remove `users` collection
