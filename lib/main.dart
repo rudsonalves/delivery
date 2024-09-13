@@ -1,9 +1,9 @@
-// import 'dart:developer';
+import 'dart:developer';
 
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:cloud_functions/cloud_functions.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:flutter/foundation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '/my_material_app.dart';
@@ -18,12 +18,12 @@ Future<void> main() async {
   await FirebaseService.initialize();
 
   // Se estiver no modo de desenvolvimento, conecte ao emulador do Firestore
-  // if (kDebugMode) {
-  //   await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
-  //   FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
-  //   FirebaseFunctions.instance.useFunctionsEmulator('localhost', 5001);
-  //   log('Using firebase emulator...');
-  // }
+  if (kDebugMode) {
+    await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+    FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+    FirebaseFunctions.instance.useFunctionsEmulator('localhost', 5001);
+    log('Using firebase emulator...');
+  }
 
   setupDependencies();
   await locator<AppSettings>().init();
