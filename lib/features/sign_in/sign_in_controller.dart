@@ -39,4 +39,8 @@ class SignInController {
   Future<void> sendPasswordResetEmail() async {
     await store.auth.sendPasswordResetEmail(pageStore.email!);
   }
+
+  Future<void> resendVerificationEmail() async {
+    await store.auth.sendSignInLinkToEmail(pageStore.email!);
+  }
 }
