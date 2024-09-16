@@ -18,7 +18,7 @@ Container baseDismissibleContainer(
   late Widget rowIcon;
 
   Color enableColor = colorScheme.secondary;
-  Color disableColor = colorScheme.outline;
+  Color disableColor = colorScheme.secondaryContainer;
 
   if (label != null) {
     if (alignLeft.contains(alignment)) {

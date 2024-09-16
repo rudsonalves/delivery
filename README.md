@@ -18,6 +18,92 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/09/16 - version: 0.1.11+15
+
+Update project configurations, Firestore rules, and dependencies
+
+This commit introduces several updates and enhancements to the project, including configuration changes, Firestore rules updates, and additional dependencies.
+
+1. emulator_data/auth_export/accounts.json
+   - Updated the `users` array by adding a new user with detailed authentication information.
+
+2. emulator_data/firebase-export-metadata.json
+   - Added `storage` section with version `13.17.0` and path `storage_export`.
+
+3. emulator_data/firestore_export/all_namespaces/all_kinds/all_namespaces_all_kinds.export_metadata
+   - Added new export metadata file.
+
+4. emulator_data/firestore_export/all_namespaces/all_kinds/output-0
+   - Added new output file for Firestore export.
+
+5. emulator_data/storage_export/buckets.json
+   - Created `buckets.json` with bucket ID `delivery-16712.appspot.com`.
+
+6. firebase.json
+   - Added `storage` and `remoteconfig` emulators with respective ports.
+   - Updated ignore patterns and added storage rules configuration.
+
+7. firestore.rules
+   - Defined rules for `appSettings` collection, including creation, read, and restriction on updates/deletes.
+   - Updated `adminConfig` document rules to allow creation and read access while blocking modifications.
+   - Enhanced `clients` and `addresses` collections with role-based permissions for administrators and business users.
+
+8. lib/components/widgets/base_dismissible_container.dart
+   - Changed `disableColor` from `outline` to `secondaryContainer` in the dismissible container.
+
+9. lib/features/clients/clients_controller.dart
+   - Imported `user.dart`, `user_store.dart`, and `data_result.dart`.
+   - Added `userStore` locator and getters `user`, `isAdmin`, and `isBusiness`.
+   - Implemented `deleteClient` method to handle client deletion.
+
+10. lib/features/clients/clients_page.dart
+    - Imported `app_text_style.dart` and `state_loading.dart`.
+    - Modified `_deleteClient` to return a boolean and added a confirmation dialog.
+    - Enhanced UI to conditionally display clients or a loading state.
+
+11. lib/repository/firebase_store/client_firebase_repository.dart
+    - Changed the collection key from `keyAddress` to `keyClient` when updating client data.
+
+12. lib/services/geolocation_service.dart
+    - Removed unnecessary `foundation.dart` import.
+    - Eliminated debug code mocking latitude and longitude.
+    - Updated `googleApi` getter to asynchronously fetch the API key.
+
+13. lib/services/remote_config.dart
+    - Imported `flutter_dotenv`.
+    - Modified `googleApi` getter to load from `.env` in debug mode.
+
+14. lib/stores/mobx/add_client_store.dart
+    - Added `id` to the `ClientModel` constructor.
+    - Commented out direct assignment of `client.id`.
+
+15. lib/stores/user/user_store.dart
+    - Added `isAdmin` and `isBusiness` getters to determine user roles.
+
+16. package-lock.json
+    - Added new dependencies: `@eslint/config-array`, `@eslint/object-schema`, `glob`, `rimraf`, and others.
+    - Removed `optional` flags from certain dependencies.
+
+17. package.json
+    - Included new dependencies: `@eslint/config-array`, `@eslint/object-schema`, `glob`, and `rimraf`.
+
+18. pubspec.lock
+    - Added `flutter_dotenv` dependency.
+
+19. pubspec.yaml
+    - Added `flutter_dotenv` to dependencies.
+    - Included `.env` file in assets.
+
+20. remoteconfig.template.json
+    - Configured `google_api_key` parameter with a default value.
+    - Added version description for emulator configuration.
+
+21. storage.rules
+    - Created new storage rules to deny all read and write operations.
+
+These changes improve security, configuration management, and functionality across various components.
+
+
 ## 2024/09/13 - version: 0.1.10+14
 
 Adjusted cleartext traffic setting and added email verification resend functionality
