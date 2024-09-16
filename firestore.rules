@@ -1,27 +1,52 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Permitir qualquer pessoa criar o primeiro adminConfig
+  	// Rules for the appSettings collection
+  	match /appSettings/{document=**} {
+			// Allow creating documents into the appSettings collection
+      allow create: if true;
+      
+      // Block all changes (update and delete) after creation
+      allow update, delete: if false;
+      
+      // Allow reading (get or list) for any user
+      allow read: if true;
+    }
+    
+    // Specific rules tor the adminConfig document within appSettings
     match /appSettings/adminConfig {
-      allow create: if true;  // Qualquer pessoa pode criar o primeiro adminConfig
-
-      // Apenas admins podem modificar o adminConfig
-      allow update: if request.auth.token.role == 0;
-
-      // Permitir leitura para usuários autenticados
-      allow read: if request.auth != null;
+    	// Allow creating adminConfig document
+      allow create: if true;
+      
+      // Block changes to the adminConfig document
+      allow update, delete: if false;
+      
+      // Allow any user to read the adminConfig document
+      allow read: if true;
     }
 
-    // Permitir que qualquer um crie um usuário (sem necessidade de autenticação ou role)
-    match /users/{userId} {
-      allow create: if true;  // Qualquer pessoa pode criar um usuário
+    // Rules for Clients collection
+    match /clients/{clientId} {
+      // Premissions for administrators (role 0)
+      allow read, write: if request.auth != null && request.auth.token.role == 0;
 
-      // Apenas admins (role = 0) podem deletar ou modificar outros usuários
-      allow delete, update: if request.auth.token.role == 0;
+      // Permissions for users with role 1 (can create, edit and read, but not delete)
+      allow read, create, update: if request.auth != null && request.auth.token.role == 1;
 
-      // Permitir leitura apenas para o próprio usuário
-      allow read: if request.auth != null && request.auth.uid == userId;
+      // Permissions for others users
+      allow read: if request.auth != null;
+
+      // Rules for Clients Address collection
+      match /addresses/{addressId} {
+        // Premissions for administrators (role 0)
+        allow read, write: if request.auth != null && request.auth.token.role == 0;
+
+        // Permissions for users with role 1 (can create, edit and read, but not delete)
+        allow read, create, update: if request.auth != null && request.auth.token.role == 1;
+
+        // Permissions for others users
+        allow read: if request.auth != null;
+      }
     }
   }
 }
