@@ -81,6 +81,7 @@ abstract class _AddClientStore with Store {
       if (address!.latitude != null && address!.longitude != null) {
         pageStatus = PageStatus.success;
         return ClientModel(
+          id: id,
           name: name!,
           email: email,
           phone: phone!,
@@ -391,7 +392,7 @@ abstract class _AddClientStore with Store {
         code: 350,
       ));
     }
-    client.id = id;
+    // client.id = id;
     final result = await repository.update(client);
     pageStatus = result.isSuccess ? PageStatus.success : PageStatus.error;
     return result;
