@@ -55,6 +55,12 @@ abstract class _UserStore with Store {
     toogleUSerStatus();
   }
 
+  bool get isAdmin =>
+      currentUser != null && currentUser!.role == UserRole.admin;
+
+  bool get isBusiness =>
+      currentUser != null && currentUser!.role == UserRole.business;
+
   @action
   void toogleUSerStatus() => userStatus = !userStatus;
 

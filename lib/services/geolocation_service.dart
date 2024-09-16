@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../common/utils/data_result.dart';
@@ -14,15 +13,8 @@ class GeolocationServiceGoogle {
     AddressModel address,
   ) async {
     try {
-      if (kDebugMode) {
-        return DataResult.success(
-          address
-            ..latitude = -20.361696344914012
-            ..longitude = -40.29830324745842,
-        );
-      }
       final uri = Uri.encodeComponent(address.geoAddress);
-      final apiKey = locator<RemoteConfig>().googleApi;
+      String apiKey = await locator<RemoteConfig>().googleApi;
       if (apiKey.isEmpty) {
         throw Exception('google api key not found');
       }

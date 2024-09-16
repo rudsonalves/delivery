@@ -37,6 +37,12 @@
     },
     "database": {
       "port": 9000
+    },
+    "storage": {
+      "port": 9199
+    },
+    "remoteconfig": {
+      "port": 9002
     }
   },
   "firestore": {
@@ -58,12 +64,14 @@
         "node_modules",
         ".git",
         "firebase-debug.log",
-        "firebase-debug.*.log",
-        "*.local"
+        "firebase-debug.*.log"
       ],
       "predeploy": [
         "npm --prefix \"$RESOURCE_DIR\" run lint"
       ]
     }
-  ]
+  ],
+  "storage": {
+    "rules": "storage.rules"
+  }
 }

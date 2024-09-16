@@ -60,7 +60,7 @@ class ClientFirebaseRepository implements AbstractClientRepository {
       }
 
       // Update client data in the main document
-      await _firebase.collection(keyAddress).doc(client.id).update(
+      await _firebase.collection(keyClient).doc(client.id).update(
             client.toMap(),
           );
 

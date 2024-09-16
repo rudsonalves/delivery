@@ -1,5 +1,7 @@
 import 'dart:developer';
 
+import 'package:delivery/common/theme/app_text_style.dart';
+import 'package:delivery/components/widgets/state_loading.dart';
 import 'package:flutter/material.dart';
 
 import '/components/widgets/base_dismissible_container.dart';
@@ -30,8 +32,57 @@ class _ClientsPageState extends State<ClientsPage> {
     await ctrl.editClient(context, client);
   }
 
-  Future<void> _deleteClient(ClientModel client) async {
-    log(client.toString());
+  Future<bool> _deleteClient(ClientModel client) async {
+    if (!ctrl.isAdmin) return false;
+
+    final result = await showDialog<bool?>(
+          context: context,
+          builder: (context) => AlertDialog(
+            icon: const Icon(
+              Icons.warning_amber_rounded,
+              size: 60,
+            ),
+            title: const Text('Apagar Cliente'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      const TextSpan(text: 'Todos os dados do cliente'),
+                      TextSpan(
+                        text: '\n\n"${client.name}"\n\n',
+                        style: AppTextStyle.font12Bold(),
+                      ),
+                      const TextSpan(
+                          text: 'serão removidos.\n\nConfirme a ação.'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              FilledButton.tonal(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Apagar'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancelar'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+
+    if (result) {
+      final response = await ctrl.deleteClient(client);
+      if (response.isFailure) {
+        return false;
+      }
+      log('Apagar cliente ${client.name}');
+    }
+    return result;
   }
 
   @override
@@ -58,63 +109,79 @@ class _ClientsPageState extends State<ClientsPage> {
         child: StreamBuilder<List<ClientModel>>(
           stream: ctrl.clientRepository.streamClientByName(),
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            } else if (snapshot.hasError) {
-              return Center(
-                child: Text('Error: ${snapshot.error}'),
-              );
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const Center(
-                child: Text('No clients found.'),
-              );
-            }
+            List<ClientModel> clients = snapshot.data ?? [];
 
-            final clients = snapshot.data!;
-
-            return ListView.builder(
-              itemCount: clients.length,
-              itemBuilder: (context, index) {
-                final client = clients[index];
-                return Dismissible(
-                  key: UniqueKey(),
-                  background: baseDismissibleContainer(
-                    context,
-                    alignment: Alignment.centerLeft,
-                    color: Colors.green.withOpacity(.30),
-                    icon: Icons.edit,
-                    label: 'Editar',
+            return Stack(
+              children: [
+                if (clients.isNotEmpty)
+                  ListView.builder(
+                    itemCount: clients.length,
+                    itemBuilder: (context, index) {
+                      final client = clients[index];
+                      return Dismissible(
+                        key: UniqueKey(),
+                        background: baseDismissibleContainer(
+                          context,
+                          alignment: Alignment.centerLeft,
+                          color: Colors.green.withOpacity(.30),
+                          icon: Icons.edit,
+                          label: 'Editar',
+                        ),
+                        secondaryBackground: baseDismissibleContainer(
+                          context,
+                          alignment: Alignment.centerRight,
+                          color: Colors.red.withOpacity(.30),
+                          icon: Icons.delete,
+                          label: 'Apagar',
+                          enable: ctrl.isAdmin,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: Card(
+                            margin: EdgeInsets.zero,
+                            color: colorScheme.surfaceContainerHigh,
+                            child: ListTile(
+                              title: Text(client.name),
+                              subtitle: Text(client.phone),
+                            ),
+                          ),
+                        ),
+                        confirmDismiss: (direction) async {
+                          if (direction == DismissDirection.startToEnd) {
+                            _editClient(client);
+                          } else if (direction == DismissDirection.endToStart) {
+                            return await _deleteClient(client);
+                          }
+                          return false;
+                        },
+                      );
+                    },
                   ),
-                  secondaryBackground: baseDismissibleContainer(
-                    context,
-                    alignment: Alignment.centerRight,
-                    color: Colors.red.withOpacity(.30),
-                    icon: Icons.delete,
-                    label: 'Apagar',
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: Card(
-                      margin: EdgeInsets.zero,
-                      color: colorScheme.surfaceContainerHigh,
-                      child: ListTile(
-                        title: Text(client.name),
-                        subtitle: Text(client.phone),
+                if (clients.isEmpty)
+                  const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Center(
+                        child: Card(
+                          child: Padding(
+                            padding: EdgeInsets.all(20),
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.warning_amber_rounded,
+                                  size: 60,
+                                ),
+                                Text('Nenhum cliente encontrado.')
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                  confirmDismiss: (direction) async {
-                    if (direction == DismissDirection.startToEnd) {
-                      _editClient(client);
-                    } else if (direction == DismissDirection.endToStart) {
-                      _deleteClient(client);
-                    }
-                    return false;
-                  },
-                );
-              },
+                if (snapshot.connectionState == ConnectionState.waiting)
+                  const StateLoading(),
+              ],
             );
           },
         ),
