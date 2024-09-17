@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
+import '../../stores/mobx/common/generic_functions.dart';
 import '/components/widgets/big_bottom.dart';
 import '../../components/widgets/custom_text_field.dart';
-import '../../stores/mobx/personal_data_store.dart';
 import 'person_data_controller.dart';
 
 class PersonDataPage extends StatefulWidget {
@@ -74,11 +74,11 @@ class _PersonDataPageState extends State<PersonDataPage> {
                 ),
                 Observer(
                   builder: (context) {
-                    if (ctrl.personalData.status == Status.loading) {
+                    if (ctrl.personalData.state == PageState.loading) {
                       return const Center(
                         child: CircularProgressIndicator(),
                       );
-                    } else if (ctrl.personalData.status == Status.error) {
+                    } else if (ctrl.personalData.state == PageState.error) {
                       return Card(
                         color: colorScheme.tertiaryContainer,
                         child: const Padding(
@@ -89,7 +89,7 @@ class _PersonDataPageState extends State<PersonDataPage> {
                           child: Text('Endereço inválido'),
                         ),
                       );
-                    } else if (ctrl.personalData.status == Status.success) {
+                    } else if (ctrl.personalData.state == PageState.success) {
                       final address = ctrl.personalData.address!;
                       return Padding(
                         padding: const EdgeInsets.all(8.0),

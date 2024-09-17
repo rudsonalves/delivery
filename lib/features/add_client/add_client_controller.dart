@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../common/models/client.dart';
 import '../../common/utils/data_result.dart';
+import '../../stores/mobx/common/generic_functions.dart';
 import '/components/custons_text_controllers/masked_text_controller.dart';
 import '../../stores/mobx/add_client_store.dart';
 
@@ -17,7 +18,7 @@ class AddClientController {
   final addressTypeController = TextEditingController();
 
   ZipStatus get zipStatus => pageStore.zipStatus;
-  PageStatus get pageStatus => pageStore.pageStatus;
+  PageState get state => pageStore.state;
   bool get isValid => pageStore.isValid();
   late Future<DataResult<ClientModel?>> Function() saveClient;
   late Future<DataResult<ClientModel?>> Function() updateClient;

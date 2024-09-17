@@ -216,19 +216,19 @@ mixin _$AddClientStore on _AddClientStore, Store {
     });
   }
 
-  late final _$pageStatusAtom =
-      Atom(name: '_AddClientStore.pageStatus', context: context);
+  late final _$stateAtom =
+      Atom(name: '_AddClientStore.state', context: context);
 
   @override
-  PageStatus get pageStatus {
-    _$pageStatusAtom.reportRead();
-    return super.pageStatus;
+  PageState get state {
+    _$stateAtom.reportRead();
+    return super.state;
   }
 
   @override
-  set pageStatus(PageStatus value) {
-    _$pageStatusAtom.reportWrite(value, super.pageStatus, () {
-      super.pageStatus = value;
+  set state(PageState value) {
+    _$stateAtom.reportWrite(value, super.state, () {
+      super.state = value;
     });
   }
 
@@ -400,11 +400,11 @@ mixin _$AddClientStore on _AddClientStore, Store {
   }
 
   @override
-  void _validateEmail() {
+  void _validEmail() {
     final _$actionInfo = _$_AddClientStoreActionController.startAction(
-        name: '_AddClientStore._validateEmail');
+        name: '_AddClientStore._validEmail');
     try {
-      return super._validateEmail();
+      return super._validEmail();
     } finally {
       _$_AddClientStoreActionController.endAction(_$actionInfo);
     }
@@ -521,11 +521,11 @@ mixin _$AddClientStore on _AddClientStore, Store {
   }
 
   @override
-  void setPageStatus(PageStatus status) {
+  void setPageState(PageState status) {
     final _$actionInfo = _$_AddClientStoreActionController.startAction(
-        name: '_AddClientStore.setPageStatus');
+        name: '_AddClientStore.setPageState');
     try {
-      return super.setPageStatus(status);
+      return super.setPageState(status);
     } finally {
       _$_AddClientStoreActionController.endAction(_$actionInfo);
     }
@@ -558,7 +558,7 @@ address: ${address},
 number: ${number},
 errorNumber: ${errorNumber},
 zipStatus: ${zipStatus},
-pageStatus: ${pageStatus},
+state: ${state},
 cpf: ${cpf},
 errorCpfMsg: ${errorCpfMsg},
 complement: ${complement},

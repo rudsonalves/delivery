@@ -1,3 +1,15 @@
+enum PageState { initial, loading, success, error }
+
+enum ZipStatus { initial, loading, success, error }
+
+const addressTypes = [
+  'Apartamento',
+  'Clínica',
+  'Escritório',
+  'Residencial',
+  'Trabalho',
+];
+
 class StoreFunc {
   StoreFunc._();
 

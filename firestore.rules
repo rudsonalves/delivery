@@ -1,6 +1,28 @@
 rules_version = '2';
 service cloud.firestore {
+
   match /databases/{database}/documents {
+    // Funções Auxiliares
+    function isAdmin() {
+      return request.auth != null && request.auth.token.role == 0;
+    }
+
+    function isBusiness() {
+      return request.auth != null && request.auth.token.role == 1;
+    }
+
+    function isShopOwner(shop) {
+      return shop.data.userId == request.auth.uid;
+    }
+
+    function canAccessShop(shop) {
+      return isAdmin() || (isBusiness() && isShopOwner(shop));
+    }
+    
+    function isAuth() {
+      return request.auth != null;
+    }
+
   	// Rules for the appSettings collection
   	match /appSettings/{document=**} {
 			// Allow creating documents into the appSettings collection
@@ -28,10 +50,10 @@ service cloud.firestore {
     // Rules for Clients collection
     match /clients/{clientId} {
       // Premissions for administrators (role 0)
-      allow read, write: if request.auth != null && request.auth.token.role == 0;
+      allow read, write: if isAdmin();
 
       // Permissions for users with role 1 (can create, edit and read, but not delete)
-      allow read, create, update: if request.auth != null && request.auth.token.role == 1;
+      allow read, create, update: if isBusiness();
 
       // Permissions for others users
       allow read: if request.auth != null;
@@ -39,13 +61,40 @@ service cloud.firestore {
       // Rules for Clients Address collection
       match /addresses/{addressId} {
         // Premissions for administrators (role 0)
-        allow read, write: if request.auth != null && request.auth.token.role == 0;
+        allow read, write: if isAdmin();
 
         // Permissions for users with role 1 (can create, edit and read, but not delete)
-        allow read, create, update: if request.auth != null && request.auth.token.role == 1;
+        allow read, create, update: if isBusiness();
 
         // Permissions for others users
         allow read: if request.auth != null;
+      }
+    }
+
+    // Rules for Shops collection
+    match /shops/{shopId} {
+      // Permissões para leitura
+      allow read: if isAuth();
+
+      // Permissões para criação
+      allow create: if isAdmin() || (isBusiness() && request.resource.data.userId == request.auth.uid);
+
+      // Permissões para atualização
+      allow update: if canAccessShop(resource);
+
+      // Permissões para deleção
+      allow delete: if canAccessShop(resource);
+
+      // Regras para a subcoleção "addresses" dentro de "shops"
+      match /addresses/{addressId} {
+        // Permissões para leitura
+        allow read: if canAccessShop(get(/databases/$(database)/documents/shops/$(shopId)));
+
+        // Permissões para criação e atualização
+        allow create, update: if isAdmin() || (isBusiness() && isShopOwner(get(/databases/$(database)/documents/shops/$(shopId))));
+
+        // Permissões para deleção
+        allow delete: if canAccessShop(get(/databases/$(database)/documents/shops/$(shopId)));
       }
     }
   }

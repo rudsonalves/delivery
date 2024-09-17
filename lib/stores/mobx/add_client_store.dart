@@ -10,10 +10,6 @@ import 'common/generic_functions.dart';
 
 part 'add_client_store.g.dart';
 
-enum ZipStatus { initial, loading, success, error }
-
-enum PageStatus { initial, loading, success, error }
-
 // ignore: library_private_types_in_public_api
 class AddClientStore = _AddClientStore with _$AddClientStore;
 final repository = ClientFirebaseRepository();
@@ -59,7 +55,7 @@ abstract class _AddClientStore with Store {
   ZipStatus zipStatus = ZipStatus.initial;
 
   @observable
-  PageStatus pageStatus = PageStatus.initial;
+  PageState state = PageState.initial;
 
   @observable
   String? cpf;
@@ -76,10 +72,10 @@ abstract class _AddClientStore with Store {
   String? id;
 
   Future<ClientModel?> getClientFromForm() async {
-    pageStatus = PageStatus.loading;
+    state = PageState.loading;
     if (address != null) {
       if (address!.latitude != null && address!.longitude != null) {
-        pageStatus = PageStatus.success;
+        state = PageState.success;
         return ClientModel(
           id: id,
           name: name!,
@@ -91,12 +87,12 @@ abstract class _AddClientStore with Store {
       final result =
           await GeolocationServiceGoogle.getCoordinatesFromAddress(address!);
       if (result.isFailure || result.data == null) {
-        pageStatus = PageStatus.error;
+        state = PageState.error;
         return null;
       }
 
       address = result.data;
-      pageStatus = PageStatus.success;
+      state = PageState.success;
       return ClientModel(
         name: name!,
         email: email,
@@ -161,17 +157,17 @@ abstract class _AddClientStore with Store {
   void setEmail(String value) {
     _checkIsEdited(email, value);
     email = value;
-    _validateEmail();
+    _validEmail();
   }
 
   @action
   bool isEmailValid() {
-    _validateEmail();
+    _validEmail();
     return errorEmail == null;
   }
 
   @action
-  void _validateEmail() {
+  void _validEmail() {
     errorEmail = StoreFunc.itsNotEmail(email)
         ? 'Por favor, insira um email válido'
         : null;
@@ -333,19 +329,20 @@ abstract class _AddClientStore with Store {
   }
 
   @action
-  void setPageStatus(PageStatus status) {
-    pageStatus = status;
+  void setPageState(PageState status) {
+    state = status;
   }
 
   @action
   bool isValid() {
-    // _validCpf();
+    _validEmail();
     _validNumber();
     _validZipCode();
     _validateName();
     _validatePhone();
 
-    return errorNumber == null &&
+    return errorEmail == null &&
+        errorNumber == null &&
         errorZipCode == null &&
         errorName == null &&
         errorPhone == null;
@@ -353,9 +350,9 @@ abstract class _AddClientStore with Store {
 
   @action
   Future<DataResult<ClientModel?>> saveClient() async {
-    pageStatus = PageStatus.loading;
+    state = PageState.loading;
     if (!isValid()) {
-      pageStatus = PageStatus.error;
+      state = PageState.error;
       return DataResult.failure(const GenericFailure(
         message: 'Form fields are invalid.',
         code: 350,
@@ -363,22 +360,22 @@ abstract class _AddClientStore with Store {
     }
     final client = await getClientFromForm();
     if (client == null) {
-      pageStatus = PageStatus.error;
+      state = PageState.error;
       return DataResult.failure(const GenericFailure(
         message: 'Unexpected error: Client return null.',
         code: 350,
       ));
     }
     final result = await repository.add(client);
-    pageStatus = result.isSuccess ? PageStatus.success : PageStatus.error;
+    state = result.isSuccess ? PageState.success : PageState.error;
     return result;
   }
 
   @action
   Future<DataResult<ClientModel?>> updateClient() async {
-    pageStatus = PageStatus.loading;
+    state = PageState.loading;
     if (!isValid()) {
-      pageStatus = PageStatus.error;
+      state = PageState.error;
       return DataResult.failure(const GenericFailure(
         message: 'Form fields are invalid.',
         code: 350,
@@ -386,7 +383,7 @@ abstract class _AddClientStore with Store {
     }
     final client = await getClientFromForm();
     if (client == null) {
-      pageStatus = PageStatus.error;
+      state = PageState.error;
       return DataResult.failure(const GenericFailure(
         message: 'Unexpected error: Client return null.',
         code: 350,
@@ -394,7 +391,7 @@ abstract class _AddClientStore with Store {
     }
     // client.id = id;
     final result = await repository.update(client);
-    pageStatus = result.isSuccess ? PageStatus.success : PageStatus.error;
+    state = result.isSuccess ? PageState.success : PageState.error;
     return result;
   }
 }

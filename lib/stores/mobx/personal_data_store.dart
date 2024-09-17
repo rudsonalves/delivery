@@ -2,10 +2,9 @@ import 'package:mobx/mobx.dart';
 
 import '../../common/models/address.dart';
 import '../../repository/viacep/via_cep_repository.dart';
+import 'common/generic_functions.dart';
 
 part 'personal_data_store.g.dart';
-
-enum Status { initial, loading, success, error }
 
 // ignore: library_private_types_in_public_api
 class PersonalDataStore = _PersonalDataStore with _$PersonalDataStore;
@@ -33,7 +32,7 @@ abstract class _PersonalDataStore with Store {
   String? errorNumberMsg;
 
   @observable
-  Status status = Status.initial;
+  PageState state = PageState.initial;
 
   @observable
   String? cpf;
@@ -119,14 +118,14 @@ abstract class _PersonalDataStore with Store {
   @action
   void _handleFetchError(String message) {
     // errorMsg = message;
-    status = Status.error;
+    state = PageState.error;
     // log(errorMsg!);
   }
 
   @action
   Future<void> _fetchAddress() async {
     try {
-      status = Status.loading;
+      state = PageState.loading;
 
       final response = await ViaCepRepository.getLocalByCEP(zipCode!);
       if (!response.isSuccess) {
@@ -151,7 +150,7 @@ abstract class _PersonalDataStore with Store {
         city: viaAddress.city,
       );
 
-      status = Status.success;
+      state = PageState.success;
       errorZipCodeMsg = null;
       return;
     } catch (err) {
@@ -172,7 +171,7 @@ abstract class _PersonalDataStore with Store {
     cpf = null;
     errorCpfMsg = null;
     // errorMsg = null;
-    status = Status.initial;
+    state = PageState.initial;
   }
 
   int _calculateDigit(String cpf, int factor) {

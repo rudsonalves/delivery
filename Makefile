@@ -46,7 +46,7 @@ firebase_emu_debug:
 	firebase emulators:start --import=./emulator_data --debug
 
 firebase_emu_make_cache:
-	firebase emulators:export ./emulator_data
+	rm -rf ./emulator_data; firebase emulators:export ./emulator_data
 
 build_runner:
 	dart run build_runner watch

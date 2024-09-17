@@ -2,7 +2,7 @@ name: delivery
 description: "Aplicativo de entregas."
 publish_to: 'none' 
 
-version: 0.1.11+15
+version: 0.1.12+16
 
 environment:
   sdk: ^3.5.1
@@ -27,6 +27,7 @@ dependencies:
   firebase_remote_config: ^4.3.8
   cloud_functions: ^4.7.6
   flutter_dotenv: ^5.1.0
+  material_symbols_icons: ^4.2785.1
 
 dev_dependencies:
   flutter_test:

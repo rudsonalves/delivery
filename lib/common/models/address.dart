@@ -35,7 +35,6 @@ class AddressModel {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      // 'id': id,
       'type': type,
       'zipCode': zipCode,
       'street': street,
@@ -97,13 +96,12 @@ class AddressModel {
 
   factory AddressModel.fromMap(Map<String, dynamic> map) {
     return AddressModel(
-      id: map['id'] != null ? map['id'] as String : null,
+      id: map['id'] as String?,
       type: map['type'] as String,
       zipCode: map['zipCode'] as String,
       street: map['street'] as String,
       number: map['number'] as String,
-      complement:
-          map['complement'] != null ? map['complement'] as String : null,
+      complement: map['complement'] as String?,
       neighborhood: map['neighborhood'] as String,
       state: map['state'] as String,
       city: map['city'] as String,
