@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 import '../home_controller.dart';
 import 'custom_drawer_header.dart';
@@ -8,6 +9,8 @@ class HomeDrawer extends StatelessWidget {
   final void Function() login;
   final void Function() logout;
   final void Function() clients;
+  final void Function() deliceryRequest;
+  final void Function() stores;
 
   const HomeDrawer({
     super.key,
@@ -15,6 +18,8 @@ class HomeDrawer extends StatelessWidget {
     required this.login,
     required this.logout,
     required this.clients,
+    required this.deliceryRequest,
+    required this.stores,
   });
 
   @override
@@ -32,11 +37,24 @@ class HomeDrawer extends StatelessWidget {
       child: ListView(
         children: [
           CustomDrawerHeader(controller: controller),
-          ListTile(
-            leading: const Icon(Icons.people),
-            title: const Text('Clientes'),
-            onTap: clients,
-          ),
+          if (controller.isAdmin || controller.isBusiness)
+            ListTile(
+              leading: const Icon(Icons.people),
+              title: const Text('Clientes'),
+              onTap: clients,
+            ),
+          if (controller.isAdmin || controller.isBusiness)
+            ListTile(
+              leading: const Icon(Symbols.local_shipping),
+              title: const Text('Solicitação de Entrega'),
+              onTap: deliceryRequest,
+            ),
+          if (controller.isAdmin || controller.isBusiness)
+            ListTile(
+              leading: const Icon(Symbols.store),
+              title: const Text('Gerenciar Lojas'),
+              onTap: stores,
+            ),
           if (!controller.isLoggedIn)
             ListTile(
               leading: const Icon(Icons.login),

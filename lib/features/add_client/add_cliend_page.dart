@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 import '../../common/models/client.dart';
+import '../../common/theme/app_text_style.dart';
 import '../../common/utils/data_result.dart';
-import '../../components/widgets/message_snack_bar.dart';
-import '../../components/widgets/state_loading.dart';
-import '/common/theme/app_text_style.dart';
-import '/features/add_client/add_client_controller.dart';
 import '../../components/widgets/big_bottom.dart';
 import '../../components/widgets/custom_text_field.dart';
-import '../../stores/mobx/add_client_store.dart';
+import '../../components/widgets/message_snack_bar.dart';
+import '../../components/widgets/state_loading.dart';
+import '../../stores/mobx/common/generic_functions.dart';
+import 'add_client_controller.dart';
 
 class AddClientPage extends StatefulWidget {
   final ClientModel? client;
@@ -25,14 +25,6 @@ class AddClientPage extends StatefulWidget {
   State<AddClientPage> createState() => _AddClientPageState();
 }
 
-const addressTypes = [
-  'Apartamento',
-  'Clínica',
-  'Escritório',
-  'Residencial',
-  'Trabalho',
-];
-
 class _AddClientPageState extends State<AddClientPage> {
   final ctrl = AddClientController();
 
@@ -47,6 +39,7 @@ class _AddClientPageState extends State<AddClientPage> {
   }
 
   Future<void> _saveClient() async {
+    if (!ctrl.isValid) return;
     if (ctrl.isEdited) {
       DataResult<ClientModel?> result;
       if (ctrl.isAddMode) {
@@ -108,15 +101,14 @@ class _AddClientPageState extends State<AddClientPage> {
                     CustomTextField(
                       labelText: 'Nome *',
                       controller: ctrl.nameController,
-                      // floatingLabelBehavior: FloatingLabelBehavior.always,
                       textInputAction: TextInputAction.next,
                       onChanged: ctrl.pageStore.setName,
                       errorText: ctrl.pageStore.errorName,
+                      textCapitalization: TextCapitalization.words,
                     ),
                     CustomTextField(
                       labelText: 'Email',
                       controller: ctrl.emailController,
-                      // floatingLabelBehavior: FloatingLabelBehavior.always,
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
                       onChanged: ctrl.pageStore.setEmail,
@@ -125,7 +117,6 @@ class _AddClientPageState extends State<AddClientPage> {
                     CustomTextField(
                       labelText: 'Telefone *',
                       controller: ctrl.phoneController,
-                      // floatingLabelBehavior: FloatingLabelBehavior.always,
                       textInputAction: TextInputAction.next,
                       keyboardType: TextInputType.number,
                       onChanged: ctrl.pageStore.setPhone,
@@ -170,7 +161,6 @@ class _AddClientPageState extends State<AddClientPage> {
                       controller: ctrl.cepController,
                       keyboardType: TextInputType.number,
                       textInputAction: TextInputAction.next,
-                      // floatingLabelBehavior: FloatingLabelBehavior.always,
                       labelText: 'CEP *',
                       hintText: 'xx-xxx.xxx',
                       errorText: ctrl.pageStore.errorZipCode,
@@ -254,7 +244,7 @@ class _AddClientPageState extends State<AddClientPage> {
                     ),
                   ],
                 ),
-                if (ctrl.pageStatus == PageStatus.loading) const StateLoading(),
+                if (ctrl.state == PageState.loading) const StateLoading(),
               ],
             ),
           ),

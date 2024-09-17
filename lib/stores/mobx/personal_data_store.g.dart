@@ -121,19 +121,19 @@ mixin _$PersonalDataStore on _PersonalDataStore, Store {
     });
   }
 
-  late final _$statusAtom =
-      Atom(name: '_PersonalDataStore.status', context: context);
+  late final _$stateAtom =
+      Atom(name: '_PersonalDataStore.state', context: context);
 
   @override
-  Status get status {
-    _$statusAtom.reportRead();
-    return super.status;
+  PageState get state {
+    _$stateAtom.reportRead();
+    return super.state;
   }
 
   @override
-  set status(Status value) {
-    _$statusAtom.reportWrite(value, super.status, () {
-      super.status = value;
+  set state(PageState value) {
+    _$stateAtom.reportWrite(value, super.state, () {
+      super.state = value;
     });
   }
 
@@ -299,7 +299,7 @@ errorZipCodeMsg: ${errorZipCodeMsg},
 address: ${address},
 number: ${number},
 errorNumberMsg: ${errorNumberMsg},
-status: ${status},
+state: ${state},
 cpf: ${cpf},
 errorCpfMsg: ${errorCpfMsg}
     ''';

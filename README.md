@@ -18,6 +18,208 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/09/17 - version: 0.1.12+16
+
+Update Project Configurations, Firestore Rules, and Dependencies
+
+This commit introduces a comprehensive set of updates and enhancements to the project, including configuration adjustments, Firestore security rule enhancements, the addition of new features and models, and updates to dependencies.
+
+1. .gitignore
+   - Added Patterns:
+     - `*~`: Ignores temporary backup files.
+     - `.vscode/`: Includes VS Code configurations in version control.
+     - iOS build artifacts:
+       - `/ios/Pods/`
+       - `/ios/Flutter/Flutter.framework`
+       - `/ios/Flutter/Flutter.podspec`
+       - `/ios/Flutter/Generated.xcconfig`
+       - `/ios/Flutter/app.flx`
+       - `/ios/Flutter/app.zip`
+       - `/ios/Flutter/engine`
+       - `/ios/Flutter/flutter_assets`
+       - `/ios/ServiceDefinitions.json`
+     - Firebase and Crashlytics related files:
+       - `firebase_app_id_file.json`
+       - `crashlytics-build.properties`
+       - `serviceAccountKey.json`
+       - Firebase Emulator logs and data:
+         - `firebase-debug.log`
+         - `firestore-debug.log`
+         - `database-debug.log`
+         - `ui-debug.log`
+         - `storage-debug.log`
+         - `firebase-debug.*`
+         - `*-debug.log`
+         - `emulator_data/`
+     - Node.js related:
+       - `node_modules/`
+     - Environment variables:
+       - `.env.*`
+   - Removed Patterns:
+     - Commented out exclusion for `.vscode/` to include it in version control.
+     - Changed `/build/` exclusion to include the `build/` directory.
+   - Other Adjustments:
+     - Added exclusions for various IDEs and build tools.
+
+2. Makefile
+   - Changes:
+     - Modified the `firebase_emu_make_cache` target to remove the `./emulator_data` directory before exporting Firebase emulators. This ensures a clean state during emulator exports.
+     - Before: `firebase emulators:export ./emulator_data`
+     - After: `rm -rf ./emulator_data; firebase emulators:export ./emulator_data`
+
+3. Documentation
+   - Renamed File:
+     - Moved `Projeto Delivery Scrum.md` to `doc/Projeto_Delivery_Scrum.md` for better organization.
+
+4. Firebase Authentication Data
+   - Updated `accounts.json`:
+     - Added new user entries with roles and authentication details for Ricardo Mattos and Rudson Alves.
+
+5. Firestore Security Rules (`firestore.rules`)
+   - Added Helper Functions:
+     - `isAdmin()`: Checks if the user has an admin role.
+     - `isBusiness()`: Checks if the user has a business role.
+     - `isShopOwner(shop)`: Verifies if the user owns the shop.
+     - `canAccessShop(shop)`: Determines if the user can access the shop based on role and ownership.
+     - `isAuth()`: Checks if the user is authenticated.
+   - Defined Rules for Collections:
+     - `appSettings` Collection:
+       - Allows creation and read access with specific restrictions.
+     - `clients` Collection:
+       - Admins (`role 0`): Full read and write access.
+       - Business Users (`role 1`): Can read, create, and update but not delete.
+       - Others: Can only read.
+     - `addresses` Subcollection within `clients`:
+       - Mirrors permissions of the `clients` collection.
+     - `shops` Collection:
+       - Read Access: Available to all authenticated users.
+       - Create Access: Admins or business users creating shops associated with their user ID.
+       - Update & Delete Access: Restricted to admins or business users who own the shop.
+     - `addresses` Subcollection within `shops`:
+       - Read Access: Based on shop access permissions.
+       - Create & Update Access: Admins or business users who own the shop.
+       - Delete Access: Based on shop access permissions.
+
+6. Dart Models
+   - `AddressModel` (`lib/common/models/address.dart`):
+     - Removed the commented-out `id` field from the `toMap()` method.
+     - Updated the `fromMap` factory constructor to handle optional `id`.
+   - `ShopModel` (`lib/common/models/shop.dart`):
+     - New Model: Represents a shop with fields such as `id`, `userId`, `address`, `name`, and `description`.
+     - Serialization Methods: Includes `toMap()`, `fromMap()`, `toJson()`, `fromJson()`, and `copyWith()` for easy data manipulation.
+   - `UserModel` (`lib/common/models/user.dart`):
+     - Extended Enum: Added `manager` role to `UserRole` enum.
+     - Updated Display: Handles the `manager` role with appropriate titles and icons.
+
+7. Flutter Features
+   - Add Client Feature (`lib/features/add_client/`):
+     - Pages & Controllers:
+       - Updated imports and dependencies.
+       - Removed hardcoded `addressTypes` array.
+       - Implemented form validation and state management using MobX.
+       - Updated UI components to reflect state changes.
+   - Add Delivery Feature (`lib/features/add_delivery/`):
+     - New Pages & Controllers:
+       - Added `add_delivery_controller.dart` and `add_delivery_page.dart` with basic scaffolding for delivery requests.
+   - Add Shop Feature (`lib/features/add_shop/`):
+     - New Pages & Controllers:
+       - Added `add_shop_controller.dart` and `add_shop_page.dart` with form fields for adding shops.
+       - Implemented MobX store `AddShopStore` for managing shop data and state.
+   - Delivery Request Feature (`lib/features/delivery_request/`):
+     - New Pages & Controllers:
+       - Added `delivery_request_controller.dart` and `delivery_request_page.dart` to handle delivery requests.
+   - Home Feature (`lib/features/home/`):
+     - Controller (`home_controller.dart`):
+       - Added getters `isAdmin` and `isBusiness` to determine user roles.
+     - Page (`home_page.dart`):
+       - Imported new pages for delivery requests and store management.
+       - Added navigation methods `_deliceryRequest` and `_storesPage`.
+     - Drawer (`home_drawer.dart`):
+       - Imported `material_symbols_icons`.
+       - Added conditional `ListTile` widgets for delivery requests and store management based on user roles.
+
+8. Person Data Feature (`lib/features/person_data/`):
+   - Page (`person_data_page.dart`):
+     - Updated to use `PageState` instead of `PageStatus`.
+     - Integrated error handling based on the updated state management.
+   - Store (`personal_data_store.dart`):
+     - Replaced `Status` enum with `PageState`.
+     - Updated observables and actions to align with the new state management.
+     - Enhanced validation methods for form fields.
+
+9. Shops Management Feature (`lib/features/stores/`):
+   - Controller (`shops_controller.dart`):
+     - Implemented `ShopsController` with references to `ShopsStore` and `ShopFirebaseRepository`.
+     - Added role-based getters `isAdmin` and `isBusiness`.
+   - Page (`shops_page.dart`):
+     - Developed `ShopsPage` with UI for managing shops.
+     - Implemented list views with dismissible items for editing and deleting shops.
+     - Integrated loading states and empty state handling.
+   - Store (`shops_store.dart`):
+     - Created `ShopsStore` with observable `state` and actions to manage shop-related states.
+
+10. Repositories
+    - Abstract Repositories:
+      - `abstract_address_repository.dart`:
+        - Renamed methods for consistency (`set` to `add`).
+        - Updated `get` method signature to accept `addressId` instead of an `AddressModel`.
+      - `abstract_shop_repository.dart`:
+        - New Abstract Class: Defines methods for adding, updating, deleting, fetching, and streaming shops.
+    - Concrete Repositories:
+      - `address_firebase_repository.dart`:
+        - Implemented `AbstractAddressClientRepository` with Firebase operations for addresses.
+        - Added error handling and logging.
+      - `client_firebase_repository.dart`:
+        - Refactored to use `keyClients` and `keyAddresses` for collection names.
+        - Enhanced methods to align with updated repository structure.
+        - Improved error handling with specific error codes.
+      - `shop_firebase_repository.dart`:
+        - New Repository: Implements `AbstractShopRepository` with comprehensive Firebase operations for shops.
+        - Includes methods for adding, updating, deleting, fetching, and streaming shops.
+        - Handles nested address subcollections with proper error management.
+
+11. Dependency Management
+    - `pubspec.yaml`:
+      - Added dependency: `material_symbols_icons: ^4.2785.1` for enhanced iconography.
+    - `pubspec.lock`:
+      - Included `material_symbols_icons` package with version `4.2785.1`.
+
+12. Application Configuration (`lib/my_material_app.dart`)
+    - Route Management:
+      - Imported new pages: `add_delivery_page.dart`, `add_shop_page.dart`, `delivery_request_page.dart`, and `shops_page.dart`.
+      - Registered new routes for the added pages to enable navigation within the app.
+
+13. Common Utilities (`lib/stores/mobx/common/generic_functions.dart`)
+    - Enums Added:
+      - `PageState`: Represents the state of a page (initial, loading, success, error).
+      - `ZipStatus`: Represents the status of ZIP code validation and fetching.
+    - Constants:
+      - `addressTypes`: List of address types used across the application.
+
+14. State Management with MobX
+    - Add Client Store (`lib/stores/mobx/add_client_store.dart`):
+      - Refactored to use `PageState` instead of `PageStatus`.
+      - Enhanced validation methods and state handling.
+    - Add Shop Store (`lib/stores/mobx/add_shop_store.dart`):
+      - Implemented observables and actions for managing shop data.
+      - Integrated ZIP code validation and address fetching.
+    - Shops Store (`lib/stores/mobx/shops_store.dart`):
+      - Managed the state of shops listing and operations.
+    - Personal Data Store (`lib/stores/mobx/personal_data_store.dart`):
+      - Updated to use `PageState` for managing personal data states.
+      - Enhanced form validation and error handling.
+
+15. Firestore Data Export Metadata
+    - Updated Export Metadata Files:
+      - Differences in `emulator_data/firestore_export/` indicate updates to Firestore emulator export data.
+
+16. Storage Rules (`storage.rules`)
+    - New Rules:
+      - Deny all read and write operations to Firebase Storage to enhance security.
+
+These updates collectively improve the application's security, scalability, and maintainability. The addition of new features like shop and delivery request management expands the app's functionality, while the enhancements to Firestore rules ensure robust access control. Dependency updates and state management refinements contribute to a more stable and efficient development workflow.
+
+
 ## 2024/09/16 - version: 0.1.11+15
 
 Update project configurations, Firestore rules, and dependencies

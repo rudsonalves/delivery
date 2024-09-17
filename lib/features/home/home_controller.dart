@@ -16,6 +16,8 @@ class HomeController {
 
   bool get isLoggedIn => userStore.isLoggedIn;
   bool get isDark => app.isDark;
+  bool get isAdmin => userStore.isAdmin;
+  bool get isBusiness => userStore.isBusiness;
   bool get doesNotHavePhone =>
       currentUser!.phone == null || currentUser!.phone!.isEmpty;
   UserModel? get currentUser => userStore.currentUser;

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'features/add_delivery/add_delivery_page.dart';
+import 'features/add_shop/add_shop_page.dart';
+import 'features/delivery_request/delivery_request_page.dart';
 import 'features/splash/splash_page.dart';
 import 'features/home/home_page.dart';
 import 'common/models/client.dart';
@@ -11,6 +14,7 @@ import 'features/clients/clients_page.dart';
 import 'features/person_data/person_data_page.dart';
 import 'features/sign_in/sign_in_page.dart';
 import 'features/sign_up/sign_up_page.dart';
+import 'features/stores/shops_page.dart';
 import 'locator.dart';
 
 class MyMaterialApp extends StatefulWidget {
@@ -46,6 +50,10 @@ class _MyMaterialAppState extends State<MyMaterialApp> {
               SignInPage.routeName: (_) => const SignInPage(),
               PersonDataPage.routeName: (_) => const PersonDataPage(),
               ClientsPage.routeName: (_) => const ClientsPage(),
+              DeliveryRequestPage.routeName: (_) => const DeliveryRequestPage(),
+              AddDeliveryPage.routeName: (_) => const AddDeliveryPage(),
+              ShopsPage.routeName: (_) => const ShopsPage(),
+              AddShopPage.routeName: (_) => const AddShopPage(),
             },
             onGenerateRoute: (settings) {
               switch (settings.name) {
