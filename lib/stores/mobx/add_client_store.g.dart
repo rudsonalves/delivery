@@ -295,12 +295,20 @@ mixin _$AddClientStore on _AddClientStore, Store {
     });
   }
 
-  late final _$_fetchAddressAsyncAction =
-      AsyncAction('_AddClientStore._fetchAddress', context: context);
+  late final _$_mountAddressAsyncAction =
+      AsyncAction('_AddClientStore._mountAddress', context: context);
 
   @override
-  Future<void> _fetchAddress() {
-    return _$_fetchAddressAsyncAction.run(() => super._fetchAddress());
+  Future<void> _mountAddress() {
+    return _$_mountAddressAsyncAction.run(() => super._mountAddress());
+  }
+
+  late final _$_setCoordinatesAsyncAction =
+      AsyncAction('_AddClientStore._setCoordinates', context: context);
+
+  @override
+  Future<void> _setCoordinates() {
+    return _$_setCoordinatesAsyncAction.run(() => super._setCoordinates());
   }
 
   late final _$saveClientAsyncAction =
@@ -422,11 +430,11 @@ mixin _$AddClientStore on _AddClientStore, Store {
   }
 
   @override
-  void _validatePhone() {
+  void _validPhone() {
     final _$actionInfo = _$_AddClientStoreActionController.startAction(
-        name: '_AddClientStore._validatePhone');
+        name: '_AddClientStore._validPhone');
     try {
-      return super._validatePhone();
+      return super._validPhone();
     } finally {
       _$_AddClientStoreActionController.endAction(_$actionInfo);
     }
@@ -504,17 +512,6 @@ mixin _$AddClientStore on _AddClientStore, Store {
         name: '_AddClientStore._updateAddress');
     try {
       return super._updateAddress();
-    } finally {
-      _$_AddClientStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  void _handleFetchError(String message) {
-    final _$actionInfo = _$_AddClientStoreActionController.startAction(
-        name: '_AddClientStore._handleFetchError');
-    try {
-      return super._handleFetchError(message);
     } finally {
       _$_AddClientStoreActionController.endAction(_$actionInfo);
     }

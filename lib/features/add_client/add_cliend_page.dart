@@ -4,19 +4,20 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import '../../common/models/client.dart';
 import '../../common/theme/app_text_style.dart';
 import '../../common/utils/data_result.dart';
+import '../../components/widgets/address_card.dart';
 import '../../components/widgets/big_bottom.dart';
 import '../../components/widgets/custom_text_field.dart';
 import '../../components/widgets/message_snack_bar.dart';
 import '../../components/widgets/state_loading.dart';
-import '../../stores/mobx/common/generic_functions.dart';
+import '../../stores/mobx/common/store_func.dart';
 import 'add_client_controller.dart';
 
 class AddClientPage extends StatefulWidget {
   final ClientModel? client;
 
-  const AddClientPage({
+  const AddClientPage(
+    this.client, {
     super.key,
-    this.client,
   });
 
   static const routeName = '/addclient';
@@ -165,43 +166,9 @@ class _AddClientPageState extends State<AddClientPage> {
                       hintText: 'xx-xxx.xxx',
                       errorText: ctrl.pageStore.errorZipCode,
                     ),
-                    Observer(
-                      builder: (context) {
-                        if (ctrl.pageStore.zipStatus == ZipStatus.loading) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        } else if (ctrl.pageStore.zipStatus ==
-                            ZipStatus.error) {
-                          return Card(
-                            color: colorScheme.tertiaryContainer,
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 64,
-                                vertical: 12,
-                              ),
-                              child: Text('Endereço inválido'),
-                            ),
-                          );
-                        } else if (ctrl.pageStore.zipStatus ==
-                            ZipStatus.success) {
-                          final address = ctrl.pageStore.address;
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Card(
-                              color: colorScheme.tertiaryContainer,
-                              child: Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Text((address != null)
-                                    ? address.addressString()
-                                    : '- * -'),
-                              ),
-                            ),
-                          );
-                        } else {
-                          return const SizedBox.shrink();
-                        }
-                      },
+                    AddressCard(
+                      zipStatus: ctrl.pageStore.zipStatus,
+                      address: ctrl.pageStore.address,
                     ),
                     CustomTextField(
                       controller: ctrl.numberController,

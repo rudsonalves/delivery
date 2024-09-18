@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'common/models/shop.dart';
 import 'features/add_delivery/add_delivery_page.dart';
 import 'features/add_shop/add_shop_page.dart';
 import 'features/delivery_request/delivery_request_page.dart';
@@ -53,15 +54,18 @@ class _MyMaterialAppState extends State<MyMaterialApp> {
               DeliveryRequestPage.routeName: (_) => const DeliveryRequestPage(),
               AddDeliveryPage.routeName: (_) => const AddDeliveryPage(),
               ShopsPage.routeName: (_) => const ShopsPage(),
-              AddShopPage.routeName: (_) => const AddShopPage(),
             },
             onGenerateRoute: (settings) {
               switch (settings.name) {
                 case AddClientPage.routeName:
                   return MaterialPageRoute(builder: (context) {
-                    final client = (settings.arguments
-                        as Map<String, dynamic>?)?['client'] as ClientModel?;
-                    return AddClientPage(client: client);
+                    final client = settings.arguments as ClientModel?;
+                    return AddClientPage(client);
+                  });
+                case AddShopPage.routeName:
+                  return MaterialPageRoute(builder: (context) {
+                    final shop = settings.arguments as ShopModel?;
+                    return AddShopPage(shop);
                   });
                 default:
                   return null;

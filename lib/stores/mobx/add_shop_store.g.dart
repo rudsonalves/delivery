@@ -215,16 +215,70 @@ mixin _$AddShopStore on _AddShopStore, Store {
     });
   }
 
-  late final _$_fetchAddressAsyncAction =
-      AsyncAction('_AddShopStore._fetchAddress', context: context);
+  late final _$_mountAddressAsyncAction =
+      AsyncAction('_AddShopStore._mountAddress', context: context);
 
   @override
-  Future<void> _fetchAddress() {
-    return _$_fetchAddressAsyncAction.run(() => super._fetchAddress());
+  Future<void> _mountAddress() {
+    return _$_mountAddressAsyncAction.run(() => super._mountAddress());
+  }
+
+  late final _$_updateAddressAsyncAction =
+      AsyncAction('_AddShopStore._updateAddress', context: context);
+
+  @override
+  Future<void> _updateAddress() {
+    return _$_updateAddressAsyncAction.run(() => super._updateAddress());
+  }
+
+  late final _$_setCoordinatesAsyncAction =
+      AsyncAction('_AddShopStore._setCoordinates', context: context);
+
+  @override
+  Future<void> _setCoordinates() {
+    return _$_setCoordinatesAsyncAction.run(() => super._setCoordinates());
+  }
+
+  late final _$saveShopAsyncAction =
+      AsyncAction('_AddShopStore.saveShop', context: context);
+
+  @override
+  Future<DataResult<ShopModel>> saveShop() {
+    return _$saveShopAsyncAction.run(() => super.saveShop());
+  }
+
+  late final _$updateShopAsyncAction =
+      AsyncAction('_AddShopStore.updateShop', context: context);
+
+  @override
+  Future<DataResult<ShopModel>> updateShop() {
+    return _$updateShopAsyncAction.run(() => super.updateShop());
   }
 
   late final _$_AddShopStoreActionController =
       ActionController(name: '_AddShopStore', context: context);
+
+  @override
+  void setShopFromShop(ShopModel shop) {
+    final _$actionInfo = _$_AddShopStoreActionController.startAction(
+        name: '_AddShopStore.setShopFromShop');
+    try {
+      return super.setShopFromShop(shop);
+    } finally {
+      _$_AddShopStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  dynamic _checkIsEdited(String? value, String? newValue) {
+    final _$actionInfo = _$_AddShopStoreActionController.startAction(
+        name: '_AddShopStore._checkIsEdited');
+    try {
+      return super._checkIsEdited(value, newValue);
+    } finally {
+      _$_AddShopStoreActionController.endAction(_$actionInfo);
+    }
+  }
 
   @override
   void setName(String value) {
@@ -265,17 +319,6 @@ mixin _$AddShopStore on _AddShopStore, Store {
         name: '_AddShopStore.setComplement');
     try {
       return super.setComplement(value);
-    } finally {
-      _$_AddShopStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  dynamic _checkIsEdited(String? value, String? newValue) {
-    final _$actionInfo = _$_AddShopStoreActionController.startAction(
-        name: '_AddShopStore._checkIsEdited');
-    try {
-      return super._checkIsEdited(value, newValue);
     } finally {
       _$_AddShopStoreActionController.endAction(_$actionInfo);
     }
@@ -331,28 +374,6 @@ mixin _$AddShopStore on _AddShopStore, Store {
         name: '_AddShopStore._validZipCode');
     try {
       return super._validZipCode();
-    } finally {
-      _$_AddShopStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  dynamic _updateAddress() {
-    final _$actionInfo = _$_AddShopStoreActionController.startAction(
-        name: '_AddShopStore._updateAddress');
-    try {
-      return super._updateAddress();
-    } finally {
-      _$_AddShopStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  void _handleFetchError(String message) {
-    final _$actionInfo = _$_AddShopStoreActionController.startAction(
-        name: '_AddShopStore._handleFetchError');
-    try {
-      return super._handleFetchError(message);
     } finally {
       _$_AddShopStoreActionController.endAction(_$actionInfo);
     }

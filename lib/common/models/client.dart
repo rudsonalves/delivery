@@ -25,11 +25,9 @@ class ClientModel {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      // 'id': id,
       'name': name,
       'email': email,
       'phone': phone,
-      // 'address': address?.toMap(),
       'createdAt': createdAt.millisecondsSinceEpoch,
       'updatedAt': updatedAt?.millisecondsSinceEpoch,
     };
@@ -39,9 +37,8 @@ class ClientModel {
     return ClientModel(
       id: map['id'] as String?,
       name: map['name'] as String,
-      email: map['email'] != null ? map['email'] as String : null,
+      email: map['email'] as String?,
       phone: map['phone'] as String,
-      // address: AddressModel.fromMap(map['address'] as Map<String, dynamic>),
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int),
       updatedAt: map['updatedAt'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int)
