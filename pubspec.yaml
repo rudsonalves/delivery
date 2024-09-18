@@ -2,7 +2,7 @@ name: delivery
 description: "Aplicativo de entregas."
 publish_to: 'none' 
 
-version: 0.1.12+16
+version: 0.1.13+17
 
 environment:
   sdk: ^3.5.1

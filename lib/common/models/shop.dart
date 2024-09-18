@@ -19,9 +19,7 @@ class ShopModel {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'id': id,
       'userId': userId,
-      'address': address?.toMap(),
       'name': name,
       'description': description,
     };
