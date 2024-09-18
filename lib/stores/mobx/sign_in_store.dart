@@ -1,6 +1,6 @@
 import 'package:mobx/mobx.dart';
 
-import 'common/generic_functions.dart';
+import 'common/store_func.dart';
 
 part 'sign_in_store.g.dart';
 

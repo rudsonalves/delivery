@@ -59,8 +59,24 @@ class AddressModel {
         'CEP: $zipCode';
   }
 
-  String get geoAddress =>
-      '$street, $number, $neighborhood, $city, $state, $zipCode';
+  String get geoAddress {
+    final cpmt =
+        complement != null && complement!.isNotEmpty ? ' $complement,' : '';
+    return '$street,'
+        ' $number,$cpmt'
+        ' $neighborhood,'
+        ' $city,'
+        ' $state,'
+        ' $zipCode';
+  }
+
+  bool get isValidAddress =>
+      street.isNotEmpty &&
+      number.isNotEmpty &&
+      neighborhood.isEmpty &&
+      city.isNotEmpty &&
+      state.isEmpty &&
+      zipCode.isEmpty;
 
   AddressModel copyWith({
     String? id,

@@ -1,9 +1,7 @@
-import 'dart:developer';
-
-import 'package:delivery/common/theme/app_text_style.dart';
-import 'package:delivery/components/widgets/state_loading.dart';
 import 'package:flutter/material.dart';
 
+import '/common/theme/app_text_style.dart';
+import '/components/widgets/state_loading.dart';
 import '/components/widgets/base_dismissible_container.dart';
 import '../../common/models/client.dart';
 import 'clients_controller.dart';
@@ -80,7 +78,6 @@ class _ClientsPageState extends State<ClientsPage> {
       if (response.isFailure) {
         return false;
       }
-      log('Apagar cliente ${client.name}');
     }
     return result;
   }

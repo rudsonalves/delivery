@@ -1,9 +1,16 @@
+import 'dart:developer';
+
 import 'package:mobx/mobx.dart';
 
+import '../../common/utils/data_result.dart';
+import '/common/models/shop.dart';
 import '../../common/models/address.dart';
+import '../../common/models/via_cep_address.dart';
+import '../../locator.dart';
 import '../../repository/firebase_store/shop_firebase_repository.dart';
-import '../../repository/viacep/via_cep_repository.dart';
-import 'common/generic_functions.dart';
+import '../../services/geolocation_service.dart';
+import '../user/user_store.dart';
+import 'common/store_func.dart';
 
 part 'add_shop_store.g.dart';
 
@@ -22,7 +29,7 @@ abstract class _AddShopStore with Store {
   String? description;
 
   @observable
-  String? addressType = 'Residencial';
+  String? addressType = 'Comercial';
 
   @observable
   String? zipCode;
@@ -51,8 +58,55 @@ abstract class _AddShopStore with Store {
   @observable
   bool isEdited = false;
 
+  String? id;
+  String? userId;
+
+  Future<ShopModel?> getShopFromForm() async {
+    state = PageState.loading;
+    if (!isValid()) {
+      state = PageState.success;
+      return null;
+    }
+
+    if (address != null) {
+      if (address!.latitude == null || address!.longitude == null) {
+        await _setCoordinates();
+      }
+
+      state = PageState.success;
+      return ShopModel(
+        id: id,
+        userId: locator<UserStore>().currentUser!.id!,
+        name: name!,
+        description: description,
+        address: address,
+      );
+    }
+    return null;
+  }
+
+  @action
+  void setShopFromShop(ShopModel shop) {
+    id = shop.id;
+    userId = shop.userId;
+    name = shop.name;
+    description = shop.description;
+    address = shop.address;
+    zipCode = shop.address?.zipCode;
+    number = shop.address?.number;
+    complement = shop.address?.complement;
+    zipStatus = address != null ? ZipStatus.success : ZipStatus.initial;
+    isEdited = false;
+  }
+
+  @action
+  _checkIsEdited(String? value, String? newValue) {
+    isEdited = value != newValue;
+  }
+
   @action
   void setName(String value) {
+    _checkIsEdited(name, value);
     name = value;
     _validName();
   }
@@ -65,6 +119,7 @@ abstract class _AddShopStore with Store {
 
   @action
   void setDescription(String value) {
+    _checkIsEdited(description, value);
     description = value;
   }
 
@@ -73,11 +128,6 @@ abstract class _AddShopStore with Store {
     _checkIsEdited(complement, value);
     complement = value;
     _updateAddress();
-  }
-
-  @action
-  _checkIsEdited(String? value, String? newValue) {
-    isEdited = value != newValue;
   }
 
   @action
@@ -92,6 +142,7 @@ abstract class _AddShopStore with Store {
     _checkIsEdited(addressType, value);
     number = value;
     _validName();
+    _updateAddress();
   }
 
   @action
@@ -108,12 +159,12 @@ abstract class _AddShopStore with Store {
     _checkIsEdited(zipCode, value);
     zipCode = value;
     _validZipCode();
-    if (errorZipCode == null) _fetchAddress();
+    if (errorZipCode == null) _mountAddress();
   }
 
   @action
   void _validZipCode() {
-    final numbers = _removeNonNumber(zipCode ?? '');
+    final numbers = StoreFunc.removeNonNumber(zipCode ?? '');
 
     if (numbers.length == 8) {
       errorZipCode = null;
@@ -123,61 +174,62 @@ abstract class _AddShopStore with Store {
   }
 
   @action
-  Future<void> _fetchAddress() async {
-    try {
-      zipStatus = ZipStatus.loading;
+  Future<void> _mountAddress() async {
+    zipStatus = ZipStatus.loading;
 
-      final response = await ViaCepRepository.getLocalByCEP(zipCode!);
-      if (!response.isSuccess) {
-        _handleFetchError('Erro ao buscar o endereço: ${response.error}');
-        errorZipCode = 'CEP inválido';
-        return;
-      }
+    ZipStatus status;
+    String? err;
+    ViaCepAddressModel? via;
+    (status, err, via) = await StoreFunc.fetchAddress(zipCode);
 
-      final viaAddress = response.data;
-      if (viaAddress == null) {
-        _handleFetchError('Endereço não encontrado');
-        errorZipCode = 'CEP inválido';
-        return;
-      }
+    zipStatus = status;
+    errorZipCode = err;
 
-      address = AddressModel(
-        zipCode: viaAddress.zipCode,
-        street: viaAddress.street,
-        number: number ?? 'S/N',
-        complement: complement ?? '',
-        type: addressType ?? 'Residencial',
-        neighborhood: viaAddress.neighborhood,
-        latitude: null,
-        longitude: null,
-        state: viaAddress.state,
-        city: viaAddress.city,
-      );
+    if (via == null) return;
 
-      zipStatus = ZipStatus.success;
-      errorZipCode = null;
-      return;
-    } catch (err) {
-      _handleFetchError('erro desconhecido: $err');
-      return;
+    address = AddressModel(
+      zipCode: via.zipCode,
+      street: via.street,
+      number: number ?? '',
+      complement: complement,
+      type: addressType ?? 'Comercial',
+      neighborhood: via.neighborhood,
+      latitude: null,
+      longitude: null,
+      state: via.state,
+      city: via.city,
+    );
+
+    if (address!.isValidAddress) {
+      await _setCoordinates();
     }
+    zipStatus = ZipStatus.success;
   }
 
   @action
-  _updateAddress() {
+  Future<void> _updateAddress() async {
     if (address != null) {
+      final updateCoordinates =
+          number != null && number!.isNotEmpty && address!.number != number;
       address = address!.copyWith(
-        number: number ?? 'S/N',
-        complement: complement ?? '',
+        number: number,
+        complement: complement,
       );
+      if (updateCoordinates && address!.isValidAddress) {
+        await _setCoordinates();
+      }
     }
   }
 
   @action
-  void _handleFetchError(String message) {
-    // errorMsg = message;
-    zipStatus = ZipStatus.error;
-    // log(errorMsg!);
+  Future<void> _setCoordinates() async {
+    final result =
+        await GeolocationServiceGoogle.getCoordinatesFromAddress(address!);
+    if (result.isFailure || result.data == null) {
+      log('Get coordenate API error!');
+      return;
+    }
+    address = result.data;
   }
 
   @action
@@ -185,7 +237,57 @@ abstract class _AddShopStore with Store {
     state = newState;
   }
 
-  String _removeNonNumber(String? value) {
-    return value?.replaceAll(RegExp(r'[^\d]'), '') ?? '';
+  bool isValid() {
+    _validNumber();
+    _validZipCode();
+    _validName();
+
+    return errorNumber == null && errorZipCode == null && errorName == null;
+  }
+
+  @action
+  Future<DataResult<ShopModel>> saveShop() async {
+    state = PageState.loading;
+    if (!isValid()) {
+      state = PageState.error;
+      return DataResult.failure(const GenericFailure(
+        message: 'form fields are invalid.',
+        code: 550,
+      ));
+    }
+    final shop = await getShopFromForm();
+    if (shop == null) {
+      state = PageState.error;
+      return DataResult.failure(const GenericFailure(
+        message: 'Unexpected error: Client return null.',
+        code: 550,
+      ));
+    }
+    final result = await repository.add(shop);
+    state = result.isSuccess ? PageState.success : PageState.error;
+    return result;
+  }
+
+  @action
+  Future<DataResult<ShopModel>> updateShop() async {
+    state = PageState.loading;
+    if (!isValid()) {
+      state = PageState.error;
+      return DataResult.failure(const GenericFailure(
+        message: 'Form fields are invalid.',
+        code: 550,
+      ));
+    }
+    final client = await getShopFromForm();
+    if (client == null) {
+      state = PageState.error;
+      return DataResult.failure(const GenericFailure(
+        message: 'Unexpected error: Shop return null.',
+        code: 550,
+      ));
+    }
+    final result = await repository.update(client);
+    state = result.isSuccess ? PageState.success : PageState.error;
+    return result;
   }
 }
