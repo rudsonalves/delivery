@@ -1,7 +1,7 @@
 import 'package:mobx/mobx.dart';
 
 import '../../common/models/user.dart';
-import 'common/generic_functions.dart';
+import 'common/store_func.dart';
 
 part 'sign_up_store.g.dart';
 

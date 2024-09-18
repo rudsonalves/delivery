@@ -1,12 +1,14 @@
+import 'dart:developer';
+
 import 'package:mobx/mobx.dart';
 
 import '../../common/models/address.dart';
 import '../../common/models/client.dart';
+import '../../common/models/via_cep_address.dart';
 import '../../common/utils/data_result.dart';
 import '../../repository/firebase_store/client_firebase_repository.dart';
-import '../../repository/viacep/via_cep_repository.dart';
 import '../../services/geolocation_service.dart';
-import 'common/generic_functions.dart';
+import 'common/store_func.dart';
 
 part 'add_client_store.g.dart';
 
@@ -73,27 +75,19 @@ abstract class _AddClientStore with Store {
 
   Future<ClientModel?> getClientFromForm() async {
     state = PageState.loading;
+    if (!isValid()) {
+      state = PageState.success;
+      return null;
+    }
+
     if (address != null) {
-      if (address!.latitude != null && address!.longitude != null) {
-        state = PageState.success;
-        return ClientModel(
-          id: id,
-          name: name!,
-          email: email,
-          phone: phone!,
-          address: address!,
-        );
-      }
-      final result =
-          await GeolocationServiceGoogle.getCoordinatesFromAddress(address!);
-      if (result.isFailure || result.data == null) {
-        state = PageState.error;
-        return null;
+      if (address!.latitude == null && address!.longitude == null) {
+        await _setCoordinates();
       }
 
-      address = result.data;
       state = PageState.success;
       return ClientModel(
+        id: id,
         name: name!,
         email: email,
         phone: phone!,
@@ -106,14 +100,13 @@ abstract class _AddClientStore with Store {
   @action
   void setClientFromClient(ClientModel client) {
     id = client.id;
-    setName(client.name);
-    setEmail(client.email ?? '');
-    setPhone(client.phone);
-    setAddressType(client.address?.type ?? 'Residencial');
-    setNumber(client.address?.number ?? 'S/N');
-    // setZipCode(client.address?.zipCode ?? '');
-    zipCode = client.address?.zipCode ?? '';
-    setComplement(client.address?.complement ?? '');
+    name = client.name;
+    email = client.email;
+    phone = client.phone;
+    addressType = client.address?.type ?? 'Residencial';
+    number = client.address?.number;
+    zipCode = client.address?.zipCode;
+    complement = client.address?.complement;
     address = client.address?.copyWith();
     zipStatus = address != null ? ZipStatus.success : ZipStatus.initial;
     isEdited = false;
@@ -142,10 +135,10 @@ abstract class _AddClientStore with Store {
   void setName(String value) {
     _checkIsEdited(name, value);
     name = value;
-    _validateName();
+    _validName();
   }
 
-  void _validateName() {
+  void _validName() {
     if (name == null || name!.length < 3) {
       errorName = 'nome deve ser maior que 3 caracteres';
     } else {
@@ -177,12 +170,12 @@ abstract class _AddClientStore with Store {
   void setPhone(String value) {
     _checkIsEdited(phone, value);
     phone = value;
-    _validatePhone();
+    _validPhone();
   }
 
   @action
-  void _validatePhone() {
-    final numebers = _removeNonNumber(phone);
+  void _validPhone() {
+    final numebers = StoreFunc.removeNonNumber(phone);
     if (numebers.length != 11) {
       errorPhone = 'Telephone inválido';
     } else {
@@ -216,12 +209,12 @@ abstract class _AddClientStore with Store {
     _checkIsEdited(zipCode, value);
     zipCode = value;
     _validZipCode();
-    if (errorZipCode == null) _fetchAddress();
+    if (errorZipCode == null) _mountAddress();
   }
 
   @action
   void _validZipCode() {
-    final numbers = _removeNonNumber(zipCode ?? '');
+    final numbers = StoreFunc.removeNonNumber(zipCode ?? '');
 
     if (numbers.length == 8) {
       errorZipCode = null;
@@ -233,82 +226,57 @@ abstract class _AddClientStore with Store {
   @action
   void setCpf(String value) {
     _checkIsEdited(cpf, value);
-    cpf = _removeNonNumber(value);
+    cpf = StoreFunc.removeNonNumber(value);
     _validCpf();
   }
 
   @action
   void _validCpf() {
-    if (cpf == null ||
-        cpf!.length != 11 ||
-        RegExp(r'^(\d)\1*$').hasMatch(cpf!)) {
-      errorCpfMsg = 'CPF inválido';
-      return;
-    }
-
-    int digit1 = _calculateDigit(cpf!.substring(0, 9), 10);
-    int digit2 = _calculateDigit(cpf!.substring(0, 10), 11);
-
-    bool valid = digit1 == int.parse(cpf![9]) && digit2 == int.parse(cpf![10]);
-    if (!valid) {
-      errorCpfMsg = 'CPF inválido';
-      return;
-    }
-    errorCpfMsg = null;
-  }
-
-  int _calculateDigit(String cpf, int factor) {
-    int total = 0;
-    for (int i = 0; i < cpf.length; i++) {
-      total += int.parse(cpf[i]) * factor--;
-    }
-    int rest = total % 11;
-    return (rest < 2) ? 0 : 11 - rest;
-  }
-
-  String _removeNonNumber(String? value) {
-    return value?.replaceAll(RegExp(r'[^\d]'), '') ?? '';
+    errorCpfMsg = StoreFunc.validCpf(cpf);
   }
 
   @action
-  Future<void> _fetchAddress() async {
-    try {
-      zipStatus = ZipStatus.loading;
+  Future<void> _mountAddress() async {
+    zipStatus = ZipStatus.loading;
 
-      final response = await ViaCepRepository.getLocalByCEP(zipCode!);
-      if (!response.isSuccess) {
-        _handleFetchError('Erro ao buscar o endereço: ${response.error}');
-        errorZipCode = 'CEP inválido';
-        return;
-      }
+    ZipStatus status;
+    String? err;
+    ViaCepAddressModel? via;
+    (status, err, via) = await StoreFunc.fetchAddress(zipCode);
 
-      final viaAddress = response.data;
-      if (viaAddress == null) {
-        _handleFetchError('Endereço não encontrado');
-        errorZipCode = 'CEP inválido';
-        return;
-      }
+    zipStatus = status;
+    errorZipCode = err;
 
-      address = AddressModel(
-        zipCode: viaAddress.zipCode,
-        street: viaAddress.street,
-        number: number ?? 'S/N',
-        complement: complement ?? '',
-        type: addressType ?? 'Residencial',
-        neighborhood: viaAddress.neighborhood,
-        latitude: null,
-        longitude: null,
-        state: viaAddress.state,
-        city: viaAddress.city,
-      );
+    if (via == null) return;
 
-      zipStatus = ZipStatus.success;
-      errorZipCode = null;
-      return;
-    } catch (err) {
-      _handleFetchError('erro desconhecido: $err');
+    address = AddressModel(
+      zipCode: via.zipCode,
+      street: via.street,
+      number: number ?? 'S/N',
+      complement: complement,
+      type: addressType ?? 'Residencial',
+      neighborhood: via.neighborhood,
+      latitude: null,
+      longitude: null,
+      state: via.state,
+      city: via.city,
+    );
+
+    if (address!.isValidAddress) {
+      await _setCoordinates();
+    }
+    zipStatus = ZipStatus.success;
+  }
+
+  @action
+  Future<void> _setCoordinates() async {
+    final coordinates =
+        await GeolocationServiceGoogle.getCoordinatesFromAddress(address!);
+    if (coordinates.isFailure || coordinates.data == null) {
+      log('Get coordenate API error!');
       return;
     }
+    address = coordinates.data;
   }
 
   @action
@@ -322,13 +290,6 @@ abstract class _AddClientStore with Store {
   }
 
   @action
-  void _handleFetchError(String message) {
-    // errorMsg = message;
-    zipStatus = ZipStatus.error;
-    // log(errorMsg!);
-  }
-
-  @action
   void setPageState(PageState status) {
     state = status;
   }
@@ -338,8 +299,8 @@ abstract class _AddClientStore with Store {
     _validEmail();
     _validNumber();
     _validZipCode();
-    _validateName();
-    _validatePhone();
+    _validName();
+    _validPhone();
 
     return errorEmail == null &&
         errorNumber == null &&

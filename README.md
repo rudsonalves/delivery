@@ -18,6 +18,162 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/09/18 - version: 0.1.13+17
+
+Update Authentication Data, Firestore Export, Models, Widgets, Features, and State Management
+
+This commit introduces a series of updates and enhancements across various parts of the project, including authentication data modifications, Firestore export updates, model refinements, new widgets, feature additions, and improvements to state management using MobX. Below is a comprehensive breakdown of the changes:
+
+1. **Authentication Data (`emulator_data/auth_export/accounts.json`)**
+   - **Updated User Entries:**
+     - **Ricardo Mattos:**
+       - Updated `passwordUpdatedAt` timestamp.
+       - Added `disabled` field set to `false`.
+     - **Rudson Alves:**
+       - Updated `passwordUpdatedAt` timestamp.
+       - Added `disabled` field set to `false`.
+   - **Changes:**
+     - Removed newline at the end of the file.
+     - Updated `validSince` timestamps.
+     - Adjusted `lastRefreshAt` timestamps to reflect recent changes.
+
+2. **Firestore Export Metadata (`emulator_data/firestore_export/`)**
+   - **Files Updated:**
+     - `all_namespaces_all_kinds.export_metadata`
+     - `output-0`
+     - `firestore_export.overall_export_metadata`
+   - **Changes:**
+     - Binary files differ, indicating updates to Firestore emulator export data.
+
+3. **Dart Models**
+   - **`AddressModel` (`lib/common/models/address.dart`):**
+     - **Changes:**
+       - Modified `geoAddress` getter to include `complement` if available.
+       - Added `isValidAddress` getter to validate essential address fields.
+   - **`ClientModel` (`lib/common/models/client.dart`):**
+     - **Changes:**
+       - Removed commented-out `id` and `address` fields from `toMap()` and `fromMap()` methods.
+       - Simplified `email` field handling.
+   - **`ShopModel` (`lib/common/models/shop.dart`):**
+     - **New Model:**
+       - Represents a shop with fields: `id`, `userId`, `address`, `name`, and `description`.
+       - Includes serialization methods: `toMap()`, `fromMap()`, and other utility methods.
+
+4. **Widgets**
+   - **`AddressCard` (`lib/components/widgets/address_card.dart`):**
+     - **New Widget:**
+       - Displays address information based on the `ZipStatus`.
+       - Handles different states: loading, error, success, and initial.
+       - Utilizes theming for consistent styling.
+
+5. **Features**
+   - **Add Client Feature (`lib/features/add_client/`):**
+     - **Pages & Controllers:**
+       - Updated `add_client_page.dart` to integrate the new `AddressCard` widget.
+       - Refactored `add_client_controller.dart` to use `StoreFunc` for utility functions.
+       - Enhanced form validation and state management using MobX.
+   - **Add Shop Feature (`lib/features/add_shop/`):**
+     - **Controller (`add_shop_controller.dart`):**
+       - Manages shop creation and updating processes.
+       - Integrates with `AddShopStore` for state management.
+       - Handles initialization and disposal of controllers.
+     - **Page (`add_shop_page.dart`):**
+       - Developed UI for adding and updating shops.
+       - Integrated `AddressCard` for address display.
+       - Managed form fields and submission logic.
+   - **Clients Page (`lib/features/clients/clients_page.dart`):**
+     - **Changes:**
+       - Removed unnecessary logging.
+       - Streamlined client deletion logic.
+   - **Person Data Feature (`lib/features/person_data/`):**
+     - **Changes:**
+       - Updated to use `PageState` instead of `Status`.
+       - Integrated `StoreFunc` for utility functions.
+   - **Shops Management Feature (`lib/features/stores/`):**
+     - **Controller (`shops_controller.dart`):**
+       - Implements `ShopsController` with methods to edit and delete shops.
+       - Utilizes `ShopFirebaseRepository` for data operations.
+     - **Page (`shops_page.dart`):**
+       - Developed UI for managing shops.
+       - Implemented list views with dismissible items for editing and deleting.
+       - Added confirmation dialogs for deletion with proper error handling.
+
+6. **State Management with MobX**
+   - **Common Utilities (`lib/stores/mobx/common/store_func.dart`):**
+     - **New File:**
+       - Replaces the deleted `generic_functions.dart`.
+       - Contains utility functions such as `itsNotEmail`, `removeNonNumber`, `validCpf`, and `fetchAddress`.
+       - Defines enums `PageState` and `ZipStatus` for consistent state representation.
+   - **Add Client Store (`lib/stores/mobx/add_client_store.dart`):**
+     - **Changes:**
+       - Refactored to use `PageState` instead of `PageStatus`.
+       - Integrated `StoreFunc` for validation and address fetching.
+       - Enhanced form validation logic.
+       - Updated actions to manage state transitions and data processing.
+   - **Add Shop Store (`lib/stores/mobx/add_shop_store.dart`):**
+     - **Changes:**
+       - Refactored to use `StoreFunc` for utility functions.
+       - Enhanced state management for shop data.
+       - Integrated address validation and coordinate fetching.
+       - Implemented methods for saving and updating shops with proper error handling.
+   - **Shops Store (`lib/stores/mobx/shops_store.dart`):**
+     - **Changes:**
+       - Updated to use `StoreFunc` for consistency.
+   - **Personal Data Store (`lib/stores/mobx/personal_data_store.dart`):**
+     - **Changes:**
+       - Refactored to use `StoreFunc` for utility functions.
+       - Updated state management to use `PageState`.
+   - **Sign In & Sign Up Stores (`lib/stores/mobx/sign_in_store.dart`, `lib/stores/mobx/sign_up_store.dart`):**
+     - **Changes:**
+       - Updated to use `StoreFunc` for utility functions.
+
+7. **Repositories**
+   - **Address Repository (`lib/repository/firebase_store/address_firebase_repository.dart`):**
+     - **New Repository:**
+       - Implements `AbstractAddressClientRepository` with Firebase operations for addresses.
+       - Handles adding, updating, and retrieving addresses with error management.
+   - **Client Repository (`lib/repository/firebase_store/client_firebase_repository.dart`):**
+     - **Refinements:**
+       - Updated collection keys from `keyClient` to `keyClients` for consistency.
+       - Enhanced methods to handle nested address subcollections.
+       - Improved error handling with specific error codes.
+   - **Shop Repository (`lib/repository/firebase_store/shop_firebase_repository.dart`):**
+     - **New Repository:**
+       - Implements `AbstractShopRepository` with comprehensive Firebase operations for shops.
+       - Includes methods for adding, updating, deleting, fetching, and streaming shops.
+       - Manages nested address subcollections with proper error handling.
+
+8. **Dependency Management**
+   - **`pubspec.yaml`:**
+     - **Added Dependency:**
+       - `material_symbols_icons: ^4.2785.1` for enhanced iconography.
+   - **`pubspec.lock`:**
+     - Included `material_symbols_icons` package with version `4.2785.1`.
+
+9. **Application Configuration (`lib/my_material_app.dart`)**
+   - **Route Management:**
+     - Imported new pages: `AddShopPage`.
+     - Registered new routes for adding and editing shops.
+     - Updated navigation logic to pass `ShopModel` arguments.
+
+10. **Miscellaneous**
+    - **Deletion of `generic_functions.dart` (`lib/stores/mobx/common/generic_functions.dart`):**
+      - Removed the file in favor of the new `store_func.dart` for better organization and utility function management.
+    - **Store Initialization and Disposal:**
+      - Enhanced controllers to initialize with existing data when editing and properly dispose of controllers to prevent memory leaks.
+
+11. **Firestore Security Rules (`firestore.rules`)**
+    - **Note:**
+      - While not directly modified in this diff, the comprehensive updates to models and repositories imply that security rules may need to be reviewed to accommodate new data structures and access patterns.
+
+12. **Testing and Validation**
+    - **Changes:**
+      - Updated models and state management to ensure data integrity and proper validation across forms.
+      - Enhanced error messages and state transitions to provide better user feedback.
+
+These updates collectively enhance the application's functionality by introducing shop management features, improving form validations, refactoring utility functions for better maintainability, and strengthening state management with MobX. The introduction of new repositories ensures robust data handling with Firebase, while the addition of new widgets like `AddressCard` improves the user interface and experience.
+
+
 ## 2024/09/17 - version: 0.1.12+16
 
 Update Project Configurations, Firestore Rules, and Dependencies

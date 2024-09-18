@@ -1,14 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
+import '../../common/models/shop.dart';
+import '../../common/utils/data_result.dart';
+import '../../components/widgets/address_card.dart';
+import '../../components/widgets/message_snack_bar.dart';
+import '../../components/widgets/state_loading.dart';
 import '/features/add_shop/add_shop_controller.dart';
 import '../../common/theme/app_text_style.dart';
 import '../../components/widgets/big_bottom.dart';
 import '../../components/widgets/custom_text_field.dart';
-import '../../stores/mobx/common/generic_functions.dart';
+import '../../stores/mobx/common/store_func.dart';
 
 class AddShopPage extends StatefulWidget {
-  const AddShopPage({super.key});
+  final ShopModel? shop;
+
+  const AddShopPage(
+    this.shop, {
+    super.key,
+  });
 
   static const routeName = '/add_store';
 
@@ -19,11 +29,53 @@ class AddShopPage extends StatefulWidget {
 class _AddShopPageState extends State<AddShopPage> {
   final ctrl = AddShopController();
 
+  @override
+  void initState() {
+    super.initState();
+
+    ctrl.init(widget.shop);
+  }
+
   void _backPage() {
     Navigator.of(context).pop();
   }
 
-  void _saveClient() {}
+  Future<void> _saveShop() async {
+    if (!ctrl.isValid) return;
+    if (ctrl.isEdited) {
+      DataResult<ShopModel?> result;
+      if (ctrl.isAddMode) {
+        result = await ctrl.saveShop();
+      } else {
+        result = await ctrl.updateShop();
+      }
+
+      if (result.isFailure) {
+        String msg = '';
+        switch (result.error?.code ?? 500) {
+          case 500:
+            msg = result.error?.message ?? 'Erro desconhecido';
+            break;
+          case 550:
+            msg =
+                'Preencha os campos obrigatórios (*) do formulário para adicionar o cliente.';
+            break;
+          default:
+            msg = result.error?.message ?? 'Erro desconhecido';
+        }
+
+        if (mounted) {
+          showMessageSnackBar(
+            context,
+            title: 'Erro',
+            msg: msg,
+          );
+        }
+        return;
+      }
+    }
+    _backPage();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,133 +93,110 @@ class _AddShopPageState extends State<AddShopPage> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              CustomTextField(
-                labelText: 'Nome *',
-                controller: ctrl.nameController,
-                textInputAction: TextInputAction.next,
-                onChanged: ctrl.pageStore.setName,
-                errorText: ctrl.pageStore.errorName,
-                textCapitalization: TextCapitalization.sentences,
-              ),
-              CustomTextField(
-                labelText: 'Descrição',
-                controller: ctrl.descriptionController,
-                textInputAction: TextInputAction.next,
-                onChanged: ctrl.pageStore.setDescription,
-                textCapitalization: TextCapitalization.words,
-              ),
-              Row(
-                children: [
-                  const Expanded(child: SizedBox(child: Divider())),
-                  Text(
-                    '  Endereço  ',
-                    style: AppTextStyle.font16Bold(
-                      color: colorScheme.primary,
+          child: Observer(
+            builder: (context) => Stack(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    CustomTextField(
+                      labelText: 'Nome *',
+                      controller: ctrl.nameController,
+                      textInputAction: TextInputAction.next,
+                      onChanged: ctrl.pageStore.setName,
+                      errorText: ctrl.pageStore.errorName,
+                      textCapitalization: TextCapitalization.sentences,
                     ),
-                  ),
-                  const Expanded(child: SizedBox(child: Divider())),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 12),
-                child: Text(
-                  'Tipo de Endereço',
-                  style: AppTextStyle.font12Height(height: .1),
+                    CustomTextField(
+                      labelText: 'Descrição',
+                      controller: ctrl.descriptionController,
+                      textInputAction: TextInputAction.next,
+                      onChanged: ctrl.pageStore.setDescription,
+                      textCapitalization: TextCapitalization.words,
+                    ),
+                    Row(
+                      children: [
+                        const Expanded(child: SizedBox(child: Divider())),
+                        Text(
+                          '  Endereço  ',
+                          style: AppTextStyle.font16Bold(
+                            color: colorScheme.primary,
+                          ),
+                        ),
+                        const Expanded(child: SizedBox(child: Divider())),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Text(
+                        'Tipo de Endereço',
+                        style: AppTextStyle.font12Height(height: .1),
+                      ),
+                    ),
+                    DropdownButton<String>(
+                      items: addressTypes
+                          .map(
+                            (item) => DropdownMenuItem<String>(
+                              value: item,
+                              child: Text(item),
+                            ),
+                          )
+                          .toList(),
+                      value: ctrl.pageStore.addressType,
+                      isExpanded: true,
+                      onChanged: (value) {
+                        if (value != null) {
+                          ctrl.pageStore.setAddressType(value);
+                        }
+                      },
+                    ),
+                    CustomTextField(
+                      onChanged: (value) => ctrl.pageStore.setZipCode(value),
+                      controller: ctrl.cepController,
+                      keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.next,
+                      labelText: 'CEP *',
+                      hintText: 'xx-xxx.xxx',
+                      errorText: ctrl.pageStore.errorZipCode,
+                    ),
+                    AddressCard(
+                      zipStatus: ctrl.pageStore.zipStatus,
+                      address: ctrl.pageStore.address,
+                    ),
+                    CustomTextField(
+                      controller: ctrl.numberController,
+                      keyboardType: TextInputType.text,
+                      textInputAction: TextInputAction.next,
+                      // floatingLabelBehavior: FloatingLabelBehavior.always,
+                      labelText: 'Número *',
+                      onChanged: ctrl.pageStore.setNumber,
+                      errorText: ctrl.pageStore.errorNumber,
+                      // hintText: '',
+                    ),
+                    CustomTextField(
+                      controller: ctrl.complementController,
+                      keyboardType: TextInputType.text,
+                      textInputAction: TextInputAction.next,
+                      // floatingLabelBehavior: FloatingLabelBehavior.always,
+                      textCapitalization: TextCapitalization.words,
+                      labelText: 'Complemento',
+                      onChanged: ctrl.pageStore.setComplement,
+                      hintText: '- * -',
+                    ),
+                    BigButton(
+                      color: Colors.purpleAccent,
+                      label: ctrl.isEdited
+                          ? ctrl.isAddMode
+                              ? 'Salvar'
+                              : 'Atualizar'
+                          : 'Cancelar',
+                      onPressed: _saveShop,
+                    ),
+                  ],
                 ),
-              ),
-              DropdownButton<String>(
-                items: addressTypes
-                    .map(
-                      (item) => DropdownMenuItem<String>(
-                        value: item,
-                        child: Text(item),
-                      ),
-                    )
-                    .toList(),
-                value: ctrl.pageStore.addressType,
-                isExpanded: true,
-                onChanged: (value) {
-                  ctrl.pageStore.setAddressType(value ?? '');
-                },
-              ),
-              CustomTextField(
-                onChanged: (value) => ctrl.pageStore.setZipCode(value),
-                controller: ctrl.cepController,
-                keyboardType: TextInputType.number,
-                textInputAction: TextInputAction.next,
-                labelText: 'CEP *',
-                hintText: 'xx-xxx.xxx',
-                errorText: ctrl.pageStore.errorZipCode,
-              ),
-              Observer(
-                builder: (context) {
-                  if (ctrl.pageStore.zipStatus == ZipStatus.loading) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  } else if (ctrl.pageStore.zipStatus == ZipStatus.error) {
-                    return Card(
-                      color: colorScheme.tertiaryContainer,
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 64,
-                          vertical: 12,
-                        ),
-                        child: Text('Endereço inválido'),
-                      ),
-                    );
-                  } else if (ctrl.pageStore.zipStatus == ZipStatus.success) {
-                    final address = ctrl.pageStore.address;
-                    return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Card(
-                        color: colorScheme.tertiaryContainer,
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Text((address != null)
-                              ? address.addressString()
-                              : '- * -'),
-                        ),
-                      ),
-                    );
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                },
-              ),
-              CustomTextField(
-                controller: ctrl.numberController,
-                keyboardType: TextInputType.text,
-                textInputAction: TextInputAction.next,
-                // floatingLabelBehavior: FloatingLabelBehavior.always,
-                labelText: 'Número *',
-                onChanged: ctrl.pageStore.setNumber,
-                errorText: ctrl.pageStore.errorNumber,
-                // hintText: '',
-              ),
-              CustomTextField(
-                controller: ctrl.complementController,
-                keyboardType: TextInputType.text,
-                textInputAction: TextInputAction.next,
-                // floatingLabelBehavior: FloatingLabelBehavior.always,
-                textCapitalization: TextCapitalization.words,
-                labelText: 'Complemento',
-                onChanged: ctrl.pageStore.setComplement,
-                hintText: '- * -',
-              ),
-              BigButton(
-                color: Colors.purpleAccent,
-                label: ctrl.isEdited
-                    ? ctrl.isAddMode
-                        ? 'Salvar'
-                        : 'Atualizar'
-                    : 'Cancelar',
-                onPressed: _saveClient,
-              ),
-            ],
+                if (ctrl.state == PageState.loading) const StateLoading(),
+              ],
+            ),
           ),
         ),
       ),

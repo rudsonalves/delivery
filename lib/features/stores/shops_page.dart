@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 import '../../common/models/shop.dart';
+import '../../common/theme/app_text_style.dart';
 import '../../components/widgets/base_dismissible_container.dart';
 import '../../components/widgets/state_loading.dart';
 import 'shops_controller.dart';
@@ -27,10 +28,58 @@ class _ShopsPageState extends State<ShopsPage> {
     Navigator.pushNamed(context, AddShopPage.routeName);
   }
 
-  void _editShop(ShopModel shop) {}
+  Future<void> _editShop(ShopModel shop) async {
+    await ctrl.editShop(context, shop);
+  }
 
   Future<bool> _deleteShop(ShopModel shop) async {
-    return false;
+    final result = await showDialog<bool?>(
+          context: context,
+          builder: (context) => AlertDialog(
+            icon: const Icon(
+              Icons.warning_amber_rounded,
+              size: 60,
+            ),
+            title: const Text('Apagar Cliente'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      const TextSpan(text: 'Todos os dados da loja'),
+                      TextSpan(
+                        text: '\n\n"${shop.name}"\n\n',
+                        style: AppTextStyle.font12Bold(),
+                      ),
+                      const TextSpan(
+                          text: 'serão removidos.\n\nConfirme a ação.'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              FilledButton.tonal(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Apagar'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancelar'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+
+    if (result) {
+      final response = await ctrl.deleteClient(shop);
+      if (response.isFailure) {
+        return false;
+      }
+    }
+    return result;
   }
 
   @override
@@ -61,6 +110,7 @@ class _ShopsPageState extends State<ShopsPage> {
               children: [
                 if (shops.isNotEmpty)
                   ListView.builder(
+                    itemCount: shops.length,
                     itemBuilder: (context, index) => Dismissible(
                       key: UniqueKey(),
                       background: baseDismissibleContainer(
@@ -76,7 +126,7 @@ class _ShopsPageState extends State<ShopsPage> {
                         color: Colors.red.withOpacity(.30),
                         icon: Icons.delete,
                         label: 'Apagar',
-                        enable: ctrl.isAdmin,
+                        // enable: ctrl.isAdmin,
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(4),

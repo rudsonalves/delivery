@@ -2,7 +2,7 @@ import 'package:mobx/mobx.dart';
 
 import '../../common/models/address.dart';
 import '../../repository/viacep/via_cep_repository.dart';
-import 'common/generic_functions.dart';
+import 'common/store_func.dart';
 
 part 'personal_data_store.g.dart';
 
