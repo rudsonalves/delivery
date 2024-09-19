@@ -4,7 +4,7 @@ import '../../common/models/user.dart';
 import '../../common/settings/app_settings.dart';
 import '../../common/utils/data_result.dart';
 import '../../locator.dart';
-import '../../stores/mobx/sign_in_store.dart';
+import '../../stores/pages/sign_in_store.dart';
 import '../../stores/user/user_store.dart';
 
 class SignInController {

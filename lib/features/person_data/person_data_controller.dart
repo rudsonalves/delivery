@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../../locator.dart';
 import '../../stores/user/user_store.dart';
 import '/components/custons_text_controllers/masked_text_controller.dart';
-import '../../stores/mobx/personal_data_store.dart';
+import '../../stores/pages/personal_data_store.dart';
 import 'widgets/text_input_dialog.dart';
 
 class PersonController {

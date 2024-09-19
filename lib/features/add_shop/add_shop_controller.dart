@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../../common/models/shop.dart';
 import '../../common/utils/data_result.dart';
-import '../../stores/mobx/common/store_func.dart';
-import '/stores/mobx/add_shop_store.dart';
+import '../../stores/pages/common/store_func.dart';
+import '../../stores/pages/add_shop_store.dart';
 
 class AddShopController {
   final pageStore = AddShopStore();

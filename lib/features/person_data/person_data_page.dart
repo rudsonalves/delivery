@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
-import '../../stores/mobx/common/store_func.dart';
+import '../../stores/pages/common/store_func.dart';
 import '/components/widgets/big_bottom.dart';
 import '../../components/widgets/custom_text_field.dart';
 import 'person_data_controller.dart';

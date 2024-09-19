@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../common/models/client.dart';
 import '../../common/utils/data_result.dart';
-import '../../stores/mobx/common/store_func.dart';
+import '../../stores/pages/common/store_func.dart';
 import '/components/custons_text_controllers/masked_text_controller.dart';
-import '../../stores/mobx/add_client_store.dart';
+import '../../stores/pages/add_client_store.dart';
 
 class AddClientController {
   final pageStore = AddClientStore();

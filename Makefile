@@ -30,7 +30,7 @@ diff:
 
 push:
 	git add .
-	git commit -F ~/commit.txt
+	git commit -F ~/commit.md
 	git push origin HEAD
 	git checkout main
 
@@ -46,7 +46,7 @@ firebase_emu_debug:
 	firebase emulators:start --import=./emulator_data --debug
 
 firebase_emu_make_cache:
-	rm -rf ./emulator_data; firebase emulators:export ./emulator_data
+	firebase emulators:export ./emulator_data -f
 
 build_runner:
 	dart run build_runner watch
