@@ -4,8 +4,8 @@ import '../../common/utils/data_result.dart';
 import '/locator.dart';
 import '/common/models/shop.dart';
 import '../../repository/firebase_store/shop_firebase_repository.dart';
-import '../../stores/mobx/common/store_func.dart';
-import '../../stores/mobx/shops_store.dart';
+import '../../stores/pages/common/store_func.dart';
+import '../../stores/pages/shops_store.dart';
 import '../../stores/user/user_store.dart';
 import '../add_shop/add_shop_page.dart';
 

@@ -2,6 +2,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 /// role descriptions
 /// - admin: administrador do sistema.
@@ -45,7 +46,7 @@ class UserModel {
     switch (userRole) {
       case UserRole.admin:
         title = 'Administrador';
-        icon = Icons.admin_panel_settings_rounded;
+        icon = Symbols.admin_panel_settings_rounded;
         break;
       case UserRole.delivery:
         title = 'Entregador';
@@ -53,11 +54,14 @@ class UserModel {
         break;
       case UserRole.business:
         title = 'Comerciante';
-        icon = Icons.person_rounded;
+        icon = Symbols.business;
         break;
       case UserRole.manager:
         title = 'Gerente';
-        icon = Icons.manage_accounts_outlined;
+        icon = Symbols.manage_accounts_rounded;
+      default:
+        title = 'Clique para entrar';
+        icon = Symbols.people_rounded;
     }
 
     return (title, icon);

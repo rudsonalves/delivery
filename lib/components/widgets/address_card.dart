@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../common/models/address.dart';
-import '../../stores/mobx/common/store_func.dart';
+import '../../stores/pages/common/store_func.dart';
 
 class AddressCard extends StatelessWidget {
   final ZipStatus zipStatus;

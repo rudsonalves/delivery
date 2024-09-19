@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../common/models/user.dart';
 import '../../common/settings/app_settings.dart';
 import '../../locator.dart';
-import '../../stores/mobx/sign_up_store.dart';
+import '../../stores/pages/sign_up_store.dart';
 import '../../stores/user/user_store.dart';
 
 class SignUpController {

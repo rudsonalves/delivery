@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../common/models/user.dart';
 import '../../common/settings/app_settings.dart';
 import '../../locator.dart';
-import '../../stores/mobx/home_store.dart';
+import '../../stores/pages/home_store.dart';
 import '../../stores/user/user_store.dart';
 
 class HomeController {
