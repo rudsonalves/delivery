@@ -11,6 +11,7 @@ class HomeDrawer extends StatelessWidget {
   final void Function() clients;
   final void Function() deliceryRequest;
   final void Function() stores;
+  final void Function() account;
 
   const HomeDrawer({
     super.key,
@@ -20,6 +21,7 @@ class HomeDrawer extends StatelessWidget {
     required this.clients,
     required this.deliceryRequest,
     required this.stores,
+    required this.account,
   });
 
   @override
@@ -37,6 +39,11 @@ class HomeDrawer extends StatelessWidget {
       child: ListView(
         children: [
           CustomDrawerHeader(controller: controller),
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text('Conta'),
+            onTap: account,
+          ),
           if (controller.isAdmin || controller.isBusiness)
             ListTile(
               leading: const Icon(Icons.people),

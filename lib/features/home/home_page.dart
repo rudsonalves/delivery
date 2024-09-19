@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
+import '../account_page/account_page.dart';
 import '../stores/shops_page.dart';
 import '/features/delivery_request/delivery_request_page.dart';
 import '/features/clients/clients_page.dart';
@@ -83,6 +84,11 @@ class _HomePageState extends State<HomePage> {
     Navigator.pushNamed(context, ShopsPage.routeName);
   }
 
+  void _accountPage() {
+    Navigator.pop(context);
+    Navigator.pushNamed(context, AccountPage.routeName);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -109,6 +115,7 @@ class _HomePageState extends State<HomePage> {
         logout: _logout,
         deliceryRequest: _deliceryRequest,
         stores: _storesPage,
+        account: _accountPage,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.pushNamed(context, PersonDataPage.routeName),

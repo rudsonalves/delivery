@@ -20,6 +20,13 @@ class ShopsPage extends StatefulWidget {
 class _ShopsPageState extends State<ShopsPage> {
   final ctrl = ShopsController();
 
+  @override
+  void initState() {
+    super.initState();
+
+    ctrl.init();
+  }
+
   void _backPage() {
     Navigator.of(context).pop();
   }

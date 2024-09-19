@@ -15,15 +15,22 @@ exports.setUserClaims = onCall(async (request) => {
   const uid = data.uid;
   const role = data.role !== undefined ? data.role : 1;
   const status = data.status !== undefined ? data.status : 0;
+  const managerId = data.managerId !== undefined ? data.managerId : "";
 
-  await admin.auth().setCustomUserClaims(uid, {
+  const customClaims = {
     role: role,
     status: status,
-  });
+  };
+
+  if (managerId) {
+    customClaims.managerId = managerId;
+  }
+
+  await admin.auth().setCustomUserClaims(uid, customClaims);
 
   return {
     message: `Success! User with UID ${uid} registered with role' +
-      ' ${role} and status ${status}.`,
+      ' ${role}, status ${status}, and managerId "${managerId}".`,
   };
 });
 

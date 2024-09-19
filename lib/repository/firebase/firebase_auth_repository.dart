@@ -109,6 +109,7 @@ class FirebaseAuthRepository implements AuthRepository {
           'uid': user.id,
           'role': user.role.index,
           'status': user.userStatus.index,
+          'managerId': user.managerId,
         });
       } else {
         throw Exception("User not authenticated");
@@ -121,8 +122,8 @@ class FirebaseAuthRepository implements AuthRepository {
 
   Future<bool> _checkAndSetFirstAdmin(String userId) async {
     final app = locator<AppSettings>();
-    if (app.adminChecked) {
-      // It has been verified before, so it is not the first user
+    // It has been verified before, so it is not the first user
+    if (locator<AppSettings>().adminChecked) {
       return false;
     }
 
@@ -248,37 +249,6 @@ class FirebaseAuthRepository implements AuthRepository {
     }
   }
 
-  // Future<UserModel> _recoverUserModel(UserModel user) async {
-  //   // Recover user from local server
-  //   UserModel user1 = user.copyWith();
-
-  //   // recover from local store
-  //   UserModel? localUser = localService.getCachedUser();
-  //   if (localUser != null) {
-  //     if (localUser.id == user1.id) {
-  //       user1.role = localUser.role;
-  //       user1.userStatus = localUser.userStatus;
-  //       return user1;
-  //     }
-  //     // New user conect in local device
-  //     await localService.clearCachedUser();
-  //   }
-
-  //   // Recover user from firebase
-  //   final result = await userFirestore.get(user1);
-  //   if (result.isFailure) {
-  //     throw Exception('get user in firebase error');
-  //   }
-  //   if (result.data == null) {
-  //     throw Exception('user data not found!');
-  //   }
-  //   final user2 = result.data as UserModel;
-
-  //   // Save in local store
-  //   localService.setCachedUser(user2);
-  //   return user2;
-  // }
-
   @override
   Future<void> signOut() async {
     try {
@@ -322,6 +292,7 @@ class FirebaseAuthRepository implements AuthRepository {
     return user.copyWith(
       role: UserRole.values[claims['role'] as int],
       userStatus: UserStatus.values[claims['status'] as int],
+      managerId: claims['managerId'] as String?,
       // emailVerified: claims['email_verified'] as bool,
     );
   }

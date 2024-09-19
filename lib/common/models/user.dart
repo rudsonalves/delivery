@@ -21,6 +21,7 @@ class UserModel {
   String? password;
   UserRole role;
   UserStatus userStatus;
+  String? managerId;
   bool emailVerified;
   String? photoURL;
   DateTime? creationAt;
@@ -34,6 +35,7 @@ class UserModel {
     this.password,
     this.role = UserRole.delivery,
     this.userStatus = UserStatus.offline,
+    this.managerId,
     this.emailVerified = false,
     this.photoURL,
     this.creationAt,
@@ -76,6 +78,7 @@ class UserModel {
       'password': password,
       'role': role.index,
       'userStatus': userStatus.index,
+      'managerId': managerId,
       'emailVerified': emailVerified,
       'photoURL': photoURL,
       'creationAt': creationAt?.millisecondsSinceEpoch,
@@ -92,6 +95,7 @@ class UserModel {
       password: map['password'] != null ? map['password'] as String : null,
       role: UserRole.values[map['role'] as int],
       userStatus: UserStatus.values[map['userStatus'] as int],
+      managerId: map['managerId'] as String?,
       emailVerified: map['emailVerified'] as bool,
       photoURL: map['photoURL'] != null ? map['photoURL'] as String : null,
       creationAt: map['creationAt'] != null
@@ -116,6 +120,7 @@ class UserModel {
     String? password,
     UserRole? role,
     UserStatus? userStatus,
+    String? managerId,
     bool? emailVerified,
     String? photoURL,
     DateTime? creationAt,
@@ -129,11 +134,25 @@ class UserModel {
       password: password ?? this.password,
       role: role ?? this.role,
       userStatus: userStatus ?? this.userStatus,
+      managerId: managerId ?? this.managerId,
       emailVerified: emailVerified ?? this.emailVerified,
       photoURL: photoURL ?? this.photoURL,
       creationAt: creationAt ?? this.creationAt,
       lastSignIn: lastSignIn ?? this.lastSignIn,
     );
+  }
+
+  String get accountId {
+    switch (role) {
+      case UserRole.admin:
+        return 'admin';
+      case UserRole.business:
+        return id!;
+      case UserRole.delivery:
+        return 'none';
+      case UserRole.manager:
+        return managerId ?? 'none';
+    }
   }
 
   @override
@@ -145,6 +164,7 @@ class UserModel {
         ' password: $password\n,'
         ' role: ${role.name}\n,'
         ' userStatus: ${userStatus.name}\n,'
+        ' managerId: $managerId\n,'
         ' emailVerified: $emailVerified\n,'
         ' photoURL: $photoURL\n,'
         ' creationAt: $creationAt\n,'
