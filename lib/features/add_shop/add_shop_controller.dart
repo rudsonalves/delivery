@@ -45,4 +45,8 @@ class AddShopController {
     complementController.dispose();
     descriptionController.dispose();
   }
+
+  void setManager(Map<String, dynamic> manager) {
+    pageStore.setManager(manager);
+  }
 }

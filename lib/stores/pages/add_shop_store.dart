@@ -29,6 +29,12 @@ abstract class _AddShopStore with Store {
   String? description;
 
   @observable
+  String? managerId;
+
+  @observable
+  String? managerName;
+
+  @observable
   String? addressType = 'Comercial';
 
   @observable
@@ -61,6 +67,14 @@ abstract class _AddShopStore with Store {
   String? id;
   String? userId;
 
+  @action
+  void setManager(Map<String, dynamic> manager) {
+    _checkIsEdited(managerId, manager['id']);
+    _checkIsEdited(managerName, manager['name']);
+    managerId = manager['id'];
+    managerName = manager['name'];
+  }
+
   Future<ShopModel?> getShopFromForm() async {
     state = PageState.loading;
     if (!isValid()) {
@@ -79,6 +93,8 @@ abstract class _AddShopStore with Store {
         userId: locator<UserStore>().currentUser!.id!,
         name: name!,
         description: description,
+        managerId: managerId,
+        managerName: managerName,
         address: address,
       );
     }
@@ -91,6 +107,8 @@ abstract class _AddShopStore with Store {
     userId = shop.userId;
     name = shop.name;
     description = shop.description;
+    managerId = shop.managerId;
+    managerName = shop.managerName;
     address = shop.address;
     zipCode = shop.address?.zipCode;
     number = shop.address?.number;

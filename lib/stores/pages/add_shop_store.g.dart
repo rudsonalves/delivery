@@ -56,6 +56,38 @@ mixin _$AddShopStore on _AddShopStore, Store {
     });
   }
 
+  late final _$managerIdAtom =
+      Atom(name: '_AddShopStore.managerId', context: context);
+
+  @override
+  String? get managerId {
+    _$managerIdAtom.reportRead();
+    return super.managerId;
+  }
+
+  @override
+  set managerId(String? value) {
+    _$managerIdAtom.reportWrite(value, super.managerId, () {
+      super.managerId = value;
+    });
+  }
+
+  late final _$managerNameAtom =
+      Atom(name: '_AddShopStore.managerName', context: context);
+
+  @override
+  String? get managerName {
+    _$managerNameAtom.reportRead();
+    return super.managerName;
+  }
+
+  @override
+  set managerName(String? value) {
+    _$managerNameAtom.reportWrite(value, super.managerName, () {
+      super.managerName = value;
+    });
+  }
+
   late final _$addressTypeAtom =
       Atom(name: '_AddShopStore.addressType', context: context);
 
@@ -259,6 +291,17 @@ mixin _$AddShopStore on _AddShopStore, Store {
       ActionController(name: '_AddShopStore', context: context);
 
   @override
+  void setManager(Map<String, dynamic> manager) {
+    final _$actionInfo = _$_AddShopStoreActionController.startAction(
+        name: '_AddShopStore.setManager');
+    try {
+      return super.setManager(manager);
+    } finally {
+      _$_AddShopStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void setShopFromShop(ShopModel shop) {
     final _$actionInfo = _$_AddShopStoreActionController.startAction(
         name: '_AddShopStore.setShopFromShop');
@@ -396,6 +439,8 @@ mixin _$AddShopStore on _AddShopStore, Store {
 name: ${name},
 errorName: ${errorName},
 description: ${description},
+managerId: ${managerId},
+managerName: ${managerName},
 addressType: ${addressType},
 zipCode: ${zipCode},
 errorZipCode: ${errorZipCode},

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../common/models/user.dart';
 import '../../common/utils/data_result.dart';
 import '/locator.dart';
 import '/common/models/shop.dart';
@@ -16,15 +17,19 @@ class ShopsController {
 
   PageState get state => pageStore.state;
   bool get isAdmin => userStore.isAdmin;
+  UserModel? get currentUser => userStore.currentUser;
+  String accountId = '';
 
-  Future<void> editShop(BuildContext context, ShopModel client) async {
-    final result = await shopRepository.getAddressesForShop(client.id!);
+  void init() {}
+
+  Future<void> editShop(BuildContext context, ShopModel shop) async {
+    final result = await shopRepository.getAddressesForShop(shop.id!);
 
     if (result.isSuccess) {
       final address = result.data;
 
       if (address != null && address.isNotEmpty) {
-        client.address = address.first;
+        shop.address = address.first;
       }
     }
 
@@ -32,7 +37,7 @@ class ShopsController {
       await Navigator.pushNamed(
         context,
         AddShopPage.routeName,
-        arguments: client,
+        arguments: shop,
       );
     }
   }

@@ -18,6 +18,108 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/09/19 - version: 0.4.01+19
+
+Implemented new features, enhancements, and configuration updates.
+
+1. **android/app/src/main/AndroidManifest.xml**
+   - Added `android.permission.CAMERA` permission.
+
+2. **firebase.json**
+   - Updated Firebase emulator host to `192.168.0.22` for the following services:
+     - Functions
+     - Auth
+     - Firestore
+     - UI
+     - Database
+     - Storage
+     - Remote Config
+
+3. **functions/index.js**
+   - Added `managerId` to user claims.
+   - Modified `setUserClaims` function to include `managerId` when provided.
+   - Updated success message to include `managerId`.
+
+4. **lib/common/models/shop.dart**
+   - Added `managerId` and `managerName` fields to `ShopModel`.
+   - Updated constructor to initialize `managerId` and `managerName`.
+   - Included `managerId` and `managerName` in `toMap`, `fromMap`, `copyWith`, and `toString` methods.
+
+5. **lib/common/models/user.dart**
+   - Added `managerId` field to `UserModel`.
+   - Updated constructor and `toMap`/`fromMap` methods to handle `managerId`.
+   - Added `accountId` getter based on user role.
+   - Updated `toString` method to include `managerId`.
+
+6. **lib/features/account_page/account_controller.dart**
+   - Introduced `AccountController` class managing `UserStore` and `AccountStore`.
+   - Implemented methods to toggle QR code visibility.
+
+7. **lib/features/account_page/account_page.dart**
+   - Added `AccountPage` widget with QR code display and toggle functionality.
+
+8. **lib/features/add_shop/add_shop_controller.dart**
+   - Added `setManager` method to handle manager selection.
+
+9. **lib/features/add_shop/add_shop_page.dart**
+   - Imported `QRCodeReadPage`.
+   - Added `_getManager` method to navigate to `QRCodeReadPage` and set manager data.
+   - Updated UI to include manager selection interface.
+
+10. **lib/features/home/home_page.dart**
+    - Imported `AccountPage`.
+    - Added `_accountPage` method to navigate to `AccountPage`.
+
+11. **lib/features/home/widgets/home_drawer.dart**
+    - Added `account` callback.
+    - Included "Account" ListTile in the navigation drawer.
+
+12. **lib/features/qrcode_read/qrcode_read_page.dart**
+    - Introduced `QRCodeReadPage` widget for scanning QR codes.
+
+13. **lib/features/stores/shops_controller.dart**
+    - Imported `UserModel`.
+    - Added `currentUser` and `accountId` fields.
+    - Updated `editShop` method parameters and logic to handle shop data.
+
+14. **lib/features/stores/shops_page.dart**
+    - Initialized `ShopsController` in `initState`.
+
+15. **lib/main.dart**
+    - Updated Firebase emulator host to `192.168.0.22` for Auth, Firestore, and Functions.
+
+16. **lib/my_material_app.dart**
+    - Imported `AccountPage` and `QRCodeReadPage`.
+    - Added routes for `AccountPage` and `QRCodeReadPage`.
+
+17. **lib/repository/firebase/firebase_auth_repository.dart**
+    - Included `managerId` in user claims.
+    - Refactored `adminChecked` logic.
+    - Updated methods to handle `managerId`.
+
+18. **lib/repository/firebase_store/shop_firebase_repository.dart**
+    - Imported `UserStore`.
+    - Updated `streamShopByName` to filter shops based on `accountId`.
+
+19. **lib/stores/pages/account_store.dart**
+    - Introduced `AccountStore` with `showQRCode` observable and `toggleShowQRCode` action.
+
+20. **lib/stores/pages/add_shop_store.dart**
+    - Added `managerId` and `managerName` observables.
+    - Implemented `setManager` action.
+    - Updated `getShopFromForm` and `setShopFromShop` methods to handle manager data.
+
+21. **pubspec.yaml**
+    - Bumped version to `0.4.01+19`.
+    - Added `qr_flutter` and `qr_code_scanner` dependencies.
+
+22. **pubspec.lock**
+    - Downgraded `js` package from `0.7.1` to `0.6.7`.
+    - Added `qr`, `qr_code_scanner`, and `qr_flutter` packages.
+
+These updates enhance the application's functionality by introducing QR code features, manager handling, and improved Firebase configurations.
+
+
 ## 2024/09/19 - version: 0.4.00+18
 
 Refactor Store Directory Structure, Update Makefile, and Modify User Model

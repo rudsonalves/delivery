@@ -19,9 +19,9 @@ Future<void> main() async {
 
   // Se estiver no modo de desenvolvimento, conecte ao emulador do Firestore
   if (kDebugMode) {
-    await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
-    FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
-    FirebaseFunctions.instance.useFunctionsEmulator('localhost', 5001);
+    await FirebaseAuth.instance.useAuthEmulator('192.168.0.22', 9099);
+    FirebaseFirestore.instance.useFirestoreEmulator('192.168.0.22', 8080);
+    FirebaseFunctions.instance.useFunctionsEmulator('192.168.0.22', 5001);
     log('Using firebase emulator...');
   }
 

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 import '../../common/models/shop.dart';
 import '../../common/utils/data_result.dart';
 import '../../components/widgets/address_card.dart';
 import '../../components/widgets/message_snack_bar.dart';
 import '../../components/widgets/state_loading.dart';
+import '../qrcode_read/qrcode_read_page.dart';
 import '/features/add_shop/add_shop_controller.dart';
 import '../../common/theme/app_text_style.dart';
 import '../../components/widgets/big_bottom.dart';
@@ -77,6 +79,13 @@ class _AddShopPageState extends State<AddShopPage> {
     _backPage();
   }
 
+  Future<void> _getManager() async {
+    final manager = await Navigator.pushNamed(context, QRCodeReadPage.routeName)
+        as Map<String, dynamic>?;
+
+    if (manager != null) ctrl.setManager(manager);
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -113,6 +122,15 @@ class _AddShopPageState extends State<AddShopPage> {
                       textInputAction: TextInputAction.next,
                       onChanged: ctrl.pageStore.setDescription,
                       textCapitalization: TextCapitalization.words,
+                    ),
+                    InkWell(
+                      onTap: _getManager,
+                      child: Card(
+                        child: ListTile(
+                          leading: const Icon(Symbols.manage_accounts_rounded),
+                          title: Text(ctrl.pageStore.managerName ?? '- * -'),
+                        ),
+                      ),
                     ),
                     Row(
                       children: [

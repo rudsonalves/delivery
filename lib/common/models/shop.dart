@@ -5,6 +5,8 @@ import 'address.dart';
 class ShopModel {
   String? id;
   String userId;
+  String? managerId;
+  String? managerName;
   AddressModel? address;
   String name;
   String? description;
@@ -12,6 +14,8 @@ class ShopModel {
   ShopModel({
     this.id,
     required this.userId,
+    this.managerId,
+    this.managerName,
     this.address,
     required this.name,
     this.description,
@@ -20,6 +24,8 @@ class ShopModel {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'userId': userId,
+      'managerId': managerId,
+      'managerName': managerName,
       'name': name,
       'description': description,
     };
@@ -29,6 +35,8 @@ class ShopModel {
     return ShopModel(
       id: map['id'] as String?,
       userId: map['userId'] as String,
+      managerId: map['managerId'] as String?,
+      managerName: map['managerName'] as String?,
       name: map['name'] as String,
       description: map['description'] as String?,
     );
@@ -42,16 +50,20 @@ class ShopModel {
   ShopModel copyWith({
     String? id,
     String? userId,
+    String? managerId,
+    String? managerName,
     AddressModel? address,
     String? name,
-    String? comments,
+    String? description,
   }) {
     return ShopModel(
       id: id ?? this.id,
       userId: userId ?? this.userId,
+      managerId: managerId ?? this.managerId,
+      managerName: managerName ?? this.managerName,
       address: address ?? this.address,
       name: name ?? this.name,
-      description: comments ?? this.description,
+      description: description ?? this.description,
     );
   }
 
@@ -59,6 +71,8 @@ class ShopModel {
   String toString() {
     return 'ShopModel(id: $id,'
         ' userId: $userId,'
+        ' managerId: $managerId,'
+        ' managerName: $managerName,'
         ' address: $address,'
         ' name: $name,'
         ' description: $description)';

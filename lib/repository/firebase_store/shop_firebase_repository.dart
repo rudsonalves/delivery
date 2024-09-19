@@ -2,6 +2,8 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../locator.dart';
+import '../../stores/user/user_store.dart';
 import '/common/models/address.dart';
 import '/common/models/shop.dart';
 import '/common/utils/data_result.dart';
@@ -12,7 +14,7 @@ class ShopFirebaseRepository implements AbstractShopRepository {
 
   static const keyShops = 'shops';
   static const keyAddress = 'addresses';
-  static const userId = 'userId';
+  static const keyUserId = 'userId';
   static const keyName = 'name';
   static const keyComments = 'comments';
 
@@ -209,16 +211,36 @@ class ShopFirebaseRepository implements AbstractShopRepository {
 
   @override
   Stream<List<ShopModel>> streamShopByName() {
+    final currentUser = locator<UserStore>().currentUser;
+
     try {
-      return _firebase
-          .collection(keyShops)
-          .orderBy(keyName)
-          .snapshots()
-          .map((snapshot) => snapshot.docs
-              .map(
-                (doc) => ShopModel.fromMap(doc.data()).copyWith(id: doc.id),
-              )
-              .toList());
+      String accountId = currentUser != null ? currentUser.accountId : 'none';
+
+      switch (accountId) {
+        case 'admin':
+          return _firebase
+              .collection(keyShops)
+              .orderBy(keyName)
+              .snapshots()
+              .map((snapshot) => snapshot.docs
+                  .map(
+                    (doc) => ShopModel.fromMap(doc.data()).copyWith(id: doc.id),
+                  )
+                  .toList());
+        case 'none':
+          return const Stream.empty();
+        default:
+          return _firebase
+              .collection(keyShops)
+              .where(keyUserId, isEqualTo: accountId)
+              .orderBy(keyName)
+              .snapshots()
+              .map((snapshot) => snapshot.docs
+                  .map(
+                    (doc) => ShopModel.fromMap(doc.data()).copyWith(id: doc.id),
+                  )
+                  .toList());
+      }
     } catch (err) {
       final message = 'ClientFirebaseRepository.streamClientsByName: $err';
       log(message);
