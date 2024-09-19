@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 import '../account_page/account_page.dart';
-import '../stores/shops_page.dart';
+import '../shops/shops_page.dart';
 import '/features/delivery_request/delivery_request_page.dart';
 import '/features/clients/clients_page.dart';
 import '/features/home/widgets/home_drawer.dart';
