@@ -18,6 +18,531 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/09/19 - version: 0.4.00+18
+
+Refactor Store Directory Structure, Update Makefile, and Modify User Model
+
+This commit encompasses significant refactoring of the project's directory structure, updates to the Makefile, and modifications to the `UserModel`. Below is a detailed breakdown of the changes:
+
+1. **Makefile Updates (`Makefile`)**
+   
+   - **Changed Firebase Emulator Export Command:**
+     
+     - **Before:**
+       
+       ```makefile
+       firebase_emu_make_cache:
+           rm -rf ./emulator_data; firebase emulators:export ./emulator_data
+       ```
+     
+     - **After:**
+       
+       ```makefile
+       firebase_emu_make_cache:
+           firebase emulators:export ./emulator_data -f
+       ```
+     
+     - **Explanation:**
+       
+       - Removed the `rm -rf ./emulator_data;` command to prevent forcefully deleting the `emulator_data` directory before exporting.
+       - Added the `-f` flag to the `firebase emulators:export` command to force the export, ensuring that existing data is overwritten without manual deletion.
+
+2. **Store Directory Refactoring**
+   
+   - **Renaming `stores/mobx/` to `stores/pages/`:**
+     - **Files Renamed:**
+       - `add_client_store.dart` → `pages/add_client_store.dart`
+       - `add_client_store.g.dart` → `pages/add_client_store.g.dart`
+       - `add_shop_store.dart` → `pages/add_shop_store.dart`
+       - `add_shop_store.g.dart` → `pages/add_shop_store.g.dart`
+       - `common/store_func.dart` → `pages/common/store_func.dart`
+       - `home_store.dart` → `pages/home_store.dart`
+       - `home_store.g.dart` → `pages/home_store.g.dart`
+       - `personal_data_store.dart` → `pages/personal_data_store.dart`
+       - `personal_data_store.g.dart` → `pages/personal_data_store.g.dart`
+       - `shops_store.dart` → `pages/shops_store.dart`
+       - `shops_store.g.dart` → `pages/shops_store.g.dart`
+       - `sign_in_store.dart` → `pages/sign_in_store.dart`
+       - `sign_in_store.g.dart` → `pages/sign_in_store.g.dart`
+       - `sign_up_store.dart` → `pages/sign_up_store.dart`
+       - `sign_up_store.g.dart` → `pages/sign_up_store.g.dart`
+     - **Explanation:**
+       - The MobX stores were relocated from the `mobx` directory to a new `pages` directory within `stores` to better organize store files based on their associated features or pages.
+       - All import statements within the project were updated to reflect the new file paths.
+
+3. **User Model Enhancements (`lib/common/models/user.dart`)**
+   
+   - **Imported Material Symbols Icons:**
+     
+     - **Before:**
+       
+       ```dart
+       import 'package:flutter/material.dart';
+       ```
+     
+     - **After:**
+       
+       ```dart
+       import 'package:flutter/material.dart';
+       import 'package:material_symbols_icons/material_symbols_icons.dart';
+       ```
+     
+     - **Explanation:**
+       
+       - Added the `material_symbols_icons` package to utilize a broader range of icons, enhancing the UI's visual appeal.
+   
+   - **Updated Icon Assignments:**
+     
+     - **Before:**
+       
+       ```dart
+       case UserRole.admin:
+         title = 'Administrador';
+         icon = Icons.admin_panel_settings_rounded;
+         break;
+       // ...
+       case UserRole.business:
+         title = 'Comerciante';
+         icon = Icons.person_rounded;
+         break;
+       case UserRole.manager:
+         title = 'Gerente';
+         icon = Icons.manage_accounts_outlined;
+         break;
+       ```
+     
+     - **After:**
+       
+       ```dart
+       case UserRole.admin:
+         title = 'Administrador';
+         icon = Symbols.admin_panel_settings_rounded;
+         break;
+       // ...
+       case UserRole.business:
+         title = 'Comerciante';
+         icon = Symbols.business;
+         break;
+       case UserRole.manager:
+         title = 'Gerente';
+         icon = Symbols.manage_accounts_rounded;
+         break;
+       default:
+         title = 'Clique para entrar';
+         icon = Symbols.people_rounded;
+         break;
+       ```
+     
+     - **Explanation:**
+       
+       - Replaced standard `Icons` with `Symbols` from the `material_symbols_icons` package for a more consistent and modern iconography.
+       - Added a `default` case to handle scenarios where the user role might not match any predefined roles, providing a fallback title and icon.
+
+4. **Widget Import Path Corrections**
+   
+   - **Address Card Widget (`lib/components/widgets/address_card.dart`):**
+     
+     - **Before:**
+       
+       ```dart
+       import '../../stores/mobx/common/store_func.dart';
+       ```
+     
+     - **After:**
+       
+       ```dart
+       import '../../stores/pages/common/store_func.dart';
+       ```
+     
+     - **Explanation:**
+       
+       - Updated the import path to align with the refactored store directory structure.
+   
+   - **Add Client Page (`lib/features/add_client/add_cliend_page.dart`):**
+     
+     - **Before:**
+       
+       ```dart
+       import '../../stores/mobx/common/store_func.dart';
+       ```
+     
+     - **After:**
+       
+       ```dart
+       import '../../stores/pages/common/store_func.dart';
+       ```
+     
+     - **Explanation:**
+       
+       - Corrected the import path to the relocated `store_func.dart`.
+       - **Note:** There's a typo in the filename `add_cliend_page.dart`; it should likely be `add_client_page.dart`. Ensure that the filename is corrected to prevent import issues.
+   
+   - **Add Client Controller (`lib/features/add_client/add_client_controller.dart`):**
+     
+     - **Before:**
+       
+       ```dart
+       import '../../stores/mobx/common/store_func.dart';
+       import '../../stores/mobx/add_client_store.dart';
+       ```
+     
+     - **After:**
+       
+       ```dart
+       import '../../stores/pages/common/store_func.dart';
+       import '../../stores/pages/add_client_store.dart';
+       ```
+     
+     - **Explanation:**
+       
+       - Updated import paths to reflect the new store directory structure.
+   
+   - **Add Shop Controller & Page (`lib/features/add_shop/`):**
+     
+     - **Before:**
+       
+       ```dart
+       import '../../stores/mobx/common/store_func.dart';
+       import '/stores/mobx/add_shop_store.dart';
+       ```
+     
+     - **After:**
+       
+       ```dart
+       import '../../stores/pages/common/store_func.dart';
+       import '../../stores/pages/add_shop_store.dart';
+       ```
+     
+     - **Explanation:**
+       
+       - Corrected import paths following the store directory refactoring.
+   
+   - **Home Controller (`lib/features/home/home_controller.dart`):**
+     
+     - **Before:**
+       
+       ```dart
+       import '../../stores/mobx/home_store.dart';
+       ```
+     
+     - **After:**
+       
+       ```dart
+       import '../../stores/pages/home_store.dart';
+       ```
+     
+     - **Explanation:**
+       
+       - Updated the import path to the relocated `home_store.dart`.
+   
+   - **Person Data Controller & Page (`lib/features/person_data/`):**
+     
+     - **Before:**
+       
+       ```dart
+       import '../../stores/mobx/common/store_func.dart';
+       import '../../stores/mobx/personal_data_store.dart';
+       ```
+     
+     - **After:**
+       
+       ```dart
+       import '../../stores/pages/common/store_func.dart';
+       import '../../stores/pages/personal_data_store.dart';
+       ```
+     
+     - **Explanation:**
+       
+       - Updated import paths to align with the new store directory structure.
+   
+   - **Sign In & Sign Up Controllers (`lib/features/sign_in/`, `lib/features/sign_up/`):**
+     
+     - **Before:**
+       
+       ```dart
+       import '../../stores/mobx/sign_in_store.dart';
+       import '../../stores/mobx/sign_up_store.dart';
+       ```
+     
+     - **After:**
+       
+       ```dart
+       import '../../stores/pages/sign_in_store.dart';
+       import '../../stores/pages/sign_up_store.dart';
+       ```
+     
+     - **Explanation:**
+       
+       - Refactored import paths to point to the new locations of the store files.
+   
+   - **Shops Controller & Page (`lib/features/stores/`):**
+     
+     - **Before:**
+       
+       ```dart
+       import '../../stores/mobx/common/store_func.dart';
+       import '../../stores/mobx/shops_store.dart';
+       ```
+     
+     - **After:**
+       
+       ```dart
+       import '../../stores/pages/common/store_func.dart';
+       import '../../stores/pages/shops_store.dart';
+       ```
+     
+     - **Explanation:**
+       
+       - Updated import paths following the store directory refactoring.
+
+5. **Store Function Utilities (`lib/stores/pages/common/store_func.dart`)**
+   
+   - **Created `store_func.dart`:**
+     
+     - **Content:**
+       
+       ```dart
+       import '../../../common/models/via_cep_address.dart';
+       import '../../../repository/viacep/via_cep_repository.dart';
+       
+       enum PageState { initial, loading, success, error }
+       
+       enum ZipStatus { initial, loading, success, error }
+       
+       const addressTypes = [
+         'Apartamento',
+         'Clínica',
+         'Comercial',
+         'Escritório',
+         'Residencial',
+         'Trabalho',
+       ];
+       
+       class StoreFunc {
+         StoreFunc._();
+       
+         static bool itsNotEmail(String? email) {
+           final regex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+           return (email == null || email.isEmpty || !regex.hasMatch(email));
+         }
+       
+         static String removeNonNumber(String? value) {
+           return value?.replaceAll(RegExp(r'[^\d]'), '') ?? '';
+         }
+       
+         static String? validCpf(String? cpf) {
+           if (cpf == null || cpf.length != 11 || RegExp(r'^(\d)\1*$').hasMatch(cpf)) {
+             return 'CPF inválido';
+           }
+       
+           int digit1 = _calculateDigit(cpf.substring(0, 9), 10);
+           int digit2 = _calculateDigit(cpf.substring(0, 10), 11);
+       
+           bool valid = digit1 == int.parse(cpf[9]) && digit2 == int.parse(cpf[10]);
+           if (!valid) {
+             return 'CPF inválido';
+           }
+           return null;
+         }
+       
+         static int _calculateDigit(String cpf, int factor) {
+           int total = 0;
+           for (int i = 0; i < cpf.length; i++) {
+             total += int.parse(cpf[i]) * factor--;
+           }
+           int rest = total % 11;
+           return (rest < 2) ? 0 : 11 - rest;
+         }
+       
+         static Future<(ZipStatus, String?, ViaCepAddressModel?)> fetchAddress(
+             String? zipCode) async {
+           try {
+             final response = await ViaCepRepository.getLocalByCEP(zipCode!);
+             if (!response.isSuccess) {
+               return (ZipStatus.error, 'CEP inválido', null);
+             }
+       
+             final viaAddress = response.data;
+             if (viaAddress == null) {
+               return (ZipStatus.error, 'CEP inválido', null);
+             }
+       
+             return (ZipStatus.success, null, viaAddress);
+           } catch (err) {
+             return (ZipStatus.error, 'erro desconhecido: $err', null);
+           }
+         }
+       }
+       ```
+     
+     - **Explanation:**
+       
+       - Consolidated utility functions and enums into a centralized `store_func.dart` file within the `pages/common/` directory.
+       - Provides helper methods for email validation, CPF validation, number extraction, and address fetching.
+       - Defines `PageState` and `ZipStatus` enums for consistent state management across stores.
+
+6. **User Interface Enhancements**
+   
+   - **Address Card Widget Import Path Correction (`lib/components/widgets/address_card.dart`):**
+     
+     - **Before:**
+       
+       ```dart
+       import '../../stores/mobx/common/store_func.dart';
+       ```
+     
+     - **After:**
+       
+       ```dart
+       import '../../stores/pages/common/store_func.dart';
+       ```
+     
+     - **Explanation:**
+       
+       - Updated the import path to the relocated `store_func.dart`.
+
+7. **Controller Import Path Corrections**
+   
+   - **Add Client Controller (`lib/features/add_client/add_client_controller.dart`):**
+     
+     - **Before:**
+       
+       ```dart
+       import '../../stores/mobx/common/store_func.dart';
+       import '../../stores/mobx/add_client_store.dart';
+       ```
+     
+     - **After:**
+       
+       ```dart
+       import '../../stores/pages/common/store_func.dart';
+       import '../../stores/pages/add_client_store.dart';
+       ```
+     
+     - **Explanation:**
+       
+       - Corrected import paths to reflect the new store directory structure.
+   
+   - **Add Shop Controller (`lib/features/add_shop/add_shop_controller.dart`):**
+     
+     - **Before:**
+       
+       ```dart
+       import '../../stores/mobx/common/store_func.dart';
+       import '/stores/mobx/add_shop_store.dart';
+       ```
+     
+     - **After:**
+       
+       ```dart
+       import '../../stores/pages/common/store_func.dart';
+       import '../../stores/pages/add_shop_store.dart';
+       ```
+     
+     - **Explanation:**
+       
+       - Updated import paths following the store directory refactoring.
+   
+   - **Home Controller (`lib/features/home/home_controller.dart`):**
+     
+     - **Before:**
+       
+       ```dart
+       import '../../stores/mobx/home_store.dart';
+       ```
+     
+     - **After:**
+       
+       ```dart
+       import '../../stores/pages/home_store.dart';
+       ```
+     
+     - **Explanation:**
+       
+       - Updated the import path to the relocated `home_store.dart`.
+   
+   - **Person Data Controller (`lib/features/person_data/person_data_controller.dart`):**
+     
+     - **Before:**
+       
+       ```dart
+       import '../../stores/mobx/common/store_func.dart';
+       import '../../stores/mobx/personal_data_store.dart';
+       ```
+     
+     - **After:**
+       
+       ```dart
+       import '../../stores/pages/common/store_func.dart';
+       import '../../stores/pages/personal_data_store.dart';
+       ```
+     
+     - **Explanation:**
+       
+       - Updated import paths to align with the new store directory structure.
+   
+   - **Sign In & Sign Up Controllers (`lib/features/sign_in/sign_in_controller.dart`, `lib/features/sign_up/sign_up_controller.dart`):**
+     
+     - **Before:**
+       
+       ```dart
+       import '../../stores/mobx/sign_in_store.dart';
+       import '../../stores/mobx/sign_up_store.dart';
+       ```
+     
+     - **After:**
+       
+       ```dart
+       import '../../stores/pages/sign_in_store.dart';
+       import '../../stores/pages/sign_up_store.dart';
+       ```
+     
+     - **Explanation:**
+       
+       - Refactored import paths to point to the new locations of the store files.
+   
+   - **Shops Controller (`lib/features/stores/shops_controller.dart`):**
+     
+     - **Before:**
+       
+       ```dart
+       import '../../stores/mobx/common/store_func.dart';
+       import '../../stores/mobx/shops_store.dart';
+       ```
+     
+     - **After:**
+       
+       ```dart
+       import '../../stores/pages/common/store_func.dart';
+       import '../../stores/pages/shops_store.dart';
+       ```
+     
+     - **Explanation:**
+       
+       - Updated import paths following the store directory refactoring.
+
+8. **Store Files Renaming**
+   
+   - **Renaming Stores from `mobx` to `pages`:**
+     - All store files within `lib/stores/mobx/` have been renamed to reside within `lib/stores/pages/`. This includes both the Dart files and their corresponding generated `.g.dart` files.
+     - **Example:**
+       - `lib/stores/mobx/add_client_store.dart` → `lib/stores/pages/add_client_store.dart`
+       - `lib/stores/mobx/add_client_store.g.dart` → `lib/stores/pages/add_client_store.g.dart`
+     - **Explanation:**
+       - This renaming improves the organizational structure of the project by categorizing stores based on their association with specific pages or features, enhancing maintainability and scalability.
+
+9. **Additional Notes**
+   
+   - **Typographical Correction:**
+     - The filename `add_cliend_page.dart` appears to contain a typo. It should likely be renamed to `add_client_page.dart` to maintain consistency and prevent potential import issues.
+   - **Consistency in Enum Usage:**
+     - Ensured that enums `PageState` and `ZipStatus` are consistently used across all stores, promoting uniform state management.
+   - **Iconography Enhancement:**
+     - Transitioned from using standard Flutter `Icons` to `Symbols` from the `material_symbols_icons` package for a more modern and consistent icon set across the application.
+
+These changes collectively enhance the project's structure, improve code maintainability, and ensure consistency in state management and utility functions across different features. The refactoring also paves the way for easier scalability and integration of new features in the future.
+
+
 ## 2024/09/18 - version: 0.1.13+17
 
 Update Authentication Data, Firestore Export, Models, Widgets, Features, and State Management
