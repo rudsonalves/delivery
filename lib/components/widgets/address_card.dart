@@ -39,7 +39,9 @@ class AddressCard extends StatelessWidget {
           color: colorScheme.tertiaryContainer,
           child: Padding(
             padding: const EdgeInsets.all(12),
-            child: Text((address != null) ? address!.addressString() : '- * -'),
+            child: Text((address != null)
+                ? address!.addressRepresentationString()
+                : '- * -'),
           ),
         ),
       );

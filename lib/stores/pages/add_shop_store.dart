@@ -1,14 +1,12 @@
-import 'dart:developer';
-
 import 'package:mobx/mobx.dart';
 
+import '/common/extensions/generic_extensions.dart';
 import '../../common/utils/data_result.dart';
 import '/common/models/shop.dart';
 import '../../common/models/address.dart';
 import '../../common/models/via_cep_address.dart';
 import '../../locator.dart';
 import '../../repository/firebase_store/shop_firebase_repository.dart';
-import '../../services/geolocation_service.dart';
 import '../user/user_store.dart';
 import 'common/store_func.dart';
 
@@ -83,7 +81,7 @@ abstract class _AddShopStore with Store {
     }
 
     if (address != null) {
-      if (address!.latitude == null || address!.longitude == null) {
+      if (address!.location == null) {
         await _setCoordinates();
       }
 
@@ -182,7 +180,7 @@ abstract class _AddShopStore with Store {
 
   @action
   void _validZipCode() {
-    final numbers = StoreFunc.removeNonNumber(zipCode ?? '');
+    final numbers = zipCode?.onlyNumbers() ?? '';
 
     if (numbers.length == 8) {
       errorZipCode = null;
@@ -212,8 +210,7 @@ abstract class _AddShopStore with Store {
       complement: complement,
       type: addressType ?? 'Comercial',
       neighborhood: via.neighborhood,
-      latitude: null,
-      longitude: null,
+      location: null,
       state: via.state,
       city: via.city,
     );
@@ -241,13 +238,7 @@ abstract class _AddShopStore with Store {
 
   @action
   Future<void> _setCoordinates() async {
-    final result =
-        await GeolocationServiceGoogle.getCoordinatesFromAddress(address!);
-    if (result.isFailure || result.data == null) {
-      log('Get coordenate API error!');
-      return;
-    }
-    address = result.data;
+    address = await address!.updateLocation();
   }
 
   @action

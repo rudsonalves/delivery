@@ -24,20 +24,12 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   final ctrl = SignUpController();
   final focusNode = FocusNode();
-  // late ReactionDisposer _disposer;
 
   @override
   void initState() {
     super.initState();
 
     ctrl.init();
-
-    // Reaction to monitor isLoggedIn changes
-    // _disposer = reaction<bool>((_) => ctrl.isLoggedIn, (isLoggedIn) {
-    //   if (ctrl.isLoggedIn) {
-    //     Navigator.pop(context);
-    //   }
-    // });
   }
 
   @override

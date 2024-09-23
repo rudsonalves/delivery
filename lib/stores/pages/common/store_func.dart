@@ -22,10 +22,6 @@ class StoreFunc {
     return (email == null || email.isEmpty || !regex.hasMatch(email));
   }
 
-  static String removeNonNumber(String? value) {
-    return value?.replaceAll(RegExp(r'[^\d]'), '') ?? '';
-  }
-
   static String? validCpf(String? cpf) {
     if (cpf == null || cpf.length != 11 || RegExp(r'^(\d)\1*$').hasMatch(cpf)) {
       return 'CPF inválido';

@@ -1,47 +1,21 @@
-import 'dart:convert';
 import 'dart:developer';
 
-import 'package:http/http.dart' as http;
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geocoding/geocoding.dart';
 
-import '../common/utils/data_result.dart';
-import '../locator.dart';
-import '/common/models/address.dart';
-import 'remote_config.dart';
+Future<GeoPoint?> getGeoPointFromAddress(String address) async {
+  try {
+    List<Location> locations = await locationFromAddress(address);
 
-class GeolocationServiceGoogle {
-  static Future<DataResult<AddressModel>> getCoordinatesFromAddress(
-    AddressModel address,
-  ) async {
-    try {
-      final uri = Uri.encodeComponent(address.geoAddress);
-      String apiKey = await locator<RemoteConfig>().googleApi;
-      if (apiKey.isEmpty) {
-        throw Exception('google api key not found');
-      }
-      final url =
-          'https://maps.googleapis.com/maps/api/geocode/json?address=$uri&key=$apiKey';
-      final response = await http.get(Uri.parse(url));
-
-      if (response.statusCode != 200) {
-        throw Exception('HTTP request error: ${response.statusCode}');
-      }
-
-      final Map<String, dynamic> data = json.decode(response.body);
-      if (data['status'] != 'OK') {
-        throw Exception('No results found for the address provided.');
-      }
-
-      final location = data['results'][0]['geometry']['location'];
-      final latitude = location['lat'] as double;
-      final longitude = location['lng'] as double;
-
-      return DataResult.success(
-          address.copyWith(latitude: latitude, longitude: longitude));
-    } catch (err) {
-      final message =
-          'GeolocationServiceGoogle.getCoordinatesFromAddress: $err';
-      log(message);
-      return DataResult.failure(APIFailure(message: message));
+    if (locations.isEmpty) {
+      throw Exception('No locationfound for the address provided.');
     }
+
+    final location = locations.first;
+    return GeoPoint(location.latitude, location.longitude);
+  } catch (err) {
+    final message = 'GeolocationServiceGoogle.getCoordinatesFromAddress: $err';
+    log(message);
+    return null;
   }
 }
