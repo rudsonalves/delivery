@@ -3,6 +3,26 @@ allprojects {
         google()
         mavenCentral()
     }
+
+    // Forçar jvmTarget para 1.8 em todos os módulos
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+        kotlinOptions {
+            jvmTarget = "1.8"
+        }
+    }
+}
+
+buildscript {
+    ext.kotlin_version = '1.8.10' // Exemplo, atualize conforme necessário
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.0.2' // Atualize para a versão mais recente compatível
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        // Outras dependências
+    }
 }
 
 rootProject.buildDir = "../build"

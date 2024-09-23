@@ -17,7 +17,7 @@ import 'features/clients/clients_page.dart';
 import 'features/person_data/person_data_page.dart';
 import 'features/sign_in/sign_in_page.dart';
 import 'features/sign_up/sign_up_page.dart';
-import 'features/stores/shops_page.dart';
+import 'features/shops/shops_page.dart';
 import 'locator.dart';
 
 class MyMaterialApp extends StatefulWidget {
