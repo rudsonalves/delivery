@@ -11,6 +11,10 @@ service cloud.firestore {
       return request.auth != null && request.auth.token.role == 1;
     }
 
+    function isBusinessManager() {
+      return request.auth != null && (request.auth.token.role == 1 || request.auth.token.role == 3 );
+    }
+
     function isShopOwner(shop) {
       return shop.data.userId == request.auth.uid;
     }
@@ -49,25 +53,25 @@ service cloud.firestore {
 
     // Rules for Clients collection
     match /clients/{clientId} {
+      // Permissions for others users
+      allow read: if isAuth();
+
       // Premissions for administrators (role 0)
-      allow read, write: if isAdmin();
+      allow write: if isAdmin();
 
       // Permissions for users with role 1 (can create, edit and read, but not delete)
-      allow read, create, update: if isBusiness();
-
-      // Permissions for others users
-      allow read: if request.auth != null;
+      allow create, update: if isBusinessManager();
 
       // Rules for Clients Address collection
       match /addresses/{addressId} {
+        // Permissions for others users
+        allow read: if isAuth();
+
         // Premissions for administrators (role 0)
-        allow read, write: if isAdmin();
+        allow write: if isAdmin();
 
         // Permissions for users with role 1 (can create, edit and read, but not delete)
-        allow read, create, update: if isBusiness();
-
-        // Permissions for others users
-        allow read: if request.auth != null;
+        allow create, update: if isBusinessManager();
       }
     }
 
@@ -88,7 +92,10 @@ service cloud.firestore {
       // Regras para a subcoleção "addresses" dentro de "shops"
       match /addresses/{addressId} {
         // Permissões para leitura
-        allow read: if canAccessShop(get(/databases/$(database)/documents/shops/$(shopId)));
+        allow read: if isAuth();
+
+        // Permissões para leitura
+        // allow read: if canAccessShop(get(/databases/$(database)/documents/shops/$(shopId)));
 
         // Permissões para criação e atualização
         allow create, update: if isAdmin() || (isBusiness() && isShopOwner(get(/databases/$(database)/documents/shops/$(shopId))));

@@ -2,7 +2,7 @@ name: delivery
 description: "Aplicativo de entregas."
 publish_to: 'none' 
 
-version: 0.4.01+19
+version: 0.4.02+20
 
 environment:
   sdk: ^3.5.1
@@ -18,18 +18,21 @@ dependencies:
   flutter_mobx: ^2.2.1+1
   mobx: ^2.3.3+2
   mobx_codegen: ^2.6.1
-  firebase_core: ^2.24.2
-  firebase_auth: ^4.16.0
-  cloud_firestore: ^4.14.0
-  firebase_dynamic_links: ^5.4.8
-  get_it: ^7.7.0
+  get_it: ^8.0.0
   shared_preferences: ^2.3.2
-  firebase_remote_config: ^4.3.8
-  cloud_functions: ^4.7.6
   flutter_dotenv: ^5.1.0
   material_symbols_icons: ^4.2785.1
   qr_flutter: ^4.1.0
-  qr_code_scanner: ^1.0.1
+  intl: ^0.19.0
+  geocoding: ^3.0.0
+  geoflutterfire2: ^2.3.15
+  mobile_scanner: ^5.2.3
+  firebase_auth: ^4.16.0
+  firebase_core: ^2.32.0
+  cloud_firestore: ^4.17.5
+  firebase_remote_config: ^4.4.7
+  cloud_functions: ^4.7.6
+  
 
 dev_dependencies:
   flutter_test:

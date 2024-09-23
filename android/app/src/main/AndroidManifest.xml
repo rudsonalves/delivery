@@ -4,7 +4,7 @@
         android:label="delivery"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-        <!-- Change android:usesCleartextTraffic to "false" in production -->
+        <!-- FIXME: Change android:usesCleartextTraffic to "false" in production -->
         <activity
             android:name=".MainActivity"
             android:exported="true"

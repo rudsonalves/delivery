@@ -18,6 +18,115 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/09/23 - version: 0.4.02+20
+
+Update SDK, Firebase, and Scanner Dependencies
+
+This commit upgrades the Flutter SDK, updates Firebase dependencies, replaces the QR code scanner, and removes unnecessary Firebase modules. Below are the detailed changes made across various files:
+
+1. **android/app/build.gradle**
+   - Upgraded `compileSdk` from `flutter.compileSdkVersion` to `34`.
+   - Changed `jvmTarget` from `JavaVersion.VERSION_1_8` to `"1.8"`.
+   - Updated `minSdk` to `21` and `targetSdk` to `34`.
+
+2. **android/app/src/main/AndroidManifest.xml**
+   - Modified a comment by adding `FIXME:` to indicate a pending change.
+
+3. **android/build.gradle**
+   - Configured `jvmTarget` to `1.8` for all Kotlin modules.
+   - Updated `buildscript` dependencies, including `kotlin_version` to `'1.8.10'` and `com.android.tools.build:gradle` to `'8.0.2'`.
+
+4. **android/gradle.properties**
+   - Added `dev.steenbakker.mobile_scanner.useUnbundled=true` to enable unbundled mode for `mobile_scanner`.
+
+5. **android/gradle/wrapper/gradle-wrapper.properties**
+   - Updated `distributionUrl` from `gradle-7.6.3-all.zip` to `gradle-8.1.1-all.zip`.
+
+6. **docs/Projeto_Delivery_Scrum.md**
+   - Renamed from `doc/Projeto_Delivery_Scrum.md` to `docs/Projeto_Delivery_Scrum.md`.
+
+7. **docs/Regras de Segurança do Firebase.md** *(New File)*
+   - Added comprehensive documentation on Firebase security rules for the Delivery application.
+
+8. **firestore.rules**
+   - Introduced `isBusinessManager()` function.
+   - Updated permissions for `clients`, `shops`, and their subcollections.
+   - Refactored rules to enhance security and performance.
+
+9. **lib/common/extensions/emu_extensions.dart** *(New File)*
+   - Added `DeliveryStatusExtension` to provide display names and colors for delivery statuses.
+
+10. **lib/common/extensions/generic_extensions.dart** *(New File)*
+    - Implemented extensions for `num`, `DateTime`, and `String` to handle formatting and data manipulation.
+
+11. **lib/common/models/address.dart**
+    - Replaced `latitude` and `longitude` with `GeoPoint? location`.
+    - Updated methods to reflect the use of `GeoPoint`.
+
+12. **lib/common/models/client.dart**
+    - Added `addressString` and `geoAddress` fields.
+    - Updated `toMap` and `fromMap` methods to include new fields.
+
+13. **lib/common/models/delivery.dart** *(New File)*
+    - Introduced `DeliveryModel` with comprehensive fields and methods to manage delivery data.
+
+14. **lib/common/models/shop.dart**
+    - Made `name` and `description` required fields.
+    - Replaced `latitude` and `longitude` with `GeoPoint? location`.
+    - Updated methods to handle new fields.
+
+15. **lib/components/widgets/address_card.dart**
+    - Changed method call from `address!.addressString()` to `address!.addressRepresentationString()` for better representation.
+
+16. **lib/features/home/home_controller.dart**
+    - Commented out `store.setHasPhone(currentUser!.phone != null);` to disable phone check.
+
+17. **lib/features/home/home_page.dart**
+    - Added an `Observer` widget to reactively manage UI changes.
+
+18. **lib/features/qrcode_read/qrcode_read_page.dart**
+    - Replaced `qr_code_scanner` with `mobile_scanner`.
+    - Updated scanning logic to handle QR code detection using `MobileScannerController`.
+
+19. **lib/features/sign_up/sign_up_page.dart**
+    - Removed unused reaction disposer and related commented code for cleaner implementation.
+
+20. **lib/repository/firebase_store/abstract_deliveries_repository.dart** *(New File)*
+    - Defined an abstract repository interface for managing deliveries.
+
+21. **lib/repository/firebase_store/deliveries_firebase_repository.dart** *(New File)*
+    - Implemented `DeliveriesFirebaseRepository` with methods to add, update, delete, and stream delivery data from Firestore.
+
+22. **lib/services/geolocation_service.dart**
+    - Refactored to use the `geocoding` package instead of the Google Geocoding API.
+    - Updated `getGeoPointFromAddress` to return `GeoPoint?`.
+
+23. **lib/stores/pages/add_client_store.dart**
+    - Replaced `removeNonNumber` with `onlyNumbers()` extension.
+    - Updated address handling to use `GeoPoint? location`.
+
+24. **lib/stores/pages/add_shop_store.dart**
+    - Similar refactoring as `add_client_store.dart` for address handling.
+    - Utilized `onlyNumbers()` extension for zip code validation.
+
+25. **lib/stores/pages/common/store_func.dart**
+    - Removed the `removeNonNumber` method in favor of using string extensions.
+
+26. **package.json**
+    - Updated `firebase-functions` from `^6.0.0` to `^6.0.1`.
+
+27. **package-lock.json**
+    - Synced `firebase-functions` version to `6.0.1`.
+
+28. **pubspec.yaml**
+    - Updated dependencies:
+      - Upgraded `get_it` to `^8.0.0`.
+      - Removed `qr_code_scanner` and added `mobile_scanner`, `geocoding`, and `geoflutterfire2`.
+      - Updated `firebase_core` to `^2.32.0`, `cloud_firestore` to `^4.17.5`, and other Firebase packages to their latest versions.
+
+These updates enhance the project's compatibility with the latest Flutter and Firebase versions, improve security with refined Firestore rules, and ensure the app uses maintained and optimized packages for QR code scanning and geolocation. The refactoring also promotes cleaner code practices by leveraging Dart extensions and removing deprecated dependencies.
+
+
 ## 2024/09/19 - version: 0.4.01+19
 
 Implemented new features, enhancements, and configuration updates.

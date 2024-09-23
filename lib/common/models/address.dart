@@ -1,6 +1,8 @@
 import 'dart:convert';
 
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivery/services/geolocation_service.dart';
+
 class AddressModel {
   String? id;
   String type;
@@ -11,8 +13,7 @@ class AddressModel {
   String neighborhood;
   String state;
   String city;
-  double? latitude;
-  double? longitude;
+  GeoPoint? location;
   DateTime createdAt;
   DateTime updatedAt;
 
@@ -26,8 +27,7 @@ class AddressModel {
     required this.neighborhood,
     required this.state,
     required this.city,
-    this.latitude,
-    this.longitude,
+    this.location,
     DateTime? createdAt,
     DateTime? updatedAt,
   })  : createdAt = createdAt ?? DateTime.now(),
@@ -43,14 +43,13 @@ class AddressModel {
       'neighborhood': neighborhood,
       'state': state,
       'city': city,
-      'latitude': latitude,
-      'longitude': longitude,
+      'location': location,
       'createdAt': createdAt.millisecondsSinceEpoch,
       'updatedAt': updatedAt.millisecondsSinceEpoch,
     };
   }
 
-  String addressString() {
+  String addressRepresentationString() {
     return 'Endereço ($type): $street, '
         'N° ${number.isNotEmpty ? number : 'S/N'}, '
         '${complement != null && complement!.isNotEmpty ? '$complement, ' : ''}'
@@ -59,7 +58,7 @@ class AddressModel {
         'CEP: $zipCode';
   }
 
-  String get geoAddress {
+  String get geoAddressString {
     final cpmt =
         complement != null && complement!.isNotEmpty ? ' $complement,' : '';
     return '$street,'
@@ -68,6 +67,11 @@ class AddressModel {
         ' $city,'
         ' $state,'
         ' $zipCode';
+  }
+
+  Future<AddressModel> updateLocation() async {
+    GeoPoint? geoPoint = await getGeoPointFromAddress(geoAddressString);
+    return copyWith(location: geoPoint);
   }
 
   bool get isValidAddress =>
@@ -88,8 +92,7 @@ class AddressModel {
     String? neighborhood,
     String? state,
     String? city,
-    double? latitude,
-    double? longitude,
+    GeoPoint? location,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -103,8 +106,7 @@ class AddressModel {
       neighborhood: neighborhood ?? this.neighborhood,
       state: state ?? this.state,
       city: city ?? this.city,
-      latitude: latitude ?? this.latitude,
-      longitude: longitude ?? this.longitude,
+      location: location ?? this.location,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -121,8 +123,7 @@ class AddressModel {
       neighborhood: map['neighborhood'] as String,
       state: map['state'] as String,
       city: map['city'] as String,
-      latitude: map['latitude'] as double?,
-      longitude: map['longitude'] as double?,
+      location: map['location'] as GeoPoint?,
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int),
       updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int),
     );
@@ -146,8 +147,7 @@ class AddressModel {
         other.neighborhood == neighborhood &&
         other.state == state &&
         other.city == city &&
-        other.latitude == latitude &&
-        other.longitude == longitude &&
+        other.location == location &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt;
   }
@@ -163,8 +163,7 @@ class AddressModel {
         neighborhood.hashCode ^
         state.hashCode ^
         city.hashCode ^
-        latitude.hashCode ^
-        longitude.hashCode ^
+        location.hashCode ^
         createdAt.hashCode ^
         updatedAt.hashCode;
   }
@@ -180,8 +179,7 @@ class AddressModel {
         ' neighborhood: $neighborhood,'
         ' state: $state,'
         ' city: $city,'
-        ' latitude: $latitude,'
-        ' longitude: $longitude,'
+        ' location: $location,'
         ' createdAt: $createdAt,'
         ' updatedAt: $updatedAt)';
   }

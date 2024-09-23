@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 import '../account_page/account_page.dart';
 import '../shops/shops_page.dart';
@@ -120,6 +121,9 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.pushNamed(context, PersonDataPage.routeName),
         child: const Icon(Icons.person_add_alt_1_rounded),
+      ),
+      body: Observer(
+        builder: (context) => const Column(),
       ),
     );
   }
