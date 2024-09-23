@@ -24,7 +24,7 @@ class HomeController {
 
   init() {
     if (isLoggedIn) {
-      store.setHasPhone(currentUser!.phone != null);
+      // store.setHasPhone(currentUser!.phone != null);
       // store.setHasAddress(currentUser!.address != null);
     }
   }

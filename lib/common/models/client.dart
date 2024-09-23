@@ -1,5 +1,6 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'address.dart';
 
@@ -9,7 +10,9 @@ class ClientModel {
   String? email;
   String phone;
   AddressModel? address;
-  DateTime createdAt;
+  String? addressString;
+  GeoPoint? geoAddress;
+  DateTime? createdAt;
   DateTime? updatedAt;
 
   ClientModel({
@@ -18,33 +21,11 @@ class ClientModel {
     this.email,
     required this.phone,
     this.address,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  })  : createdAt = createdAt ?? DateTime.now(),
-        updatedAt = updatedAt ?? DateTime.now();
-
-  Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      'name': name,
-      'email': email,
-      'phone': phone,
-      'createdAt': createdAt.millisecondsSinceEpoch,
-      'updatedAt': updatedAt?.millisecondsSinceEpoch,
-    };
-  }
-
-  factory ClientModel.fromMap(Map<String, dynamic> map) {
-    return ClientModel(
-      id: map['id'] as String?,
-      name: map['name'] as String,
-      email: map['email'] as String?,
-      phone: map['phone'] as String,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int),
-      updatedAt: map['updatedAt'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int)
-          : null,
-    );
-  }
+    this.addressString,
+    this.geoAddress,
+    this.createdAt,
+    this.updatedAt,
+  });
 
   ClientModel copyWith({
     String? id,
@@ -52,6 +33,8 @@ class ClientModel {
     String? email,
     String? phone,
     AddressModel? address,
+    String? addressString,
+    GeoPoint? geoAddress,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -61,8 +44,31 @@ class ClientModel {
       email: email ?? this.email,
       phone: phone ?? this.phone,
       address: address ?? this.address,
+      addressString: addressString ?? this.addressString,
+      geoAddress: geoAddress ?? this.geoAddress,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'name': name,
+      'email': email,
+      'phone': phone,
+      'addressString': addressString,
+      'geoAddress': geoAddress,
+    };
+  }
+
+  factory ClientModel.fromMap(Map<String, dynamic> map) {
+    return ClientModel(
+      id: map['id'] as String?,
+      name: map['name'] as String,
+      email: map['email'] as String?,
+      phone: map['phone'] as String,
+      addressString: map['addressString'] as String?,
+      geoAddress: map['geoAddress'] as GeoPoint?,
     );
   }
 
@@ -73,12 +79,12 @@ class ClientModel {
 
   @override
   String toString() {
-    return 'ClientModel('
-        ' id: $id,'
-        ' name: $name,'
+    return 'ClientModel(id: $id, name: $name,'
         ' email: $email,'
         ' phone: $phone,'
         ' address: $address,'
+        ' addressString: $addressString,'
+        ' geoAddress: $geoAddress,'
         ' createdAt: $createdAt,'
         ' updatedAt: $updatedAt)';
   }
@@ -87,20 +93,26 @@ class ClientModel {
   bool operator ==(covariant ClientModel other) {
     if (identical(this, other)) return true;
 
-    return other.name == name &&
+    return other.id == id &&
+        other.name == name &&
         other.email == email &&
         other.phone == phone &&
         other.address == address &&
+        other.addressString == addressString &&
+        other.geoAddress == geoAddress &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt;
   }
 
   @override
   int get hashCode {
-    return name.hashCode ^
+    return id.hashCode ^
+        name.hashCode ^
         email.hashCode ^
         phone.hashCode ^
         address.hashCode ^
+        addressString.hashCode ^
+        geoAddress.hashCode ^
         createdAt.hashCode ^
         updatedAt.hashCode;
   }
