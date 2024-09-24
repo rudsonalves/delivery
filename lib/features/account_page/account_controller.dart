@@ -15,7 +15,9 @@ class AccountController {
   List<ShopModel> get shops => pageStore.shops;
   void toogleShowQRCode() => pageStore.toogleShowQRCode();
 
-  void init() {}
+  Future<void> init() async {
+    await pageStore.init();
+  }
 
   Future<void> getManagerShops() async {
     await pageStore.getManagerShops();
