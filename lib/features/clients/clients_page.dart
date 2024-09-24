@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 import '/common/theme/app_text_style.dart';
 import '/components/widgets/state_loading.dart';
-import '/components/widgets/base_dismissible_container.dart';
 import '../../common/models/client.dart';
 import 'clients_controller.dart';
 import '/features/add_client/add_cliend_page.dart';
+import 'widgets/dismissible_client.dart';
 
 class ClientsPage extends StatefulWidget {
   const ClientsPage({super.key});
@@ -29,6 +30,8 @@ class _ClientsPageState extends State<ClientsPage> {
   Future<void> _editClient(ClientModel client) async {
     await ctrl.editClient(context, client);
   }
+
+  void _addClient() => Navigator.pushNamed(context, AddClientPage.routeName);
 
   Future<bool> _deleteClient(ClientModel client) async {
     if (!ctrl.isAdmin) return false;
@@ -84,8 +87,6 @@ class _ClientsPageState extends State<ClientsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Clients'),
@@ -97,7 +98,7 @@ class _ClientsPageState extends State<ClientsPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.pushNamed(context, AddClientPage.routeName),
+        onPressed: _addClient,
         label: const Text('Adicionar Cliente'),
         icon: const Icon(Icons.person_add),
       ),
@@ -111,48 +112,45 @@ class _ClientsPageState extends State<ClientsPage> {
             return Stack(
               children: [
                 if (clients.isNotEmpty)
-                  ListView.builder(
-                    itemCount: clients.length,
-                    itemBuilder: (context, index) {
-                      final client = clients[index];
-                      return Dismissible(
-                        key: UniqueKey(),
-                        background: baseDismissibleContainer(
-                          context,
-                          alignment: Alignment.centerLeft,
-                          color: Colors.green.withOpacity(.30),
-                          icon: Icons.edit,
-                          label: 'Editar',
-                        ),
-                        secondaryBackground: baseDismissibleContainer(
-                          context,
-                          alignment: Alignment.centerRight,
-                          color: Colors.red.withOpacity(.30),
-                          icon: Icons.delete,
-                          label: 'Apagar',
-                          enable: ctrl.isAdmin,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(4),
-                          child: Card(
-                            margin: EdgeInsets.zero,
-                            color: colorScheme.surfaceContainerHigh,
-                            child: ListTile(
-                              title: Text(client.name),
-                              subtitle: Text(client.phone),
+                  Column(
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Text('Editar'),
+                                SizedBox(width: 8),
+                                Icon(Symbols.line_end_arrow_notch_sharp),
+                              ],
                             ),
-                          ),
+                            Row(
+                              children: [
+                                Icon(Symbols.line_start_arrow_notch_sharp),
+                                SizedBox(width: 8),
+                                Text('Apagar'),
+                              ],
+                            )
+                          ],
                         ),
-                        confirmDismiss: (direction) async {
-                          if (direction == DismissDirection.startToEnd) {
-                            _editClient(client);
-                          } else if (direction == DismissDirection.endToStart) {
-                            return await _deleteClient(client);
-                          }
-                          return false;
-                        },
-                      );
-                    },
+                      ),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: clients.length,
+                          itemBuilder: (context, index) {
+                            final client = clients[index];
+                            return DismissibleClient(
+                              ctrl: ctrl,
+                              editClient: _editClient,
+                              deleteClient: _deleteClient,
+                              client: client,
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 if (clients.isEmpty)
                   const Column(

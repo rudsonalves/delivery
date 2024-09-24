@@ -22,17 +22,24 @@ class ClientFirebaseRepository implements AbstractClientRepository {
   @override
   Future<DataResult<ClientModel>> add(ClientModel client) async {
     try {
-      // Save client witout address field
+      // Update address geo localization
+      if (client.address == null) {
+        throw Exception('Client does not have an address');
+      }
+      final newAddress = await client.address!.updateLocation();
+      client.address = newAddress;
+      client.addressString = client.address!.geoAddressString;
+      client.location = newAddress.location;
+
+      // Save client without address field
       final docRef = await _firebase.collection(keyClients).add(client.toMap());
       // Update client id from firebase client object
       client.id = docRef.id;
 
       // Save address field
-      if (client.address != null) {
-        final doc =
-            await docRef.collection(keyAddresses).add(client.address!.toMap());
-        client.address!.id = doc.id;
-      }
+      final doc =
+          await docRef.collection(keyAddresses).add(client.address!.toMap());
+      client.address!.id = doc.id;
 
       return DataResult.success(client);
     } catch (err) {

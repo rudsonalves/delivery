@@ -18,6 +18,200 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/09/24 - version: 0.4.03+21
+
+Refactor Models, Update Controllers, Enhance UI Components, and Improve Repository Interactions
+
+This commit introduces a series of modifications aimed at enhancing the application's data models, controllers, user interface components, and repository layers. The changes focus on improving code maintainability, ensuring data integrity, and enhancing the overall user experience. Below is a comprehensive overview of the updates made across various files:
+
+1. **lib/common/models/address.dart**
+   
+   - **Import Path Adjustment:**
+     - Updated the import statement for the `geolocation_service` to use an absolute path. This change streamlines the import process, making the codebase more organized and easier to navigate.
+
+2. **lib/common/models/client.dart**
+   
+   - **Field Renaming and Refactoring:**
+     - Renamed the `geoAddress` field to `location` to better represent geographical data using `GeoPoint`.
+     - Updated all references to this field throughout the model, including constructors, `copyWith` methods, serialization (`toMap` and `fromMap`), string representations, and equality checks.
+   
+   - **Data Integrity Enhancements:**
+     - Ensured that the `location` field accurately reflects the geographical position by updating related methods and ensuring consistent data handling across the model.
+
+3. **lib/features/account_page/account_controller.dart**
+   
+   - **Imports and Dependencies:**
+     - Added imports for `ShopModel` and `store_func` to facilitate interactions with shop data and utility functions.
+   
+   - **State Management Enhancements:**
+     - Introduced `state` and `shops` properties to manage the current state of the account page and the list of shops managed by the user.
+     - Implemented the `getManagerShops` method to fetch and manage shops associated with the current user, enhancing the controller's functionality.
+
+4. **lib/features/account_page/account_page.dart**
+   
+   - **Imports and Theming:**
+     - Added imports for `store_func.dart` and `material_symbols_icons` to incorporate additional UI components and iconography.
+     - Utilized the `colorScheme` from the theme to ensure consistent and adaptive coloring across UI elements.
+   
+   - **User Interface Enhancements:**
+     - Introduced buttons for generating QR codes and loading managed shops, providing users with more interactive options.
+     - Enhanced conditional rendering based on the page state, displaying loading indicators and lists of managed shops as appropriate.
+   
+   - **Icon Update:**
+     - Changed the floating action button icon from a person-add symbol to a delivery-dining icon to better align with the application's delivery-focused functionality.
+
+5. **lib/features/add_shop/add_shop_page.dart**
+   
+   - **Route Name Update:**
+     - Changed the route name from `/add_store` to `/add_shop` to maintain consistency and clarity within the application's navigation structure.
+
+6. **lib/features/clients/clients_controller.dart**
+   
+   - **Navigator Arguments Adjustment:**
+     - Modified the arguments passed to the navigation method by removing the map wrapper around the `client` object. This simplification enhances the clarity and efficiency of data passing between pages.
+
+7. **lib/features/clients/clients_page.dart**
+   
+   - **Imports and Widget Enhancements:**
+     - Added imports for `material_symbols_icons` and a newly created `dismissible_client.dart` widget to enrich the UI and encapsulate dismissible functionalities.
+   
+   - **Method Additions:**
+     - Introduced the `_addClient` method to streamline navigation to the Add Client page, promoting code reusability and cleaner button handlers.
+   
+   - **UI Refactoring:**
+     - Replaced the inline `Dismissible` widgets with the reusable `DismissibleClient` widget. This change not only cleans up the UI code but also promotes better separation of concerns and easier maintenance.
+
+8. **lib/features/clients/widgets/dismissible_client.dart** *(New File)*
+   
+   - **Reusable Dismissible Widget:**
+     - Created the `DismissibleClient` widget to encapsulate the logic for dismissible client items. This modular approach enhances code reusability, readability, and maintainability.
+   
+   - **Enhanced Interaction Handling:**
+     - Configured customized backgrounds for edit and delete actions within the dismissible widget, providing intuitive swipe interactions for users.
+
+9. **lib/features/home/home_page.dart**
+   
+   - **Icon Update:**
+     - Updated the floating action button icon from a person-add symbol to a delivery-dining icon, aligning the UI more closely with the application's delivery-centric features.
+
+10. **lib/features/qrcode_read/qrcode_read_page.dart**
+    
+    - **Imports and Dependencies:**
+      - Added imports for `dart:async` and `qr_flutter` to handle asynchronous operations and QR code generation/display.
+    
+    - **Lifecycle Management:**
+      - Implemented `WidgetsBindingObserver` to manage the scanner's lifecycle effectively, ensuring that the scanner starts and stops appropriately based on the app's state (e.g., when the app is resumed or paused).
+    
+    - **Barcode Detection Handling:**
+      - Introduced a `StreamSubscription` to listen for barcode detections, enhancing the scanner's responsiveness and reliability.
+    
+    - **User Interface Enhancements:**
+      - Integrated `QrImageView` to display the scanned QR code data, providing users with immediate visual feedback of the scanned information.
+      - Enhanced error handling and data representation to offer clearer feedback and smoother user interactions.
+    
+    - **Scanner Initialization:**
+      - Configured the `MobileScannerController` with additional parameters to optimize scanning performance and user experience.
+
+11. **lib/repository/firebase_store/abstract_shop_repository.dart**
+    
+    - **Interface Extension:**
+      - Added a new method `getShopByManager` to the abstract repository interface. This method facilitates fetching shops managed by a specific manager, expanding the repository's capabilities.
+
+12. **lib/repository/firebase_store/client_firebase_repository.dart**
+    
+    - **Add Method Refactoring:**
+      - Enhanced the `add` method to incorporate address localization before saving a client. This ensures that each client's geographical data is accurately captured and stored.
+      - Implemented checks to ensure that a client has an address before proceeding with the localization and storage processes.
+    
+    - **Data Integrity Enhancements:**
+      - Ensured that the client's address information is properly saved within the relevant subcollection, maintaining consistent and reliable data structures.
+
+13. **lib/repository/firebase_store/shop_firebase_repository.dart**
+    
+    - **Method Implementation:**
+      - Implemented the `getShopByManager` method to retrieve all shops managed by a specific manager. This method queries the Firestore database and processes the results to return a list of `ShopModel` instances.
+    
+    - **Error Handling:**
+      - Incorporated comprehensive error handling to log and manage any issues that arise during the data retrieval process, ensuring robustness and reliability.
+
+14. **lib/stores/pages/account_store.dart**
+    
+    - **State Management Enhancements:**
+      - Added `shops` and `state` observables to manage the list of shops and the current page state within the account store.
+    
+    - **Action Implementation:**
+      - Developed the `getManagerShops` action to fetch shops managed by the current user. This action updates the store's state based on the success or failure of the data retrieval process, facilitating responsive UI updates.
+    
+    - **Repository Integration:**
+      - Integrated the `ShopFirebaseRepository` to handle data fetching, promoting a clean separation between the store and data layers.
+
+15. **lib/stores/pages/account_store.g.dart**
+    
+    - **Generated Code Updates:**
+      - Updated the generated code to reflect the new `shops` and `state` observables and their corresponding getters, setters, and actions. This ensures that the MobX store remains in sync with the manual changes made to the store class.
+
+16. **lib/stores/pages/add_client_store.dart**
+    
+    - **Imports and Dependencies:**
+      - Added imports for `generic_extensions.dart` and `dart:developer` to utilize string manipulation extensions and logging functionalities.
+    
+    - **Observable Additions:**
+      - Introduced the `isAddressEdited` observable to track changes made to a client's address, enabling more precise state management and validation.
+    
+    - **Method Refactoring and Enhancements:**
+      - Refactored the `getClientFromForm` method to handle address updates more effectively, ensuring that location data is accurately updated and reflected in the client model.
+      - Implemented the `_updateLocation` action to update the client's address location only when changes have been made, optimizing performance and data accuracy.
+    
+    - **Validation Improvements:**
+      - Replaced the `removeNonNumber` utility method with the `onlyNumbers()` string extension for phone and zip code validations, promoting cleaner and more readable code.
+    
+    - **Address Handling Enhancements:**
+      - Updated address handling logic to manage `location` and `addressString` fields instead of the previously used `geoAddress`, ensuring consistent data representation.
+    
+    - **Editing Flags Management:**
+      - Enhanced the `_checkIsEdited` method and related functionalities to manage both `isEdited` and `isAddressEdited` flags. This provides a more granular control over state changes, ensuring that updates are handled appropriately.
+    
+    - **Address Mounting Logic:**
+      - Modified the `_mountAddress` method to conditionally update the address based on the `isAddressEdited` flag, ensuring that only relevant changes trigger data updates.
+    
+    - **Action Enhancements:**
+      - Implemented additional actions and state checks to manage address edits and ensure data integrity throughout the client creation and editing processes.
+
+17. **lib/stores/pages/add_client_store.g.dart**
+    
+    - **Generated Code Updates:**
+      - Updated the generated code to include the new `isAddressEdited` observable and the `_updateLocation` async action.
+      - Refactored the `_checkIsEdited` method to accommodate the new editing flags, ensuring that state changes are accurately tracked and managed.
+      - Enhanced the `toString` method to include the `isAddressEdited` flag, providing a more comprehensive string representation of the store's state.
+
+18. **lib/stores/user/user_store.dart**
+    
+    - **Getter Addition:**
+      - Added an `id` getter to retrieve the current user's ID directly from the `currentUser` object. This simplifies access to user identification data throughout the application.
+
+19. **pubspec.yaml**
+    
+    - **Dependency Adjustments:**
+      - Removed an unnecessary blank line to maintain a clean and organized dependencies section.
+      - **No other changes** were made in this file during this commit.
+
+**Conclusion:**
+
+This commit brings significant improvements to the application's architecture and functionality:
+
+- **Data Model Enhancements:** By renaming and refactoring fields, the data models now more accurately represent geographical data, improving data integrity and clarity.
+  
+- **State Management Upgrades:** Introducing new observables and actions in stores like `AccountStore` and `AddClientStore` ensures more responsive and reliable state handling, enhancing the overall user experience.
+  
+- **User Interface Improvements:** Refactoring UI components to use reusable widgets like `DismissibleClient` and enhancing interaction elements (e.g., buttons for QR code generation and shop loading) result in a cleaner, more intuitive, and maintainable UI codebase.
+  
+- **Repository Layer Refinements:** Extending repository interfaces and implementing new methods like `getShopByManager` provide more robust data fetching capabilities, ensuring that the application can efficiently manage and display relevant data.
+  
+- **Lifecycle and Error Handling Enhancements:** Implementing lifecycle observers and comprehensive error handling across controllers and repositories contributes to a more stable and user-friendly application.
+
+Overall, these changes collectively aim to bolster the application's robustness, maintainability, and user-centric design, paving the way for further feature expansions and optimizations.
+
+
 ## 2024/09/23 - version: 0.4.02+20
 
 Update SDK, Firebase, and Scanner Dependencies

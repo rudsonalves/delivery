@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import '/common/theme/app_text_style.dart';
 import '/components/widgets/big_bottom.dart';
@@ -16,14 +18,27 @@ class QRCodeReadPage extends StatefulWidget {
   State<QRCodeReadPage> createState() => _QRCodeReadPageState();
 }
 
-class _QRCodeReadPageState extends State<QRCodeReadPage> {
+class _QRCodeReadPageState extends State<QRCodeReadPage>
+    with WidgetsBindingObserver {
   Map<String, dynamic>? data;
   bool isScanning = true;
 
-  MobileScannerController controller = MobileScannerController();
+  final MobileScannerController controller = MobileScannerController(
+    returnImage: true,
+  );
+  StreamSubscription<BarcodeCapture>? _subscription;
 
-  void _backPage() {
-    Navigator.pop(context, data);
+  @override
+  void initState() {
+    super.initState();
+    // Start listening to lifecycle changes.
+    WidgetsBinding.instance.addObserver(this);
+
+    // Start listening to the barcode events.
+    _subscription = controller.barcodes.listen(_onDetect);
+
+    // Finally, start the scanner itself.
+    unawaited(controller.start());
   }
 
   void _onDetect(BarcodeCapture barcodeCapture) {
@@ -51,14 +66,58 @@ class _QRCodeReadPageState extends State<QRCodeReadPage> {
     }
   }
 
+  void _backPage() {
+    Navigator.pop(context, data);
+  }
+
   @override
   void dispose() {
-    controller.dispose();
+    // Stop listening to lifecycle changes.
+    WidgetsBinding.instance.removeObserver(this);
+    // Stop listening to the barcode events.
+    unawaited(_subscription?.cancel());
+    _subscription = null;
+    // Dispose the widget itself.
     super.dispose();
+    // Finally, dispose of the controller.
+    controller.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // If the controller is not ready, do not try to start or stop it.
+    // Permission dialogs can trigger lifecycle changes before the controller is ready.
+    if (!controller.value.isInitialized) {
+      return;
+    }
+
+    switch (state) {
+      case AppLifecycleState.resumed:
+        // Restart the scanner when the app is resumed.
+        // Don't forget to resume listening to the barcode events.
+        _subscription = controller.barcodes.listen(_onDetect);
+        unawaited(controller.start());
+        break;
+      case AppLifecycleState.inactive:
+        // Stop the scanner when the app is paused.
+        // Also stop the barcode events subscription.
+        unawaited(_subscription?.cancel());
+        _subscription = null;
+        unawaited(controller.stop());
+        break;
+      case AppLifecycleState.detached:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.paused:
+        // _barcodeSubscription?.cancel();
+        // controller.stop();
+        break;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Ler QR Code'),
@@ -68,41 +127,38 @@ class _QRCodeReadPageState extends State<QRCodeReadPage> {
         ),
       ),
       body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Expanded(
-            flex: 4,
-            child: MobileScanner(
-              controller: controller,
-              onDetect: _onDetect,
-              // allowDuplicates: false,
-              // Configurações adicionais, se necessário
-            ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Center(
-                  child: (data != null)
-                      ? Text(
-                          'Usuário: ${data?['name'] ?? 'Desculpe. Ocorreu um erro!'}',
-                          style: AppTextStyle.font15Bold(),
-                        )
-                      : const Text(
-                          'Gere o QRCode no aparelho do gerente,\ne escaneie o QRCode.',
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Center(
+            child: (data != null)
+                ? Column(
+                    children: [
+                      Text(
+                        'Usuário: ${data?['name'] ?? 'Desculpe. Ocorreu um erro!'}',
+                        style: AppTextStyle.font15Bold(),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 26),
+                        child: QrImageView(
+                          data: jsonEncode(data),
+                          version: QrVersions.auto,
+                          size: 200.0,
+                          gapless: false,
+                          backgroundColor: colorScheme.onPrimaryContainer,
                         ),
-                ),
-                if (data != null)
-                  BigButton(
-                    color: Colors.greenAccent,
-                    label: 'Retornar',
-                    onPressed: _backPage,
+                      ),
+                    ],
+                  )
+                : const Text(
+                    'Gere o QRCode no aparelho do gerente,\ne escaneie o QRCode.',
                   ),
-              ],
+          ),
+          if (data != null)
+            BigButton(
+              color: Colors.greenAccent,
+              label: 'Retornar',
+              onPressed: _backPage,
             ),
-          )
         ],
       ),
     );

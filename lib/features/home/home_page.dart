@@ -120,7 +120,7 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.pushNamed(context, PersonDataPage.routeName),
-        child: const Icon(Icons.person_add_alt_1_rounded),
+        child: const Icon(Icons.delivery_dining_rounded),
       ),
       body: Observer(
         builder: (context) => const Column(),

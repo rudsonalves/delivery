@@ -38,6 +38,8 @@ abstract class _UserStore with Store {
 
   void dispose() {}
 
+  String? get id => currentUser?.id;
+
   @action
   Future<void> initializeUser() async {
     state = UserState.stateLoading;
