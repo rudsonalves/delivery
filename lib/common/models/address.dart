@@ -1,7 +1,8 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:delivery/services/geolocation_service.dart';
+
+import '/services/geolocation_service.dart';
 
 class AddressModel {
   String? id;

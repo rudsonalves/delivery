@@ -25,6 +25,44 @@ mixin _$AccountStore on _AccountStore, Store {
     });
   }
 
+  late final _$shopsAtom = Atom(name: '_AccountStore.shops', context: context);
+
+  @override
+  List<ShopModel> get shops {
+    _$shopsAtom.reportRead();
+    return super.shops;
+  }
+
+  @override
+  set shops(List<ShopModel> value) {
+    _$shopsAtom.reportWrite(value, super.shops, () {
+      super.shops = value;
+    });
+  }
+
+  late final _$stateAtom = Atom(name: '_AccountStore.state', context: context);
+
+  @override
+  PageState get state {
+    _$stateAtom.reportRead();
+    return super.state;
+  }
+
+  @override
+  set state(PageState value) {
+    _$stateAtom.reportWrite(value, super.state, () {
+      super.state = value;
+    });
+  }
+
+  late final _$getManagerShopsAsyncAction =
+      AsyncAction('_AccountStore.getManagerShops', context: context);
+
+  @override
+  Future<void> getManagerShops() {
+    return _$getManagerShopsAsyncAction.run(() => super.getManagerShops());
+  }
+
   late final _$_AccountStoreActionController =
       ActionController(name: '_AccountStore', context: context);
 
@@ -42,7 +80,9 @@ mixin _$AccountStore on _AccountStore, Store {
   @override
   String toString() {
     return '''
-showQRCode: ${showQRCode}
+showQRCode: ${showQRCode},
+shops: ${shops},
+state: ${state}
     ''';
   }
 }

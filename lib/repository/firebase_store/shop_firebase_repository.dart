@@ -17,6 +17,8 @@ class ShopFirebaseRepository implements AbstractShopRepository {
   static const keyUserId = 'userId';
   static const keyName = 'name';
   static const keyComments = 'comments';
+  static const keyManagerId = 'managerId';
+  static const keyManagerName = 'managerName';
 
   @override
   Future<DataResult<ShopModel>> add(ShopModel shop) async {
@@ -201,6 +203,36 @@ class ShopFirebaseRepository implements AbstractShopRepository {
       return DataResult.success(shops);
     } catch (err) {
       final message = 'ShopFirebaseRepository.getClientsByName: $err';
+      log(message);
+      return DataResult.failure(FireStoreFailure(
+        message: message,
+        code: 514,
+      ));
+    }
+  }
+
+  @override
+  Future<DataResult<List<ShopModel>>> getShopByManager(String managerId) async {
+    try {
+      final List<ShopModel> shops = [];
+      final query = await _firebase
+          .collection(keyShops)
+          .where(keyManagerId, isEqualTo: managerId)
+          .get();
+
+      if (query.docs.isEmpty) {
+        return DataResult.success([]);
+      }
+
+      for (final doc in query.docs) {
+        final shop = ShopModel.fromMap(doc.data()).copyWith(id: doc.id);
+        // final address = await getAddressesForShop(shopId: shop.id!);
+        // shop.address = address?.first;
+        shops.add(shop);
+      }
+      return DataResult.success(shops);
+    } catch (err) {
+      final message = 'ShopFirebaseRepository.getShopByManager: $err';
       log(message);
       return DataResult.failure(FireStoreFailure(
         message: message,
