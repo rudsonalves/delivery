@@ -9,5 +9,6 @@ abstract class AbstractShopRepository {
   Future<DataResult<ShopModel?>> get(String shopId);
   Future<DataResult<List<AddressModel>>> getAddressesForShop(String shopId);
   Future<DataResult<List<ShopModel>>> getShopByName(String name);
+  Future<DataResult<List<ShopModel>>> getShopByManager(String managerId);
   Stream<List<ShopModel>> streamShopByName();
 }

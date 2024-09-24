@@ -295,20 +295,36 @@ mixin _$AddClientStore on _AddClientStore, Store {
     });
   }
 
+  late final _$isAddressEditedAtom =
+      Atom(name: '_AddClientStore.isAddressEdited', context: context);
+
+  @override
+  bool get isAddressEdited {
+    _$isAddressEditedAtom.reportRead();
+    return super.isAddressEdited;
+  }
+
+  @override
+  set isAddressEdited(bool value) {
+    _$isAddressEditedAtom.reportWrite(value, super.isAddressEdited, () {
+      super.isAddressEdited = value;
+    });
+  }
+
+  late final _$_updateLocationAsyncAction =
+      AsyncAction('_AddClientStore._updateLocation', context: context);
+
+  @override
+  Future<void> _updateLocation() {
+    return _$_updateLocationAsyncAction.run(() => super._updateLocation());
+  }
+
   late final _$_mountAddressAsyncAction =
       AsyncAction('_AddClientStore._mountAddress', context: context);
 
   @override
   Future<void> _mountAddress() {
     return _$_mountAddressAsyncAction.run(() => super._mountAddress());
-  }
-
-  late final _$_setCoordinatesAsyncAction =
-      AsyncAction('_AddClientStore._setCoordinates', context: context);
-
-  @override
-  Future<void> _setCoordinates() {
-    return _$_setCoordinatesAsyncAction.run(() => super._setCoordinates());
   }
 
   late final _$saveClientAsyncAction =
@@ -353,7 +369,7 @@ mixin _$AddClientStore on _AddClientStore, Store {
   }
 
   @override
-  dynamic _checkIsEdited(String? value, String? newValue) {
+  dynamic _checkIsEdited(String? value, String newValue) {
     final _$actionInfo = _$_AddClientStoreActionController.startAction(
         name: '_AddClientStore._checkIsEdited');
     try {
@@ -559,7 +575,8 @@ state: ${state},
 cpf: ${cpf},
 errorCpfMsg: ${errorCpfMsg},
 complement: ${complement},
-isEdited: ${isEdited}
+isEdited: ${isEdited},
+isAddressEdited: ${isAddressEdited}
     ''';
   }
 }
