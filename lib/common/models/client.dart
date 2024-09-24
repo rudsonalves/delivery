@@ -11,7 +11,7 @@ class ClientModel {
   String phone;
   AddressModel? address;
   String? addressString;
-  GeoPoint? geoAddress;
+  GeoPoint? location;
   DateTime? createdAt;
   DateTime? updatedAt;
 
@@ -22,7 +22,7 @@ class ClientModel {
     required this.phone,
     this.address,
     this.addressString,
-    this.geoAddress,
+    this.location,
     this.createdAt,
     this.updatedAt,
   });
@@ -45,7 +45,7 @@ class ClientModel {
       phone: phone ?? this.phone,
       address: address ?? this.address,
       addressString: addressString ?? this.addressString,
-      geoAddress: geoAddress ?? this.geoAddress,
+      location: geoAddress ?? this.location,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -57,7 +57,7 @@ class ClientModel {
       'email': email,
       'phone': phone,
       'addressString': addressString,
-      'geoAddress': geoAddress,
+      'geoAddress': location,
     };
   }
 
@@ -68,7 +68,7 @@ class ClientModel {
       email: map['email'] as String?,
       phone: map['phone'] as String,
       addressString: map['addressString'] as String?,
-      geoAddress: map['geoAddress'] as GeoPoint?,
+      location: map['geoAddress'] as GeoPoint?,
     );
   }
 
@@ -84,7 +84,7 @@ class ClientModel {
         ' phone: $phone,'
         ' address: $address,'
         ' addressString: $addressString,'
-        ' geoAddress: $geoAddress,'
+        ' geoAddress: $location,'
         ' createdAt: $createdAt,'
         ' updatedAt: $updatedAt)';
   }
@@ -99,7 +99,7 @@ class ClientModel {
         other.phone == phone &&
         other.address == address &&
         other.addressString == addressString &&
-        other.geoAddress == geoAddress &&
+        other.location == location &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt;
   }
@@ -112,7 +112,7 @@ class ClientModel {
         phone.hashCode ^
         address.hashCode ^
         addressString.hashCode ^
-        geoAddress.hashCode ^
+        location.hashCode ^
         createdAt.hashCode ^
         updatedAt.hashCode;
   }

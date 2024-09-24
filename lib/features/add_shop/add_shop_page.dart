@@ -22,7 +22,7 @@ class AddShopPage extends StatefulWidget {
     super.key,
   });
 
-  static const routeName = '/add_store';
+  static const routeName = '/add_shop';
 
   @override
   State<AddShopPage> createState() => _AddShopPageState();

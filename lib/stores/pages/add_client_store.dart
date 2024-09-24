@@ -1,4 +1,5 @@
-import 'package:delivery/common/extensions/generic_extensions.dart';
+import 'dart:developer';
+
 import 'package:mobx/mobx.dart';
 
 import '../../common/models/address.dart';
@@ -7,6 +8,7 @@ import '../../common/models/via_cep_address.dart';
 import '../../common/utils/data_result.dart';
 import '../../repository/firebase_store/client_firebase_repository.dart';
 import 'common/store_func.dart';
+import '/common/extensions/generic_extensions.dart';
 
 part 'add_client_store.g.dart';
 
@@ -69,6 +71,9 @@ abstract class _AddClientStore with Store {
   @observable
   bool isEdited = false;
 
+  @observable
+  bool isAddressEdited = false;
+
   String? id;
 
   Future<ClientModel?> getClientFromForm() async {
@@ -79,9 +84,7 @@ abstract class _AddClientStore with Store {
     }
 
     if (address != null) {
-      if (address!.location == null) {
-        await _setCoordinates();
-      }
+      await _updateLocation();
 
       state = PageState.success;
       return ClientModel(
@@ -89,10 +92,23 @@ abstract class _AddClientStore with Store {
         name: name!,
         email: email,
         phone: phone!,
-        address: address!,
+        address: address?.copyWith(),
+        location: address?.location,
+        addressString: address?.geoAddressString,
       );
     }
     return null;
+  }
+
+  @action
+  Future<void> _updateLocation() async {
+    if (address != null && isAddressEdited) {
+      address = await address!.updateLocation();
+      isAddressEdited = false;
+    } else {
+      log('address != null: ${address != null}\n'
+          'isAddressEdited: $isAddressEdited');
+    }
   }
 
   @action
@@ -108,18 +124,24 @@ abstract class _AddClientStore with Store {
     address = client.address?.copyWith();
     zipStatus = address != null ? ZipStatus.success : ZipStatus.initial;
     isEdited = false;
+    isAddressEdited = false;
   }
 
   @action
   void setComplement(String value) {
     _checkIsEdited(complement, value);
+    isAddressEdited = _isChanged(complement, value) || isAddressEdited;
     complement = value;
     _updateAddress();
   }
 
   @action
-  _checkIsEdited(String? value, String? newValue) {
-    isEdited = value != newValue;
+  _checkIsEdited(String? value, String newValue) {
+    isEdited = _isChanged(value, newValue) || isEdited;
+  }
+
+  bool _isChanged(String? value, String newValue) {
+    return newValue != value;
   }
 
   @action
@@ -184,6 +206,7 @@ abstract class _AddClientStore with Store {
   @action
   void setNumber(String value) {
     _checkIsEdited(number, value);
+    isAddressEdited = _isChanged(number, value) || isAddressEdited;
     number = value;
     _validNumber();
     _updateAddress();
@@ -204,9 +227,13 @@ abstract class _AddClientStore with Store {
   @action
   void setZipCode(String value) {
     _checkIsEdited(zipCode, value);
+    isAddressEdited = _isChanged(zipCode, value) || isAddressEdited;
     zipCode = value;
     _validZipCode();
-    if (errorZipCode == null) _mountAddress();
+    if (errorZipCode == null) {
+      _mountAddress();
+      isAddressEdited = true;
+    }
   }
 
   @action
@@ -246,27 +273,21 @@ abstract class _AddClientStore with Store {
 
     if (via == null) return;
 
-    address = AddressModel(
-      zipCode: via.zipCode,
-      street: via.street,
-      number: number ?? 'S/N',
-      complement: complement,
-      type: addressType ?? 'Residencial',
-      neighborhood: via.neighborhood,
-      location: null,
-      state: via.state,
-      city: via.city,
-    );
-
-    if (address!.isValidAddress) {
-      await _setCoordinates();
+    if (isAddressEdited) {
+      address = AddressModel(
+        zipCode: via.zipCode,
+        street: via.street,
+        number: number ?? 'S/N',
+        complement: complement,
+        type: addressType ?? 'Residencial',
+        neighborhood: via.neighborhood,
+        location: null,
+        state: via.state,
+        city: via.city,
+      );
     }
-    zipStatus = ZipStatus.success;
-  }
 
-  @action
-  Future<void> _setCoordinates() async {
-    address = await address!.updateLocation();
+    zipStatus = ZipStatus.success;
   }
 
   @action
@@ -276,6 +297,7 @@ abstract class _AddClientStore with Store {
         number: number ?? 'S/N',
         complement: complement ?? '',
       );
+      isAddressEdited = true;
     }
   }
 

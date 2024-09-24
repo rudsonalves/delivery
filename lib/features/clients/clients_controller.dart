@@ -30,7 +30,7 @@ class ClientsController {
       await Navigator.pushNamed(
         context,
         AddClientPage.routeName,
-        arguments: {'client': client},
+        arguments: client,
       );
     }
   }
