@@ -55,6 +55,14 @@ mixin _$AccountStore on _AccountStore, Store {
     });
   }
 
+  late final _$initAsyncAction =
+      AsyncAction('_AccountStore.init', context: context);
+
+  @override
+  Future<void> init() {
+    return _$initAsyncAction.run(() => super.init());
+  }
+
   late final _$getManagerShopsAsyncAction =
       AsyncAction('_AccountStore.getManagerShops', context: context);
 
@@ -72,6 +80,17 @@ mixin _$AccountStore on _AccountStore, Store {
         name: '_AccountStore.toogleShowQRCode');
     try {
       return super.toogleShowQRCode();
+    } finally {
+      _$_AccountStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void getInLocalStore() {
+    final _$actionInfo = _$_AccountStoreActionController.startAction(
+        name: '_AccountStore.getInLocalStore');
+    try {
+      return super.getInLocalStore();
     } finally {
       _$_AccountStoreActionController.endAction(_$actionInfo);
     }

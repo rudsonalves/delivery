@@ -1,11 +1,15 @@
+import 'dart:developer';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../common/models/shop.dart';
 import '../common/models/user.dart';
 
 class LocalStorageService {
   static const _keyIsDark = 'isDark';
   static const _keyAdminChecked = 'checkedAdmin';
   static const _keyCachedUser = 'cachedUser';
+  static const _keyManagerShops = 'managerShops';
 
   late SharedPreferences _prefs;
   SharedPreferences get prefs => _prefs;
@@ -39,5 +43,21 @@ class LocalStorageService {
 
   Future<void> clearCachedUser() async {
     await _prefs.remove(_keyCachedUser);
+  }
+
+  Future<void> setManagerShops(List<ShopModel> shops) async {
+    try {
+      final List<String> listShops =
+          shops.map((item) => item.toJson()).toList();
+      await _prefs.setStringList(_keyManagerShops, listShops);
+    } catch (err) {
+      log('Erro ao salvar lojas do gerente: $err');
+    }
+  }
+
+  List<ShopModel> getManagerShops() {
+    final result = _prefs.getStringList(_keyManagerShops);
+    if (result == null) return [];
+    return result.map((item) => ShopModel.fromJson(item)).toList();
   }
 }

@@ -18,6 +18,32 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/09/24 - version: 0.4.04+22
+
+Complete System Base Implementation and Prepare for Delivery Registration Development
+
+1. **lib/features/account_page/account_controller.dart**
+   - Changed the `init` method to `Future<void>` and made it asynchronous.
+   - Added `await pageStore.init()` within the `init` method.
+
+2. **lib/services/local_storage_service.dart**
+   - Imported `dart:developer` for logging purposes.
+   - Imported `../common/models/shop.dart` to handle `ShopModel`.
+   - Added `_keyManagerShops` constant for storing manager shops.
+   - Implemented `setManagerShops` method to save a list of manager shops.
+   - Implemented `getManagerShops` method to retrieve the list of manager shops.
+
+3. **lib/stores/pages/account_store.dart**
+   - Imported `../../services/local_storage_service.dart` to use the local storage service.
+   - Added `localStore` instance using `locator<LocalStorageService>()`.
+   - Created an asynchronous `init` action method to initialize the store.
+   - Updated `getManagerShops` to call `setInLocalStore` after fetching shops.
+   - Added `setInLocalStore` method to save shops to local storage.
+   - Added `getInLocalStore` action method to load shops from local storage.
+
+These changes complete the system's base functionality and set the foundation for developing the delivery registration feature in the delivery app.
+
+
 ## 2024/09/24 - version: 0.4.03+21
 
 Refactor Models, Update Controllers, Enhance UI Components, and Improve Repository Interactions
