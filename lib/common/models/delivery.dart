@@ -18,10 +18,10 @@ class DeliveryModel {
   String shopName;
   String clientId;
   String clientName;
+  String clientPhone;
   String? deliveryId;
   String? deliveryName;
   String? managerId;
-  DateTime? deliveryDate;
   DeliveryStatus status;
   String clientAddress;
   String shopAddress;
@@ -36,10 +36,10 @@ class DeliveryModel {
     required this.shopName,
     required this.clientId,
     required this.clientName,
+    required this.clientPhone,
     this.deliveryId,
     this.deliveryName,
     this.managerId,
-    this.deliveryDate,
     required this.status,
     required this.clientAddress,
     required this.shopAddress,
@@ -55,10 +55,10 @@ class DeliveryModel {
     String? shopName,
     String? clientId,
     String? clientName,
+    String? clientPhone,
     String? deliveryId,
     String? deliveryName,
     String? managerId,
-    DateTime? deliveryDate,
     DeliveryStatus? status,
     String? clientAddress,
     String? shopAddress,
@@ -73,10 +73,10 @@ class DeliveryModel {
       shopName: shopName ?? this.shopName,
       clientId: clientId ?? this.clientId,
       clientName: clientName ?? this.clientName,
+      clientPhone: clientPhone ?? this.clientPhone,
       deliveryId: deliveryId ?? this.deliveryId,
       deliveryName: deliveryName ?? this.deliveryName,
       managerId: managerId ?? this.managerId,
-      deliveryDate: deliveryDate ?? this.deliveryDate,
       status: status ?? this.status,
       clientAddress: clientAddress ?? this.clientAddress,
       shopAddress: shopAddress ?? this.shopAddress,
@@ -94,10 +94,10 @@ class DeliveryModel {
       'shopName': shopName,
       'clientId': clientId,
       'clientName': clientName,
+      'clientPhone': clientPhone,
       'deliveryId': deliveryId,
       'deliveryName': deliveryName,
       'managerId': managerId,
-      'deliveryDate': deliveryDate?.millisecondsSinceEpoch,
       'status': status.index,
       'clientAddress': clientAddress,
       'shopAddress': shopAddress,
@@ -115,12 +115,10 @@ class DeliveryModel {
       shopName: map['shopName'] as String,
       clientId: map['clientId'] as String,
       clientName: map['clientName'] as String,
+      clientPhone: map['clientPhone'] as String,
       deliveryId: map['deliveryId'] as String?,
       deliveryName: map['deliveryName'] as String?,
       managerId: map['managerId'] as String?,
-      deliveryDate: map['deliveryDate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['deliveryDate'] as int)
-          : null,
       status: DeliveryStatus.values[map['status'] as int],
       clientAddress: map['clientAddress'] as String,
       shopAddress: map['shopAddress'] as String,
@@ -147,10 +145,10 @@ class DeliveryModel {
         ' shopName: $shopName,'
         ' clientId: $clientId,'
         ' clientName: $clientName,'
+        ' clientPhone: $clientPhone,'
         ' deliveryId: $deliveryId,'
         ' deliveryName: $deliveryName,'
         ' managerId: $managerId,'
-        ' deliveryDate: $deliveryDate,'
         ' status: $status,'
         ' clientAddress: $clientAddress,'
         ' shopAddress: $shopAddress,'
@@ -169,10 +167,10 @@ class DeliveryModel {
         other.shopName == shopName &&
         other.clientId == clientId &&
         other.clientName == clientName &&
+        other.clientPhone == clientPhone &&
         other.deliveryId == deliveryId &&
         other.deliveryName == deliveryName &&
         other.managerId == managerId &&
-        other.deliveryDate == deliveryDate &&
         other.status == status &&
         other.clientAddress == clientAddress &&
         other.shopAddress == shopAddress &&
@@ -189,10 +187,10 @@ class DeliveryModel {
         shopName.hashCode ^
         clientId.hashCode ^
         clientName.hashCode ^
+        clientPhone.hashCode ^
         deliveryId.hashCode ^
         deliveryName.hashCode ^
         managerId.hashCode ^
-        deliveryDate.hashCode ^
         status.hashCode ^
         clientAddress.hashCode ^
         shopAddress.hashCode ^

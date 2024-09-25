@@ -1,9 +1,9 @@
 import 'dart:developer';
 
-import 'package:delivery/common/models/delivery.dart';
-import 'package:delivery/stores/user/user_store.dart';
 import 'package:mobx/mobx.dart';
 
+import '/common/models/delivery.dart';
+import '/stores/user/user_store.dart';
 import '../../common/models/client.dart';
 import '../../common/models/shop.dart';
 import '../../common/models/user.dart';
@@ -47,6 +47,7 @@ abstract class _AddDeliveryStore with Store {
   init() {
     getInLocalStore();
     state = PageState.success;
+    shopId = shops.first.id;
   }
 
   @action
@@ -97,41 +98,45 @@ abstract class _AddDeliveryStore with Store {
   }
 
   Future<void> createDelivery() async {
-    if (shopId == null) {
-      log('ShopId is null!');
-      return;
+    try {
+      if (shopId == null) {
+        throw Exception('ShopId is null!');
+      }
+
+      if (selectedClient == null) {
+        throw Exception('selectedClient is null!');
+      }
+
+      final client = selectedClient!;
+
+      final shop = shops.firstWhere((shop) => shop.id == shopId);
+
+      final user = locator<UserStore>().currentUser;
+
+      final managerId =
+          (user!.role != UserRole.manager) ? shop.managerId : user.id!;
+
+      final delivery = DeliveryModel(
+        shopId: shop.id!,
+        shopName: shop.name,
+        clientId: client.id!,
+        clientName: client.name,
+        clientPhone: client.phone,
+        deliveryId: null,
+        deliveryName: null,
+        managerId: managerId,
+        status: DeliveryStatus.orderRegisteredForPickup,
+        clientAddress: client.addressString!,
+        shopAddress: shop.addressString!,
+        clientLocation: client.location!,
+        shopLocation: shop.location!,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+      await deliveryRepository.add(delivery);
+    } catch (err) {
+      log('createDelivery: $err');
     }
-
-    if (selectedClient == null) {
-      log('selectedClient is null!');
-      return;
-    }
-
-    final client = selectedClient!;
-
-    final shop = shops.firstWhere((shop) => shop.id == shopId);
-
-    final user = locator<UserStore>().currentUser;
-
-    final managerId =
-        (user!.role != UserRole.manager) ? shop.managerId : user.id!;
-
-    final delivery = DeliveryModel(
-      shopId: shop.id!,
-      shopName: shop.name,
-      clientId: client.id!,
-      clientName: client.name,
-      deliveryId: null,
-      deliveryName: null,
-      managerId: managerId,
-      deliveryDate: DateTime.now(),
-      status: DeliveryStatus.orderRegisteredForPickup,
-      clientAddress: client.addressString!,
-      shopAddress: shop.addressString!,
-      clientLocation: client.location!,
-      shopLocation: shop.location!,
-    );
-
-    await deliveryRepository.add(delivery);
   }
 }

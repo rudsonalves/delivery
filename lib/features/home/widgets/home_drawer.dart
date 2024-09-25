@@ -9,7 +9,6 @@ class HomeDrawer extends StatelessWidget {
   final void Function() login;
   final void Function() logout;
   final void Function() clients;
-  final void Function() deliceryRequest;
   final void Function() stores;
   final void Function() account;
 
@@ -19,7 +18,6 @@ class HomeDrawer extends StatelessWidget {
     required this.login,
     required this.logout,
     required this.clients,
-    required this.deliceryRequest,
     required this.stores,
     required this.account,
   });
@@ -49,12 +47,6 @@ class HomeDrawer extends StatelessWidget {
               leading: const Icon(Icons.people),
               title: const Text('Clientes'),
               onTap: clients,
-            ),
-          if (controller.isAdmin || controller.isBusiness)
-            ListTile(
-              leading: const Icon(Symbols.local_shipping),
-              title: const Text('Solicitação de Entrega'),
-              onTap: deliceryRequest,
             ),
           if (controller.isAdmin || controller.isBusiness)
             ListTile(

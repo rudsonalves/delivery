@@ -17,12 +17,29 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
 
   @override
   Future<DataResult<DeliveryModel>> add(DeliveryModel delivery) async {
+    WriteBatch batch = _firebase.batch();
+
     try {
-      // Save delivery witout address field
-      final docRec =
-          await _firebase.collection(keyDeliveries).add(delivery.toMap());
-      // Update delivery id from firebase delivery object
-      delivery.id = docRec.id;
+      // Get delivery reference
+      final deliveryRef = _firebase.collection(keyDeliveries).doc();
+
+      // Update the delivery object id to the return value
+      delivery.id = deliveryRef.id;
+
+      // Adjust delivery map
+      final deliveryMap = delivery.toMap();
+      // Removes unnecessary data
+      deliveryMap.remove('id');
+
+      // Set the server timestamps for createdAt and updatedAt
+      deliveryMap['createdAt'] = FieldValue.serverTimestamp();
+      deliveryMap['updatedAt'] = FieldValue.serverTimestamp();
+
+      // Add data to batch
+      batch.set(deliveryRef, deliveryMap);
+
+      // Commit batch
+      await batch.commit();
 
       return DataResult.success(delivery);
     } catch (err) {
@@ -48,11 +65,24 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
         ));
       }
 
-      // Update delivery data in the main document
-      await _firebase
-          .collection(keyDeliveries)
-          .doc(delivery.id)
-          .update(delivery.toMap());
+      WriteBatch batch = _firebase.batch();
+
+      // get delivey reference
+      final deliveryRef = _firebase.collection(keyDeliveries).doc(delivery.id);
+
+      // Removes unnecessary data
+      final deliveryMap = delivery.toMap();
+      deliveryMap.remove('id');
+      deliveryMap.remove('createdAt'); // Don't overwrite createdAt
+
+      // Set the updated timestamp
+      deliveryMap['updatedAt'] = FieldValue.serverTimestamp();
+
+      // Update shop data in the main document
+      batch.set(deliveryRef, deliveryMap);
+
+      // Commit batch
+      await batch.commit();
 
       return DataResult.success(delivery);
     } catch (err) {
@@ -87,8 +117,32 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
   @override
   Future<DataResult<DeliveryModel?>> get(String deliveryId) async {
     try {
-      final deliveryDoc =
-          await _firebase.collection(keyDeliveries).doc(deliveryId).get();
+      // Create DocumentReference with converter (withConverter)
+      final deliveryRef = _firebase
+          .collection(keyDeliveries)
+          .doc(deliveryId)
+          .withConverter<DeliveryModel>(
+            fromFirestore: (snapshot, _) {
+              final data = snapshot.data()!;
+              final Timestamp createdAtTs = data['createdAt'] as Timestamp;
+              final Timestamp updatedAtTs = data['updatedAt'] as Timestamp;
+
+              data.remove('createdAt');
+              data.remove('updatedAt');
+
+              return DeliveryModel.fromMap(data).copyWith(
+                id: snapshot.id,
+                createdAt: createdAtTs.toDate(),
+                updatedAt: updatedAtTs.toDate(),
+              );
+            },
+            toFirestore: (delivery, _) => delivery.toMap(),
+          );
+
+      // Recover the converted document
+      final deliveryDoc = await deliveryRef.get();
+
+      // Check if document exists
       if (!deliveryDoc.exists) {
         final message =
             'ShopFirebaseRepository.get: delivery not found in $deliveryId';
@@ -99,12 +153,12 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
         ));
       }
 
-      final data = deliveryDoc.data()!;
-      final delivery = DeliveryModel.fromMap(data).copyWith(id: deliveryId);
+      final DeliveryModel? delivery = deliveryDoc.data();
+
       return DataResult.success(delivery);
-    } catch (err) {
+    } catch (err, stackTrace) {
       final message = 'ShopFirebaseRepository.get: $err';
-      log(message);
+      log(message, stackTrace: stackTrace);
       return DataResult.failure(FireStoreFailure(
         message: message,
         code: 513,
@@ -123,7 +177,31 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
         List<DeliveryModel> deliveries = await Future.wait(
           snapshot.docs.map(
             (doc) async {
-              DeliveryModel delivery = DeliveryModel.fromMap(doc.data());
+              final data = Map<String, dynamic>.from(doc.data());
+
+              final createdAtTimestamp = data['createdAt'] as Timestamp?;
+              final updatedAtTimestamp = data['updatedAt'] as Timestamp?;
+
+              data.remove('createdAt');
+              data.remove('updatedAt');
+
+              if (createdAtTimestamp == null || updatedAtTimestamp == null) {
+                return DeliveryModel.fromMap(data).copyWith(
+                  id: doc.id,
+                  createdAt: DateTime.now(),
+                  updatedAt: DateTime.now(),
+                );
+              }
+
+              final createdAt = createdAtTimestamp.toDate();
+              final updatedAt = updatedAtTimestamp.toDate();
+
+              final delivery = DeliveryModel.fromMap(data).copyWith(
+                id: doc.id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              );
+
               return delivery.copyWith(id: doc.id);
             },
           ),
