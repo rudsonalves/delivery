@@ -247,28 +247,20 @@ mixin _$AddShopStore on _AddShopStore, Store {
     });
   }
 
-  late final _$_mountAddressAsyncAction =
-      AsyncAction('_AddShopStore._mountAddress', context: context);
-
-  @override
-  Future<void> _mountAddress() {
-    return _$_mountAddressAsyncAction.run(() => super._mountAddress());
-  }
-
-  late final _$_updateAddressAsyncAction =
-      AsyncAction('_AddShopStore._updateAddress', context: context);
-
-  @override
-  Future<void> _updateAddress() {
-    return _$_updateAddressAsyncAction.run(() => super._updateAddress());
-  }
-
   late final _$_setCoordinatesAsyncAction =
       AsyncAction('_AddShopStore._setCoordinates', context: context);
 
   @override
   Future<void> _setCoordinates() {
     return _$_setCoordinatesAsyncAction.run(() => super._setCoordinates());
+  }
+
+  late final _$_mountAddressAsyncAction =
+      AsyncAction('_AddShopStore._mountAddress', context: context);
+
+  @override
+  Future<void> _mountAddress() {
+    return _$_mountAddressAsyncAction.run(() => super._mountAddress());
   }
 
   late final _$saveShopAsyncAction =
@@ -313,33 +305,11 @@ mixin _$AddShopStore on _AddShopStore, Store {
   }
 
   @override
-  dynamic _checkIsEdited(String? value, String? newValue) {
-    final _$actionInfo = _$_AddShopStoreActionController.startAction(
-        name: '_AddShopStore._checkIsEdited');
-    try {
-      return super._checkIsEdited(value, newValue);
-    } finally {
-      _$_AddShopStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
   void setName(String value) {
     final _$actionInfo = _$_AddShopStoreActionController.startAction(
         name: '_AddShopStore.setName');
     try {
       return super.setName(value);
-    } finally {
-      _$_AddShopStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  void _validName() {
-    final _$actionInfo = _$_AddShopStoreActionController.startAction(
-        name: '_AddShopStore._validName');
-    try {
-      return super._validName();
     } finally {
       _$_AddShopStoreActionController.endAction(_$actionInfo);
     }
@@ -390,17 +360,6 @@ mixin _$AddShopStore on _AddShopStore, Store {
   }
 
   @override
-  void _validNumber() {
-    final _$actionInfo = _$_AddShopStoreActionController.startAction(
-        name: '_AddShopStore._validNumber');
-    try {
-      return super._validNumber();
-    } finally {
-      _$_AddShopStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
   void setZipCode(String value) {
     final _$actionInfo = _$_AddShopStoreActionController.startAction(
         name: '_AddShopStore.setZipCode');
@@ -412,22 +371,55 @@ mixin _$AddShopStore on _AddShopStore, Store {
   }
 
   @override
-  void _validZipCode() {
+  void setPageState(PageState newState) {
     final _$actionInfo = _$_AddShopStoreActionController.startAction(
-        name: '_AddShopStore._validZipCode');
+        name: '_AddShopStore.setPageState');
     try {
-      return super._validZipCode();
+      return super.setPageState(newState);
     } finally {
       _$_AddShopStoreActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  void setPageState(PageState newState) {
+  dynamic _checkIsEdited(String? value, String? newValue) {
     final _$actionInfo = _$_AddShopStoreActionController.startAction(
-        name: '_AddShopStore.setPageState');
+        name: '_AddShopStore._checkIsEdited');
     try {
-      return super.setPageState(newState);
+      return super._checkIsEdited(value, newValue);
+    } finally {
+      _$_AddShopStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void _validName() {
+    final _$actionInfo = _$_AddShopStoreActionController.startAction(
+        name: '_AddShopStore._validName');
+    try {
+      return super._validName();
+    } finally {
+      _$_AddShopStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void _validNumber() {
+    final _$actionInfo = _$_AddShopStoreActionController.startAction(
+        name: '_AddShopStore._validNumber');
+    try {
+      return super._validNumber();
+    } finally {
+      _$_AddShopStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void _validZipCode() {
+    final _$actionInfo = _$_AddShopStoreActionController.startAction(
+        name: '_AddShopStore._validZipCode');
+    try {
+      return super._validZipCode();
     } finally {
       _$_AddShopStoreActionController.endAction(_$actionInfo);
     }

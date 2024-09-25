@@ -13,7 +13,7 @@ class ShopModel {
   String? managerName;
   AddressModel? address;
   String? addressString;
-  GeoPoint? geoAddress;
+  GeoPoint? location;
 
   ShopModel({
     this.id,
@@ -24,7 +24,7 @@ class ShopModel {
     this.managerName,
     this.address,
     this.addressString,
-    this.geoAddress,
+    this.location,
   });
 
   ShopModel copyWith({
@@ -36,7 +36,7 @@ class ShopModel {
     String? managerName,
     AddressModel? address,
     String? addressString,
-    GeoPoint? geoAddress,
+    GeoPoint? location,
   }) {
     return ShopModel(
       id: id ?? this.id,
@@ -47,20 +47,19 @@ class ShopModel {
       managerName: managerName ?? this.managerName,
       address: address ?? this.address,
       addressString: addressString ?? this.addressString,
-      geoAddress: geoAddress ?? this.geoAddress,
+      location: location ?? this.location,
     );
   }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'id': id,
       'name': name,
       'description': description,
       'userId': userId,
       'managerId': managerId,
       'managerName': managerName,
       'addressString': addressString,
-      'geoAddress': geoAddress,
+      'location': location,
     };
   }
 
@@ -73,7 +72,7 @@ class ShopModel {
       managerId: map['managerId'] as String?,
       managerName: map['managerName'] as String?,
       addressString: map['addressString'] as String?,
-      geoAddress: map['geoAddress'] as GeoPoint?,
+      location: map['location'] as GeoPoint?,
     );
   }
 
@@ -92,7 +91,7 @@ class ShopModel {
         ' managerName: $managerName,'
         ' address: $address,'
         ' addressString: $addressString,'
-        ' geoAddress: $geoAddress)';
+        ' location: $location)';
   }
 
   @override
@@ -107,7 +106,7 @@ class ShopModel {
         other.managerName == managerName &&
         other.address == address &&
         other.addressString == addressString &&
-        other.geoAddress == geoAddress;
+        other.location == location;
   }
 
   @override
@@ -120,6 +119,6 @@ class ShopModel {
         managerName.hashCode ^
         address.hashCode ^
         addressString.hashCode ^
-        geoAddress.hashCode;
+        location.hashCode;
   }
 }

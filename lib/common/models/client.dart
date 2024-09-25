@@ -34,7 +34,7 @@ class ClientModel {
     String? phone,
     AddressModel? address,
     String? addressString,
-    GeoPoint? geoAddress,
+    GeoPoint? location,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -45,7 +45,7 @@ class ClientModel {
       phone: phone ?? this.phone,
       address: address ?? this.address,
       addressString: addressString ?? this.addressString,
-      location: geoAddress ?? this.location,
+      location: location ?? this.location,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -57,7 +57,7 @@ class ClientModel {
       'email': email,
       'phone': phone,
       'addressString': addressString,
-      'geoAddress': location,
+      'location': location,
     };
   }
 
@@ -68,7 +68,7 @@ class ClientModel {
       email: map['email'] as String?,
       phone: map['phone'] as String,
       addressString: map['addressString'] as String?,
-      location: map['geoAddress'] as GeoPoint?,
+      location: map['location'] as GeoPoint?,
     );
   }
 
@@ -84,7 +84,7 @@ class ClientModel {
         ' phone: $phone,'
         ' address: $address,'
         ' addressString: $addressString,'
-        ' geoAddress: $location,'
+        ' location: $location,'
         ' createdAt: $createdAt,'
         ' updatedAt: $updatedAt)';
   }

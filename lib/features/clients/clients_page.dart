@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
 
+import '../../components/widgets/dismissible_help_row.dart';
 import '/common/theme/app_text_style.dart';
 import '/components/widgets/state_loading.dart';
 import '../../common/models/client.dart';
@@ -114,28 +114,7 @@ class _ClientsPageState extends State<ClientsPage> {
                 if (clients.isNotEmpty)
                   Column(
                     children: [
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Text('Editar'),
-                                SizedBox(width: 8),
-                                Icon(Symbols.line_end_arrow_notch_sharp),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Icon(Symbols.line_start_arrow_notch_sharp),
-                                SizedBox(width: 8),
-                                Text('Apagar'),
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
+                      const DismissibleHelpRow(),
                       Expanded(
                         child: ListView.builder(
                           itemCount: clients.length,
