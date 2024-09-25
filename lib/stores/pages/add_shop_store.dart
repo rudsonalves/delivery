@@ -62,16 +62,10 @@ abstract class _AddShopStore with Store {
   @observable
   bool isEdited = false;
 
+  bool updateLocation = false;
+
   String? id;
   String? userId;
-
-  @action
-  void setManager(Map<String, dynamic> manager) {
-    _checkIsEdited(managerId, manager['id']);
-    _checkIsEdited(managerName, manager['name']);
-    managerId = manager['id'];
-    managerName = manager['name'];
-  }
 
   Future<ShopModel?> getShopFromForm() async {
     state = PageState.loading;
@@ -80,23 +74,36 @@ abstract class _AddShopStore with Store {
       return null;
     }
 
-    if (address != null) {
-      if (address!.location == null) {
-        await _setCoordinates();
-      }
-
-      state = PageState.success;
-      return ShopModel(
-        id: id,
-        userId: locator<UserStore>().currentUser!.id!,
-        name: name!,
-        description: description,
-        managerId: managerId,
-        managerName: managerName,
-        address: address,
-      );
+    if (address == null) {
+      await _mountAddress();
     }
-    return null;
+    if (updateLocation) {
+      address!.complement = complement;
+      address!.number = number!;
+      await _setCoordinates();
+    }
+    address!.type = addressType!;
+
+    state = PageState.success;
+    return ShopModel(
+      id: id,
+      name: name!,
+      description: description,
+      userId: locator<UserStore>().currentUser!.id!,
+      managerId: managerId,
+      managerName: managerName,
+      address: address?.copyWith(),
+      addressString: address?.geoAddressString,
+      location: address?.location,
+    );
+  }
+
+  @action
+  void setManager(Map<String, dynamic> manager) {
+    _checkIsEdited(managerId, manager['id']);
+    _checkIsEdited(managerName, manager['name']);
+    managerId = manager['id'];
+    managerName = manager['name'];
   }
 
   @action
@@ -107,17 +114,14 @@ abstract class _AddShopStore with Store {
     description = shop.description;
     managerId = shop.managerId;
     managerName = shop.managerName;
-    address = shop.address;
-    zipCode = shop.address?.zipCode;
+    addressType = shop.address?.type ?? 'Comercial';
     number = shop.address?.number;
+    zipCode = shop.address?.zipCode;
     complement = shop.address?.complement;
+    address = shop.address?.copyWith();
     zipStatus = address != null ? ZipStatus.success : ZipStatus.initial;
     isEdited = false;
-  }
-
-  @action
-  _checkIsEdited(String? value, String? newValue) {
-    isEdited = value != newValue;
+    updateLocation = false;
   }
 
   @action
@@ -125,12 +129,6 @@ abstract class _AddShopStore with Store {
     _checkIsEdited(name, value);
     name = value;
     _validName();
-  }
-
-  @action
-  void _validName() {
-    errorName =
-        name!.trim().length < 3 ? 'Nome dever ter 3 ou mais caracteres' : null;
   }
 
   @action
@@ -143,22 +141,51 @@ abstract class _AddShopStore with Store {
   void setComplement(String value) {
     _checkIsEdited(complement, value);
     complement = value;
-    _updateAddress();
   }
 
   @action
   void setAddressType(String value) {
     _checkIsEdited(addressType, value);
     addressType = value;
-    _updateAddress();
   }
 
   @action
   void setNumber(String value) {
     _checkIsEdited(addressType, value);
+    updateLocation = updateLocation || (number != value);
     number = value;
-    _validName();
-    _updateAddress();
+    _validNumber();
+  }
+
+  @action
+  void setZipCode(String value) {
+    _checkIsEdited(zipCode, value);
+    updateLocation = updateLocation || (zipCode != value);
+    zipCode = value;
+    _validZipCode();
+    if (errorZipCode == null) _mountAddress();
+  }
+
+  @action
+  void setPageState(PageState newState) {
+    state = newState;
+  }
+
+  @action
+  Future<void> _setCoordinates() async {
+    address = await address!.updateLocation();
+    updateLocation = false;
+  }
+
+  @action
+  _checkIsEdited(String? value, String? newValue) {
+    isEdited = value != newValue || isEdited;
+  }
+
+  @action
+  void _validName() {
+    errorName =
+        name!.trim().length < 3 ? 'Nome dever ter 3 ou mais caracteres' : null;
   }
 
   @action
@@ -171,14 +198,6 @@ abstract class _AddShopStore with Store {
   }
 
   @action
-  void setZipCode(String value) {
-    _checkIsEdited(zipCode, value);
-    zipCode = value;
-    _validZipCode();
-    if (errorZipCode == null) _mountAddress();
-  }
-
-  @action
   void _validZipCode() {
     final numbers = zipCode?.onlyNumbers() ?? '';
 
@@ -187,6 +206,14 @@ abstract class _AddShopStore with Store {
     } else {
       errorZipCode = 'CEP inválido';
     }
+  }
+
+  bool isValid() {
+    _validNumber();
+    _validZipCode();
+    _validName();
+
+    return errorNumber == null && errorZipCode == null && errorName == null;
   }
 
   @action
@@ -203,55 +230,21 @@ abstract class _AddShopStore with Store {
 
     if (via == null) return;
 
-    address = AddressModel(
-      zipCode: via.zipCode,
-      street: via.street,
-      number: number ?? '',
-      complement: complement,
-      type: addressType ?? 'Comercial',
-      neighborhood: via.neighborhood,
-      location: null,
-      state: via.state,
-      city: via.city,
-    );
-
-    if (address!.isValidAddress) {
-      await _setCoordinates();
-    }
-    zipStatus = ZipStatus.success;
-  }
-
-  @action
-  Future<void> _updateAddress() async {
-    if (address != null) {
-      final updateCoordinates =
-          number != null && number!.isNotEmpty && address!.number != number;
-      address = address!.copyWith(
-        number: number,
+    if (updateLocation) {
+      address = AddressModel(
+        zipCode: via.zipCode,
+        street: via.street,
+        number: number ?? 'S/N',
         complement: complement,
+        type: addressType ?? 'Residencial',
+        neighborhood: via.neighborhood,
+        location: null,
+        state: via.state,
+        city: via.city,
       );
-      if (updateCoordinates && address!.isValidAddress) {
-        await _setCoordinates();
-      }
     }
-  }
 
-  @action
-  Future<void> _setCoordinates() async {
-    address = await address!.updateLocation();
-  }
-
-  @action
-  void setPageState(PageState newState) {
-    state = newState;
-  }
-
-  bool isValid() {
-    _validNumber();
-    _validZipCode();
-    _validName();
-
-    return errorNumber == null && errorZipCode == null && errorName == null;
+    zipStatus = ZipStatus.success;
   }
 
   @action

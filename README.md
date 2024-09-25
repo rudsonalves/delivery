@@ -17,6 +17,89 @@ samples, guidance on mobile development, and a full API reference.
 
 
 # Changelog
+ 
+## 2024/09/25 - version: 0.6.01+23
+
+Complete System Base and Initiate Delivery Registration Features
+
+1. **.gitignore**
+   - Added `*.old` to ignore old backup files.
+
+2. **Makefile**
+   - Renamed `firebase_emu_make_cache` target to `firebase_emusavecache` for clarity.
+
+3. **firestore.rules**
+   - Simplified Firestore security rules by removing specific access controls.
+   - Updated rules to allow read and write operations on all documents at development time.
+
+4. **lib/common/extensions/emu_extensions.dart**
+   - Updated string literals in `DeliveryStatusExtension` to use single quotes for consistency.
+
+5. **lib/common/models/address.dart**
+   - Removed `createdAt` and `updatedAt` fields from `AddressModel`.
+   - Refactored `updateLocation` method to use `location` instead of `geoPoint`.
+
+6. **lib/common/models/client.dart**
+   - Renamed `geoAddress` to `location` in `ClientModel`.
+   - Updated related methods and JSON serialization to reflect the name change.
+
+7. **lib/common/models/shop.dart**
+   - Renamed `geoAddress` to `location` in `ShopModel`.
+   - Updated related methods and JSON serialization to reflect the name change.
+
+8. **lib/components/widgets/dismissible_help_row.dart**
+   - **New File**: Added `DismissibleHelpRow` widget class to provide a consistent UI for edit and delete actions.
+
+9. **lib/features/add_delivery/add_delivery_controller.dart**
+   - Implemented `AddDeliveryController` with properties and methods for managing delivery creation.
+   - Integrated `AddDeliveryStore` for state management.
+   - Added text controllers for phone and name inputs with appropriate masks.
+
+10. **lib/features/add_delivery/add_delivery_page.dart**
+    - Enhanced `AddDeliveryPage` with form fields for selecting origin shop and destination client.
+    - Integrated `DismissibleHelpRow` for better user interaction.
+    - Added submission methods for name and phone searches.
+    - Included a `BigButton` to generate deliveries.
+
+11. **lib/features/clients/clients_page.dart**
+    - Updated `ClientsPage` to use the newly created `DismissibleHelpRow` widget for editing and deleting clients.
+    - Removed redundant code and streamlined the UI components.
+
+12. **lib/features/home/home_page.dart**
+    - Modified `HomePage` to include a floating action button that navigates to `AddDeliveryPage` for creating new deliveries.
+    - Updated navigation imports for consistency.
+
+13. **lib/features/shops/shops_page.dart**
+    - Updated `ShopsPage` to incorporate `DismissibleHelpRow` and enhanced dismissible list items for editing and deleting shops.
+    - Improved UI layout and interaction handling.
+
+14. **lib/repository/firebase_store/client_firebase_repository.dart**
+    - Refactored client repository methods (`add` and `update`) to use `WriteBatch` for atomic Firestore operations.
+    - Improved error handling and logging for client data management.
+
+15. **lib/repository/firebase_store/shop_firebase_repository.dart**
+    - Refactored shop repository methods (`add` and `update`) to use `WriteBatch` for atomic Firestore operations.
+    - Enhanced error handling and logging for shop data management.
+
+16. **lib/stores/pages/add_client_store.dart**
+    - Updated `AddClientStore` with changes to address updating and location handling.
+    - Refactored state management variables and methods for better clarity and functionality.
+
+17. **lib/stores/pages/add_delivery_store.dart**
+    - **New File**: Added `AddDeliveryStore` class with observable properties and actions for managing delivery data.
+    - Implemented search functionalities by name and phone.
+    - Integrated local storage interactions for managing shops and clients.
+
+18. **lib/stores/pages/add_shop_store.dart**
+    - Modified `AddShopStore` with updates to address handling and validation.
+    - Refactored methods for setting shop details and validating inputs.
+    - Enhanced state management for shop creation and updates.
+
+19. **pubspec.yaml**
+    - Updated application version from `0.4.04+22` to `0.6.00+23` to reflect significant feature additions and improvements.
+
+These changes complete the system's base functionality and lay the groundwork for developing the delivery registration feature in the delivery app.
+
 
 ## 2024/09/24 - version: 0.4.04+22
 
