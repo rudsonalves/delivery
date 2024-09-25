@@ -17,6 +17,52 @@ samples, guidance on mobile development, and a full API reference.
 
 
 # Changelog
+
+## 2024/09/25 - version: 0.6.02+24
+
+Enhance Delivery Model and Refactor Delivery Features
+
+1. **lib/common/models/delivery.dart**
+   - Added `clientPhone` field to `DeliveryModel`.
+   - Removed `deliveryDate` field from `DeliveryModel`.
+   - Updated `copyWith`, `toMap`, `fromMap`, `toJson`, `fromJson`, `toString`, `==`, and `hashCode` methods to include `clientPhone` and exclude `deliveryDate`.
+
+2. **lib/common/models/shop.dart**
+   - Modified `toJson` method to include `id` and structured `location` data with latitude and longitude.
+   - Updated `fromJson` factory constructor to correctly parse nested `location` data and remove redundant fields.
+
+3. **lib/features/delivery_request/delivery_request_controller.dart**
+   - **Deleted File**: Removed `DeliveryRequestController` as it is no longer needed.
+
+4. **lib/features/delivery_request/delivery_request_page.dart**
+   - **Deleted File**: Removed `DeliveryRequestPage` to streamline delivery handling within the app.
+
+5. **lib/features/home/home_page.dart**
+   - Commented out `_deliceryRequest` method and its invocation to eliminate navigation to the now-deleted `DeliveryRequestPage`.
+
+6. **lib/features/home/widgets/home_drawer.dart**
+   - Removed `deliceryRequest` parameter and associated `ListTile` for delivery requests from `HomeDrawer`.
+
+7. **lib/my_material_app.dart**
+   - Removed references to `DeliveryRequestPage` route from the application's navigation routes.
+
+8. **lib/repository/firebase_store/deliveries_firebase_repository.dart**
+   - Refactored `add` and `update` methods to utilize `WriteBatch` for atomic Firestore operations.
+   - Included `clientPhone` in `DeliveryModel` during add and update operations.
+   - Enhanced `get` and `getAll` methods to handle Firestore timestamps correctly and ensure proper data conversion.
+   - Improved error handling and logging for delivery data management.
+
+9. **lib/services/local_storage_service.dart**
+   - Updated log messages to reflect changes in managing manager shops.
+   - Added error handling in `getManagerShops` to log exceptions and ensure robustness.
+
+10. **lib/stores/pages/add_delivery_store.dart**
+    - Enhanced `createDelivery` method to include `clientPhone` and implement comprehensive error handling.
+    - Initialized `shopId` with the first available shop's ID during the `init` action for default selection.
+    - Updated import paths for consistency and clarity.
+
+These changes enhance the delivery model by adding necessary fields, refactor delivery-related features for improved state management, and remove obsolete delivery request components. These updates pave the way for a more streamlined and efficient delivery registration process in the delivery app.
+
  
 ## 2024/09/25 - version: 0.6.01+23
 

@@ -7,7 +7,6 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 
 import '../account_page/account_page.dart';
 import '../shops/shops_page.dart';
-import '../delivery_request/delivery_request_page.dart';
 import '../add_delivery/add_delivery_page.dart';
 import '../clients/clients_page.dart';
 import 'widgets/home_drawer.dart';
@@ -76,10 +75,10 @@ class _HomePageState extends State<HomePage> {
     Navigator.pushNamed(context, ClientsPage.routeName);
   }
 
-  void _deliceryRequest() {
-    Navigator.pop(context);
-    Navigator.pushNamed(context, DeliveryRequestPage.routeName);
-  }
+  // void _deliceryRequest() {
+  //   Navigator.pop(context);
+  //   Navigator.pushNamed(context, DeliveryRequestPage.routeName);
+  // }
 
   void _storesPage() {
     Navigator.pop(context);
@@ -120,7 +119,7 @@ class _HomePageState extends State<HomePage> {
         clients: _clients,
         login: _login,
         logout: _logout,
-        deliceryRequest: _deliceryRequest,
+        // deliceryRequest: _deliceryRequest,
         stores: _storesPage,
         account: _accountPage,
       ),

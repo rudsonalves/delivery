@@ -76,10 +76,26 @@ class ShopModel {
     );
   }
 
-  String toJson() => json.encode(toMap());
+  String toJson() {
+    final map = toMap();
+    map['id'] = id;
+    map['location'] = {
+      'latitude': location!.latitude,
+      'longitude': location!.longitude,
+    };
+    return json.encode(map);
+  }
 
-  factory ShopModel.fromJson(String source) =>
-      ShopModel.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory ShopModel.fromJson(String source) {
+    final map = json.decode(source) as Map<String, dynamic>;
+    final location = GeoPoint(
+      map['location']['latitude'] as double,
+      map['location']['longitude'] as double,
+    );
+    map.remove('location');
+    final shop = ShopModel.fromMap(map);
+    return shop.copyWith(location: location);
+  }
 
   @override
   String toString() {

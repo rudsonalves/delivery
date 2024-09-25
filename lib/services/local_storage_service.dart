@@ -51,13 +51,18 @@ class LocalStorageService {
           shops.map((item) => item.toJson()).toList();
       await _prefs.setStringList(_keyManagerShops, listShops);
     } catch (err) {
-      log('Erro ao salvar lojas do gerente: $err');
+      log('LocalStorageService.setManagerShops: $err');
     }
   }
 
   List<ShopModel> getManagerShops() {
-    final result = _prefs.getStringList(_keyManagerShops);
-    if (result == null) return [];
-    return result.map((item) => ShopModel.fromJson(item)).toList();
+    try {
+      final result = _prefs.getStringList(_keyManagerShops);
+      if (result == null) return [];
+      return result.map((item) => ShopModel.fromJson(item)).toList();
+    } catch (err) {
+      log('LocalStorageService.getManagerShops: $err');
+      return [];
+    }
   }
 }
