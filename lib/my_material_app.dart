@@ -4,7 +4,6 @@ import 'common/models/shop.dart';
 import 'features/account_page/account_page.dart';
 import 'features/add_delivery/add_delivery_page.dart';
 import 'features/add_shop/add_shop_page.dart';
-import 'features/delivery_request/delivery_request_page.dart';
 import 'features/qrcode_read/qrcode_read_page.dart';
 import 'features/splash/splash_page.dart';
 import 'features/home/home_page.dart';
@@ -53,7 +52,6 @@ class _MyMaterialAppState extends State<MyMaterialApp> {
               SignInPage.routeName: (_) => const SignInPage(),
               PersonDataPage.routeName: (_) => const PersonDataPage(),
               ClientsPage.routeName: (_) => const ClientsPage(),
-              DeliveryRequestPage.routeName: (_) => const DeliveryRequestPage(),
               AddDeliveryPage.routeName: (_) => const AddDeliveryPage(),
               ShopsPage.routeName: (_) => const ShopsPage(),
               AccountPage.routeName: (_) => const AccountPage(),
