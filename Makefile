@@ -45,7 +45,7 @@ firebase_emu:
 firebase_emu_debug:
 	firebase emulators:start --import=./emulator_data --debug
 
-firebase_emu_make_cache:
+firebase_emusavecache:
 	firebase emulators:export ./emulator_data -f
 
 build_runner:

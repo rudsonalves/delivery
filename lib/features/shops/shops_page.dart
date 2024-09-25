@@ -5,6 +5,7 @@ import 'package:material_symbols_icons/material_symbols_icons.dart';
 import '../../common/models/shop.dart';
 import '../../common/theme/app_text_style.dart';
 import '../../components/widgets/base_dismissible_container.dart';
+import '../../components/widgets/dismissible_help_row.dart';
 import '../../components/widgets/state_loading.dart';
 import 'shops_controller.dart';
 
@@ -116,45 +117,54 @@ class _ShopsPageState extends State<ShopsPage> {
             return Stack(
               children: [
                 if (shops.isNotEmpty)
-                  ListView.builder(
-                    itemCount: shops.length,
-                    itemBuilder: (context, index) => Dismissible(
-                      key: UniqueKey(),
-                      background: baseDismissibleContainer(
-                        context,
-                        alignment: Alignment.centerLeft,
-                        color: Colors.green.withOpacity(.30),
-                        icon: Icons.edit,
-                        label: 'Editar',
-                      ),
-                      secondaryBackground: baseDismissibleContainer(
-                        context,
-                        alignment: Alignment.centerRight,
-                        color: Colors.red.withOpacity(.30),
-                        icon: Icons.delete,
-                        label: 'Apagar',
-                        // enable: ctrl.isAdmin,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(4),
-                        child: Card(
-                          margin: EdgeInsets.zero,
-                          color: colorScheme.surfaceContainerHigh,
-                          child: ListTile(
-                            title: Text(shops[index].name),
-                            subtitle: Text(shops[index].description ?? ''),
+                  Column(
+                    children: [
+                      const DismissibleHelpRow(),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: shops.length,
+                          itemBuilder: (context, index) => Dismissible(
+                            key: UniqueKey(),
+                            background: baseDismissibleContainer(
+                              context,
+                              alignment: Alignment.centerLeft,
+                              color: Colors.green.withOpacity(.30),
+                              icon: Icons.edit,
+                              label: 'Editar',
+                            ),
+                            secondaryBackground: baseDismissibleContainer(
+                              context,
+                              alignment: Alignment.centerRight,
+                              color: Colors.red.withOpacity(.30),
+                              icon: Icons.delete,
+                              label: 'Apagar',
+                              // enable: ctrl.isAdmin,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(4),
+                              child: Card(
+                                margin: EdgeInsets.zero,
+                                color: colorScheme.surfaceContainerHigh,
+                                child: ListTile(
+                                  title: Text(shops[index].name),
+                                  subtitle:
+                                      Text(shops[index].description ?? ''),
+                                ),
+                              ),
+                            ),
+                            confirmDismiss: (direction) async {
+                              if (direction == DismissDirection.startToEnd) {
+                                _editShop(shops[index]);
+                              } else if (direction ==
+                                  DismissDirection.endToStart) {
+                                return await _deleteShop(shops[index]);
+                              }
+                              return false;
+                            },
                           ),
                         ),
                       ),
-                      confirmDismiss: (direction) async {
-                        if (direction == DismissDirection.startToEnd) {
-                          _editShop(shops[index]);
-                        } else if (direction == DismissDirection.endToStart) {
-                          return await _deleteShop(shops[index]);
-                        }
-                        return false;
-                      },
-                    ),
+                    ],
                   ),
                 if (shops.isEmpty)
                   const Column(

@@ -22,18 +22,31 @@ class ShopFirebaseRepository implements AbstractShopRepository {
 
   @override
   Future<DataResult<ShopModel>> add(ShopModel shop) async {
+    WriteBatch batch = _firebase.batch();
+
     try {
-      // Save shop witout address field
-      final docRec = await _firebase.collection(keyShops).add(shop.toMap());
-      // Update shop id from firebase shop object
-      shop.id = docRec.id;
+      // Get shop reference
+      final shopRef = _firebase.collection(keyShops).doc();
+
+      // Update the shop object id to the return value
+      shop.id = shopRef.id;
+
+      // Add data to batch
+      final shopMap = shop.toMap(); // a map without id
+      batch.set(shopRef, shopMap);
 
       // Save address field
       if (shop.address != null) {
-        final doc =
-            await docRec.collection(keyAddress).add(shop.address!.toMap());
-        shop.address!.id = doc.id;
+        // log('Shop Location: Latitude = ${shop.location!.latitude},'
+        //     ' Longitude = ${shop.location!.longitude}');
+
+        final addressMap = shop.address!.toMap();
+        final addressRef = shopRef.collection(keyAddress).doc(shop.id);
+        batch.set(addressRef, addressMap);
       }
+
+      // Commit batch
+      await batch.commit();
 
       return DataResult.success(shop);
     } catch (err) {
@@ -59,24 +72,24 @@ class ShopFirebaseRepository implements AbstractShopRepository {
         ));
       }
 
+      WriteBatch batch = _firebase.batch();
+
+      // get shop reference
+      final shopRef = _firebase.collection(keyShops).doc(shop.id);
+
       // Update shop data in the main document
-      await _firebase.collection(keyShops).doc(shop.id).update(shop.toMap());
+      final shopMap = shop.toMap();
+      batch.set(shopRef, shopMap, SetOptions(merge: true));
 
       // Update the address if it exists and has a id
-      if (shop.address != null && shop.address!.id != null) {
-        await _firebase
-            .collection(keyShops)
-            .doc(shop.id)
-            .collection(keyAddress)
-            .doc(shop.address!.id!)
-            .update(shop.address!.toMap());
-      } else if (shop.address != null && shop.address!.id == null) {
-        await _firebase
-            .collection(keyShops)
-            .doc(shop.id)
-            .collection(keyAddress)
-            .add(shop.address!.toMap());
+      if (shop.address != null) {
+        final addressMap = shop.address!.toMap();
+        final addressRef = shopRef.collection(keyAddress).doc(shop.id);
+        batch.set(addressRef, addressMap, SetOptions(merge: true));
       }
+
+      // Commit batch
+      await batch.commit();
 
       return DataResult.success(shop);
     } catch (err) {

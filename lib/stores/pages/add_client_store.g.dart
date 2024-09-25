@@ -295,28 +295,20 @@ mixin _$AddClientStore on _AddClientStore, Store {
     });
   }
 
-  late final _$isAddressEditedAtom =
-      Atom(name: '_AddClientStore.isAddressEdited', context: context);
+  late final _$updateLocationAtom =
+      Atom(name: '_AddClientStore.updateLocation', context: context);
 
   @override
-  bool get isAddressEdited {
-    _$isAddressEditedAtom.reportRead();
-    return super.isAddressEdited;
+  bool get updateLocation {
+    _$updateLocationAtom.reportRead();
+    return super.updateLocation;
   }
 
   @override
-  set isAddressEdited(bool value) {
-    _$isAddressEditedAtom.reportWrite(value, super.isAddressEdited, () {
-      super.isAddressEdited = value;
+  set updateLocation(bool value) {
+    _$updateLocationAtom.reportWrite(value, super.updateLocation, () {
+      super.updateLocation = value;
     });
-  }
-
-  late final _$_updateLocationAsyncAction =
-      AsyncAction('_AddClientStore._updateLocation', context: context);
-
-  @override
-  Future<void> _updateLocation() {
-    return _$_updateLocationAsyncAction.run(() => super._updateLocation());
   }
 
   late final _$_mountAddressAsyncAction =
@@ -325,6 +317,14 @@ mixin _$AddClientStore on _AddClientStore, Store {
   @override
   Future<void> _mountAddress() {
     return _$_mountAddressAsyncAction.run(() => super._mountAddress());
+  }
+
+  late final _$_setCoordinatesAsyncAction =
+      AsyncAction('_AddClientStore._setCoordinates', context: context);
+
+  @override
+  Future<void> _setCoordinates() {
+    return _$_setCoordinatesAsyncAction.run(() => super._setCoordinates());
   }
 
   late final _$saveClientAsyncAction =
@@ -523,17 +523,6 @@ mixin _$AddClientStore on _AddClientStore, Store {
   }
 
   @override
-  dynamic _updateAddress() {
-    final _$actionInfo = _$_AddClientStoreActionController.startAction(
-        name: '_AddClientStore._updateAddress');
-    try {
-      return super._updateAddress();
-    } finally {
-      _$_AddClientStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
   void setPageState(PageState status) {
     final _$actionInfo = _$_AddClientStoreActionController.startAction(
         name: '_AddClientStore.setPageState');
@@ -576,7 +565,7 @@ cpf: ${cpf},
 errorCpfMsg: ${errorCpfMsg},
 complement: ${complement},
 isEdited: ${isEdited},
-isAddressEdited: ${isAddressEdited}
+updateLocation: ${updateLocation}
     ''';
   }
 }
