@@ -6,19 +6,17 @@ extension DeliveryStatusExtension on DeliveryStatus {
   String get displayName {
     switch (this) {
       case DeliveryStatus.orderRegisteredForPickup:
-        return "Pedido registrado para retirada";
+        return 'Pedido Registrado para Retirada';
       case DeliveryStatus.orderPickedUpForDelivery:
-        return "Pedido retirado para entrega";
+        return 'Pedido Retirado para Entrega';
       case DeliveryStatus.orderInTransit:
-        return "Pedido em trânsito";
+        return 'Pedido em Trânsito';
       case DeliveryStatus.orderDelivered:
-        return "Pedido entregue";
+        return 'Pedido Entregue';
       case DeliveryStatus.orderClosed:
-        return "Pedido encerrado";
+        return 'Pedido Fechado';
       case DeliveryStatus.orderReject:
-        return "Pedido rejeitado";
-      default:
-        return "";
+        return 'Pedido Rejeitado';
     }
   }
 

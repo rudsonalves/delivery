@@ -21,25 +21,39 @@ class ClientFirebaseRepository implements AbstractClientRepository {
 
   @override
   Future<DataResult<ClientModel>> add(ClientModel client) async {
+    WriteBatch batch = _firebase.batch();
+
     try {
       // Update address geo localization
       if (client.address == null) {
         throw Exception('Client does not have an address');
       }
-      final newAddress = await client.address!.updateLocation();
-      client.address = newAddress;
-      client.addressString = client.address!.geoAddressString;
-      client.location = newAddress.location;
 
-      // Save client without address field
-      final docRef = await _firebase.collection(keyClients).add(client.toMap());
-      // Update client id from firebase client object
-      client.id = docRef.id;
+      // Update Address
+      // final newAddress = await client.address!.updateLocation();
+      // client.address = newAddress;
+      // client.addressString = client.address!.geoAddressString;
+      // client.location = newAddress.location;
+
+      // Get client reference
+      final clientRef = _firebase.collection(keyClients).doc();
+
+      // Update the client object id to the retrun value
+      client.id = clientRef.id;
+
+      // Save client field
+      final clientMap = client.toMap();
+      batch.set(clientRef, clientMap);
 
       // Save address field
-      final doc =
-          await docRef.collection(keyAddresses).add(client.address!.toMap());
-      client.address!.id = doc.id;
+      if (client.address != null) {
+        final addressMap = client.address!.toMap();
+        final addressRef = clientRef.collection(keyAddresses).doc(client.id);
+        batch.set(addressRef, addressMap);
+      }
+
+      // Commit batch
+      await batch.commit();
 
       return DataResult.success(client);
     } catch (err) {
@@ -65,27 +79,24 @@ class ClientFirebaseRepository implements AbstractClientRepository {
         ));
       }
 
-      // Update client data in the main document
-      await _firebase.collection(keyClients).doc(client.id).update(
-            client.toMap(),
-          );
+      WriteBatch batch = _firebase.batch();
 
-      // Update the address if it exists and has a id
-      if (client.address != null && client.address!.id != null) {
-        await _firebase
-            .collection(keyClients)
-            .doc(client.id)
-            .collection(keyAddresses)
-            .doc(client.address!.id!)
-            .update(client.address!.toMap());
-      } else if (client.address != null && client.address!.id == null) {
-        // if the address has no id, it means it is a new address, so we add it
-        await _firebase
-            .collection(keyClients)
-            .doc(client.id)
-            .collection(keyAddresses)
-            .add(client.address!.toMap());
+      // Get  client reference
+      final clientRef = _firebase.collection(keyClients).doc(client.id);
+
+      // Update client data in the main document
+      final clientMap = client.toMap();
+      batch.set(clientRef, clientMap, SetOptions(merge: true));
+
+      // Update the address if it exists
+      if (client.address != null) {
+        final addressMap = client.address!.toMap();
+        final addressRef = clientRef.collection(keyAddresses).doc(client.id);
+        batch.set(addressRef, addressMap, SetOptions(merge: true));
       }
+
+      // Commit batch
+      await batch.commit();
 
       return DataResult.success(client);
     } catch (err) {
@@ -182,7 +193,8 @@ class ClientFirebaseRepository implements AbstractClientRepository {
       final List<ClientModel> clients = [];
       final querySnapshot = await _firebase
           .collection(keyClients)
-          .where(keyName, isEqualTo: name)
+          .where(keyName, isGreaterThanOrEqualTo: name)
+          .where(keyName, isLessThan: '${name}z')
           .get();
 
       if (querySnapshot.docs.isEmpty) {

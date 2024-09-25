@@ -7,9 +7,10 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 
 import '../account_page/account_page.dart';
 import '../shops/shops_page.dart';
-import '/features/delivery_request/delivery_request_page.dart';
-import '/features/clients/clients_page.dart';
-import '/features/home/widgets/home_drawer.dart';
+import '../delivery_request/delivery_request_page.dart';
+import '../add_delivery/add_delivery_page.dart';
+import '../clients/clients_page.dart';
+import 'widgets/home_drawer.dart';
 import '../../locator.dart';
 import '../person_data/person_data_page.dart';
 import '../sign_in/sign_in_page.dart';
@@ -90,6 +91,11 @@ class _HomePageState extends State<HomePage> {
     Navigator.pushNamed(context, AccountPage.routeName);
   }
 
+  void _addDelivery() {
+    // Navigator.pushNamed(context, PersonDataPage.routeName);
+    Navigator.pushNamed(context, AddDeliveryPage.routeName);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -119,7 +125,7 @@ class _HomePageState extends State<HomePage> {
         account: _accountPage,
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.pushNamed(context, PersonDataPage.routeName),
+        onPressed: _addDelivery,
         child: const Icon(Icons.delivery_dining_rounded),
       ),
       body: Observer(

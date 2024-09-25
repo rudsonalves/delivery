@@ -45,8 +45,6 @@ class AddressModel {
       'state': state,
       'city': city,
       'location': location,
-      'createdAt': createdAt.millisecondsSinceEpoch,
-      'updatedAt': updatedAt.millisecondsSinceEpoch,
     };
   }
 
@@ -71,8 +69,8 @@ class AddressModel {
   }
 
   Future<AddressModel> updateLocation() async {
-    GeoPoint? geoPoint = await getGeoPointFromAddress(geoAddressString);
-    return copyWith(location: geoPoint);
+    GeoPoint? location = await getGeoPointFromAddress(geoAddressString);
+    return copyWith(location: location);
   }
 
   bool get isValidAddress =>
@@ -125,8 +123,6 @@ class AddressModel {
       state: map['state'] as String,
       city: map['city'] as String,
       location: map['location'] as GeoPoint?,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int),
-      updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int),
     );
   }
 

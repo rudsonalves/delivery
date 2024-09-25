@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:mobx/mobx.dart';
 
 import '../../common/models/address.dart';
@@ -72,7 +70,7 @@ abstract class _AddClientStore with Store {
   bool isEdited = false;
 
   @observable
-  bool isAddressEdited = false;
+  bool updateLocation = false;
 
   String? id;
 
@@ -83,32 +81,26 @@ abstract class _AddClientStore with Store {
       return null;
     }
 
-    if (address != null) {
-      await _updateLocation();
-
-      state = PageState.success;
-      return ClientModel(
-        id: id,
-        name: name!,
-        email: email,
-        phone: phone!,
-        address: address?.copyWith(),
-        location: address?.location,
-        addressString: address?.geoAddressString,
-      );
+    if (address == null) {
+      await _mountAddress();
     }
-    return null;
-  }
-
-  @action
-  Future<void> _updateLocation() async {
-    if (address != null && isAddressEdited) {
-      address = await address!.updateLocation();
-      isAddressEdited = false;
-    } else {
-      log('address != null: ${address != null}\n'
-          'isAddressEdited: $isAddressEdited');
+    if (updateLocation) {
+      address!.complement = complement;
+      address!.number = number!;
+      await _setCoordinates();
     }
+    address!.type = addressType!;
+
+    state = PageState.success;
+    return ClientModel(
+      id: id,
+      name: name!,
+      email: email,
+      phone: phone!,
+      address: address?.copyWith(),
+      addressString: address?.geoAddressString,
+      location: address?.location,
+    );
   }
 
   @action
@@ -124,15 +116,13 @@ abstract class _AddClientStore with Store {
     address = client.address?.copyWith();
     zipStatus = address != null ? ZipStatus.success : ZipStatus.initial;
     isEdited = false;
-    isAddressEdited = false;
+    updateLocation = false;
   }
 
   @action
   void setComplement(String value) {
     _checkIsEdited(complement, value);
-    isAddressEdited = _isChanged(complement, value) || isAddressEdited;
     complement = value;
-    _updateAddress();
   }
 
   @action
@@ -148,7 +138,6 @@ abstract class _AddClientStore with Store {
   void setAddressType(String value) {
     _checkIsEdited(addressType, value);
     addressType = value;
-    _updateAddress();
   }
 
   @action
@@ -205,14 +194,10 @@ abstract class _AddClientStore with Store {
 
   @action
   void setNumber(String value) {
-    _checkIsEdited(number, value);
-    isAddressEdited = _isChanged(number, value) || isAddressEdited;
+    _checkIsEdited(addressType, value);
+    updateLocation = updateLocation || (number != value);
     number = value;
     _validNumber();
-    _updateAddress();
-    if (address != null) {
-      address!.location = null;
-    }
   }
 
   @action
@@ -227,13 +212,10 @@ abstract class _AddClientStore with Store {
   @action
   void setZipCode(String value) {
     _checkIsEdited(zipCode, value);
-    isAddressEdited = _isChanged(zipCode, value) || isAddressEdited;
+    updateLocation = updateLocation || (zipCode != value);
     zipCode = value;
     _validZipCode();
-    if (errorZipCode == null) {
-      _mountAddress();
-      isAddressEdited = true;
-    }
+    if (errorZipCode == null) _mountAddress();
   }
 
   @action
@@ -273,7 +255,7 @@ abstract class _AddClientStore with Store {
 
     if (via == null) return;
 
-    if (isAddressEdited) {
+    if (updateLocation) {
       address = AddressModel(
         zipCode: via.zipCode,
         street: via.street,
@@ -287,18 +269,16 @@ abstract class _AddClientStore with Store {
       );
     }
 
+    if (address!.isValidAddress) {
+      await _setCoordinates();
+    }
     zipStatus = ZipStatus.success;
   }
 
   @action
-  _updateAddress() {
-    if (address != null) {
-      address = address!.copyWith(
-        number: number ?? 'S/N',
-        complement: complement ?? '',
-      );
-      isAddressEdited = true;
-    }
+  Future<void> _setCoordinates() async {
+    address = await address!.updateLocation();
+    updateLocation = false;
   }
 
   @action
