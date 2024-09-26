@@ -18,13 +18,14 @@ class AddDeliveryController {
   PageState get state => pageStore.state;
   String? get selectedShopId => pageStore.shopId;
   SearchMode get searchBy => pageStore.searchBy;
+  NoShopState get noShopsState => pageStore.noShopsState;
 
   void toogleSearchBy() => pageStore.toogleSearchBy();
   void selectClient(ClientModel client) => pageStore.selectClient(client);
   Future<void> createDelivery() => pageStore.createDelivery();
 
-  void init() {
-    pageStore.init();
+  Future<void> init() async {
+    await pageStore.init();
   }
 
   void dispose() {

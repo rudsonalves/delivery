@@ -18,6 +18,76 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/09/26 - version: 0.6.03+25
+
+Introduced integration with Google Maps and improvements to delivery and shop models.
+
+1. `android/app/src/main/AndroidManifest.xml`
+   - Added meta-data for Google Maps API key for future use in map integrations.
+
+2. `lib/common/extensions/delivery_status_extensions.dart`
+   - Renamed from `emu_extensions.dart` to better reflect its purpose.
+   - Imported `material_symbols_icons` package.
+   - Added new `icon` getter to provide icons for different `DeliveryStatus` values.
+
+3. `lib/common/models/delivery.dart`
+   - Added `shopPhone` to `DeliveryModel` to store the phone number of the shop.
+   - Renamed `shopLocation` to `location` for consistency in representing the shop's location.
+   - Updated `DeliveryModel` constructor, `toMap`, `fromMap`, and comparison methods to include the new `shopPhone` and renamed fields.
+
+4. `lib/common/models/shop.dart`
+   - Renamed `userId` to `ownerId` to clarify the purpose of the field.
+   - Added `phone` field to store the shop's phone number.
+   - Updated `toMap`, `fromMap`, and other relevant methods to handle the new fields.
+
+5. `lib/common/theme/app_text_style.dart`
+   - Added `font14` method to support text styling for smaller fonts.
+
+6. `lib/features/add_delivery/add_delivery_controller.dart`
+   - Updated `init` method to be asynchronous, awaiting store initialization.
+   - Added `noShopsState` for handling cases where no shops are available.
+
+7. `lib/features/add_delivery/add_delivery_page.dart`
+   - Added error handling for no shops and unknown errors with appropriate UI feedback.
+   - Modified the delivery creation flow to reflect the new `noShopsState`.
+
+8. `lib/features/add_shop/add_shop_controller.dart`
+   - Added a `phoneController` to manage the input for shop phone numbers.
+
+9. `lib/features/home/home_controller.dart`
+   - Imported `DeliveriesFirebaseRepository` for streaming deliveries in the home page.
+
+10. `lib/features/home/home_page.dart`
+    - Integrated delivery cards that allow users to view delivery details and navigate to a map view.
+    - Streamed deliveries from the repository for dynamic updates.
+
+11. `lib/features/home/widgets/delivery_card.dart` (New)
+    - Created `DeliveryCard` widget to display delivery information, including the client name, shop phone, and address.
+
+12. `lib/features/map/map_controller.dart` (New)
+    - Created `MapController` to manage Google Maps interaction.
+
+13. `lib/features/map/map_page.dart` (New)
+    - Implemented `MapPage` to display the delivery route from the shop to the client's location using Google Maps.
+
+14. `lib/my_material_app.dart`
+    - Added route generation for `MapPage` to allow users to navigate to the delivery map.
+
+15. `lib/repository/firebase_store/shop_firebase_repository.dart`
+    - Renamed `userId` to `ownerId` in Firestore queries and data handling.
+    - Adjusted data map handling for consistency.
+
+16. `lib/stores/pages/add_delivery_store.dart`
+    - Added `NoShopState` enum to handle various states related to shop availability.
+    - Updated the `init` method to fetch shops and handle errors accordingly.
+
+17. `lib/stores/pages/add_shop_store.dart`
+    - Added `phone` and `errorPhone` observables for managing and validating phone number input.
+    - Included phone validation logic in `isValid()` method.
+
+This commit introduces Google Maps integration and enhances the delivery flow by adding phone numbers and updating shop and delivery models. It also improves error handling and user experience when creating deliveries.
+
+
 ## 2024/09/25 - version: 0.6.02+24
 
 Enhance Delivery Model and Refactor Delivery Features

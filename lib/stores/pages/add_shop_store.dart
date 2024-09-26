@@ -33,6 +33,12 @@ abstract class _AddShopStore with Store {
   String? managerName;
 
   @observable
+  String? phone;
+
+  @observable
+  String? errorPhone;
+
+  @observable
   String? addressType = 'Comercial';
 
   @observable
@@ -89,7 +95,8 @@ abstract class _AddShopStore with Store {
       id: id,
       name: name!,
       description: description,
-      userId: locator<UserStore>().currentUser!.id!,
+      ownerId: locator<UserStore>().currentUser!.id!,
+      phone: phone!,
       managerId: managerId,
       managerName: managerName,
       address: address?.copyWith(),
@@ -109,8 +116,9 @@ abstract class _AddShopStore with Store {
   @action
   void setShopFromShop(ShopModel shop) {
     id = shop.id;
-    userId = shop.userId;
+    userId = shop.ownerId;
     name = shop.name;
+    phone = shop.phone;
     description = shop.description;
     managerId = shop.managerId;
     managerName = shop.managerName;
@@ -129,6 +137,13 @@ abstract class _AddShopStore with Store {
     _checkIsEdited(name, value);
     name = value;
     _validName();
+  }
+
+  @action
+  setPhone(String value) {
+    _checkIsEdited(phone, value);
+    phone = value;
+    _validPhone();
   }
 
   @action
@@ -189,6 +204,16 @@ abstract class _AddShopStore with Store {
   }
 
   @action
+  void _validPhone() {
+    String numbers = phone!.onlyNumbers();
+    int length = numbers.length;
+    String firstDigit = numbers[2];
+    bool isPhoneNumber = (length == 10 && firstDigit != '9') ||
+        (length == 11 || firstDigit == '9');
+    errorPhone = !isPhoneNumber ? 'Telefone inválido' : null;
+  }
+
+  @action
   void _validNumber() {
     if (number == null || number!.isEmpty) {
       errorNumber = 'Número é obrigatório';
@@ -210,10 +235,14 @@ abstract class _AddShopStore with Store {
 
   bool isValid() {
     _validNumber();
+    _validPhone();
     _validZipCode();
     _validName();
 
-    return errorNumber == null && errorZipCode == null && errorName == null;
+    return errorNumber == null &&
+        errorZipCode == null &&
+        errorName == null &&
+        errorPhone == null;
   }
 
   @action
