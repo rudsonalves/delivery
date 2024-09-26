@@ -18,6 +18,98 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/09/26 - version: 0.6.04+26
+
+Added geoHash field to DeliveryModel and introduced geolocation-based queries for deliveries.
+
+1. **lib/common/models/delivery.dart**
+   - Added the `geoHash` field to `DeliveryModel` for more efficient geospatial queries.
+   - Updated the constructor, `copyWith`, `toMap`, and `fromMap` methods to handle the new `geoHash` field.
+
+2. **lib/common/utils/geo_point_funcs.dart** (New)
+   - Created a utility function `createGeoPointHash` using the GeoFlutterFire package to generate geohashes based on a `GeoPoint`.
+
+3. **lib/components/widgets/delivery_card.dart**
+   - Renamed from `lib/features/home/widgets/delivery_card.dart` for a more general use across features.
+
+4. **lib/features/account/account_controller.dart**
+   - Renamed from `lib/features/account_page/account_controller.dart`.
+
+5. **lib/features/account/account_page.dart**
+   - Renamed from `lib/features/account_page/account_page.dart`.
+
+6. **lib/features/add_delivery/add_delivery_controller.dart**
+   - Refactored to use `store` instead of `pageStore` for consistency across the project.
+
+7. **lib/features/add_delivery/add_delivery_page.dart**
+   - Updated method references to use `store` instead of `pageStore` after the refactor.
+
+8. **lib/features/home/home_controller.dart**
+   - Added logic to dynamically set the page title based on user role (Admin, Business, Manager, Delivery).
+   - Introduced a `PageController` to manage different views for different user roles.
+
+9. **lib/features/home/home_page.dart**
+   - Replaced static delivery list with a dynamic `PageView` that shows different pages based on user roles.
+
+10. **lib/features/use_delivery/user_delivery_controller.dart** (New)
+    - Created a controller for managing the delivery page specific to delivery users.
+
+11. **lib/features/use_delivery/user_delivery_page.dart** (New)
+    - Added a new page dedicated to delivery users, displaying relevant delivery information.
+
+12. **lib/features/user_admin/user_admin_controller.dart** (New)
+    - Created a controller for the admin page, managing admin-specific actions and data.
+
+13. **lib/features/user_admin/user_admin_page.dart** (New)
+    - Implemented the admin page with functionality for viewing and managing deliveries.
+
+14. **lib/features/user_business/user_business_controller.dart** (New)
+    - Created a controller for the business page, managing data relevant to business users.
+
+15. **lib/features/user_business/user_business_page.dart** (New)
+    - Implemented a business-specific page to display and manage deliveries.
+
+16. **lib/features/user_manager/user_manager_controller.dart** (New)
+    - Created a controller for the manager page, handling manager-specific actions.
+
+17. **lib/features/user_manager/user_manager_page.dart** (New)
+    - Implemented the manager-specific page to display and manage deliveries.
+
+18. **lib/my_material_app.dart**
+    - Updated routes to reflect the new structure and renamed files.
+
+19. **lib/repository/firebase_store/abstract_deliveries_repository.dart**
+    - Added methods for streaming deliveries by owner and retrieving nearby deliveries based on geolocation.
+
+20. **lib/repository/firebase_store/deliveries_firebase_repository.dart**
+    - Integrated geospatial queries using GeoFlutterFire to stream deliveries near a specified location.
+    - Added a method to stream deliveries based on owner ID.
+
+21. **lib/repository/firebase_store/shop_firebase_repository.dart**
+    - Implemented a method to get shops by owner ID.
+
+22. **lib/services/local_storage_service.dart**
+    - Added a method to clear cached manager shops when the user logs out.
+
+23. **lib/stores/pages/add_delivery_store.dart**
+    - Added logic to generate and store a geohash for the shop's location when creating a delivery.
+
+24. **lib/stores/pages/user_admin_store.dart** (New)
+    - Created MobX store for managing admin page state.
+
+25. **lib/stores/pages/user_delivery_store.dart** (New)
+    - Created MobX store for managing the delivery page state.
+
+26. **lib/stores/pages/user_manager_store.dart** (New)
+    - Created MobX store for managing the manager page state.
+
+27. **lib/stores/user/user_store.dart**
+    - Added logic to fetch and cache shops for manager and business users upon login.
+    - Enhanced the logout process to clear cached data.
+
+This commit adds geolocation-based functionality to deliveries, reorganizes user roles, and introduces distinct pages for different user types (Admin, Business, Manager, Delivery). The overall structure was refactored to support these new features.
+
+
 ## 2024/09/26 - version: 0.6.03+25
 
 Introduced integration with Google Maps and improvements to delivery and shop models.

@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geoflutterfire2/geoflutterfire2.dart';
 
 import '/common/utils/data_result.dart';
 import '/common/models/delivery.dart';
@@ -8,11 +9,14 @@ import 'abstract_deliveries_repository.dart';
 
 class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
   final _firebase = FirebaseFirestore.instance;
+  final GeoFlutterFire geo = GeoFlutterFire();
 
   static const keyDeliveries = 'deliveries';
   static const keyShopId = 'shopId';
+  static const keyOwnerId = 'ownerId';
   static const keyClientId = 'clientId';
   static const keyStatus = 'status';
+  static const keyGeoHash = 'geoHash';
 
   @override
   Future<DataResult<DeliveryModel>> add(DeliveryModel delivery) async {
@@ -171,43 +175,122 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
         .collection(keyDeliveries)
         .where(keyShopId, isEqualTo: shopId)
         .snapshots()
-        .asyncMap(
-      (snapshot) async {
-        List<DeliveryModel> deliveries = await Future.wait(
-          snapshot.docs.map(
-            (doc) async {
-              final data = Map<String, dynamic>.from(doc.data());
+        .asyncMap((snapshot) async {
+      List<DeliveryModel> deliveries = await Future.wait(snapshot.docs.map(
+        (doc) async {
+          try {
+            final data = Map<String, dynamic>.from(doc.data());
 
-              final createdAtTimestamp = data['createdAt'] as Timestamp?;
-              final updatedAtTimestamp = data['updatedAt'] as Timestamp?;
+            final createdAtTimestamp = data['createdAt'] as Timestamp?;
+            final updatedAtTimestamp = data['updatedAt'] as Timestamp?;
 
-              data.remove('createdAt');
-              data.remove('updatedAt');
+            data.remove('createdAt');
+            data.remove('updatedAt');
 
-              if (createdAtTimestamp == null || updatedAtTimestamp == null) {
-                return DeliveryModel.fromMap(data).copyWith(
-                  id: doc.id,
-                  createdAt: DateTime.now(),
-                  updatedAt: DateTime.now(),
-                );
-              }
+            final delivery = DeliveryModel.fromMap(data).copyWith(
+              id: doc.id,
+              createdAt: createdAtTimestamp?.toDate(),
+              updatedAt: updatedAtTimestamp?.toDate(),
+            );
 
-              final createdAt = createdAtTimestamp.toDate();
-              final updatedAt = updatedAtTimestamp.toDate();
+            return delivery.copyWith(id: doc.id);
+          } catch (err) {
+            final message =
+                'DeliveriesFirebaseRepository.streamDeliveryByShopId :$err';
+            log(message);
+            throw Exception(message);
+          }
+        },
+      ));
+      return deliveries;
+    });
+  }
 
-              final delivery = DeliveryModel.fromMap(data).copyWith(
-                id: doc.id,
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-              );
-
-              return delivery.copyWith(id: doc.id);
-            },
-          ),
-        );
-        return deliveries;
-      },
+  @override
+  Stream<List<DeliveryModel>> getDeliveryNearby({
+    required GeoPoint location,
+    required double radiusInKm,
+  }) {
+    // Create a GeoFirePoint for the center point (delivery user location)
+    GeoFirePoint center = geo.point(
+      latitude: location.latitude,
+      longitude: location.longitude,
     );
+
+    // Sets the reference to the 'deliveries' collection
+    final CollectionReference collectionRef =
+        _firebase.collection(keyDeliveries);
+
+    // Execute the geospatial query
+    return geo
+        .collection(collectionRef: collectionRef)
+        .within(
+          center: center,
+          radius: radiusInKm,
+          field: keyGeoHash,
+          strictMode: true,
+        )
+        .asyncMap((snapshot) async {
+      // Map documents to DeliveryModel
+      List<DeliveryModel> deliveries = snapshot.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+
+        // Extract timestamps
+        final createdAtTimestamp = data['createdAt'] as Timestamp?;
+        final updatedAtTimestamp = data['updatedAt'] as Timestamp?;
+
+        // Remove fields
+        data.remove('createdAt');
+        data.remove('updatedAt');
+
+        // Create DeliveryModel
+        final delivery = DeliveryModel.fromMap(data).copyWith(
+          createdAt: createdAtTimestamp?.toDate(),
+          updatedAt: updatedAtTimestamp?.toDate(),
+        );
+
+        return delivery;
+      }).toList();
+
+      return deliveries;
+    });
+  }
+
+  @override
+  Stream<List<DeliveryModel>> streamDeliveryByOwnerId(String ownerId) {
+    return _firebase
+        .collection(keyDeliveries)
+        .where(keyOwnerId, isEqualTo: ownerId)
+        .snapshots()
+        .asyncMap((snapshot) async {
+      List<DeliveryModel> deliveries = await Future.wait(snapshot.docs.map(
+        (doc) async {
+          try {
+            final data = Map<String, dynamic>.from(doc.data());
+
+            final createdAtTimestamp = data['createdAt'] as Timestamp?;
+            final updatedAtTimestamp = data['updatedAt'] as Timestamp?;
+
+            data.remove('createdAt');
+            data.remove('updatedAt');
+
+            final delivery = DeliveryModel.fromMap(data).copyWith(
+              id: doc.id,
+              createdAt: createdAtTimestamp?.toDate(),
+              updatedAt: updatedAtTimestamp?.toDate(),
+            );
+
+            return delivery.copyWith(id: doc.id);
+          } catch (err) {
+            final message =
+                'DeliveriesFirebaseRepository.streamDeliveryByShopId :$err';
+            log(message);
+            throw Exception(message);
+          }
+        },
+      ));
+      return deliveries;
+    });
   }
 
   @override

@@ -43,6 +43,7 @@ class LocalStorageService {
 
   Future<void> clearCachedUser() async {
     await _prefs.remove(_keyCachedUser);
+    await _prefs.remove(_keyManagerShops);
   }
 
   Future<void> setManagerShops(List<ShopModel> shops) async {

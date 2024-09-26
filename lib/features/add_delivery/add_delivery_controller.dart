@@ -7,25 +7,25 @@ import '../../common/models/shop.dart';
 import '../../stores/pages/add_delivery_store.dart';
 
 class AddDeliveryController {
-  final pageStore = AddDeliveryStore();
+  final store = AddDeliveryStore();
 
   final phoneController = MaskedTextController(mask: '(##) #####-####');
   final nameController = TextEditingController();
 
-  List<ShopModel> get shops => pageStore.shops;
-  List<ClientModel> get clients => pageStore.clients;
-  ClientModel? get selectedClient => pageStore.selectedClient;
-  PageState get state => pageStore.state;
-  String? get selectedShopId => pageStore.shopId;
-  SearchMode get searchBy => pageStore.searchBy;
-  NoShopState get noShopsState => pageStore.noShopsState;
+  List<ShopModel> get shops => store.shops;
+  List<ClientModel> get clients => store.clients;
+  ClientModel? get selectedClient => store.selectedClient;
+  PageState get state => store.state;
+  String? get selectedShopId => store.shopId;
+  SearchMode get searchBy => store.searchBy;
+  NoShopState get noShopsState => store.noShopsState;
 
-  void toogleSearchBy() => pageStore.toogleSearchBy();
-  void selectClient(ClientModel client) => pageStore.selectClient(client);
-  Future<void> createDelivery() => pageStore.createDelivery();
+  void toogleSearchBy() => store.toogleSearchBy();
+  void selectClient(ClientModel client) => store.selectClient(client);
+  Future<void> createDelivery() => store.createDelivery();
 
   Future<void> init() async {
-    await pageStore.init();
+    await store.init();
   }
 
   void dispose() {
