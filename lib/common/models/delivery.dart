@@ -28,6 +28,7 @@ class DeliveryModel {
   String shopAddress;
   GeoPoint clientLocation;
   GeoPoint location;
+  String geoHash;
   DateTime? createdAt;
   DateTime? updatedAt;
 
@@ -47,6 +48,7 @@ class DeliveryModel {
     required this.shopAddress,
     required this.clientLocation,
     required this.location,
+    required this.geoHash,
     this.createdAt,
     this.updatedAt,
   });
@@ -67,6 +69,7 @@ class DeliveryModel {
     String? shopAddress,
     GeoPoint? clientLocation,
     GeoPoint? location,
+    String? geoHash,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -86,6 +89,7 @@ class DeliveryModel {
       shopAddress: shopAddress ?? this.shopAddress,
       clientLocation: clientLocation ?? this.clientLocation,
       location: location ?? this.location,
+      geoHash: geoHash ?? this.geoHash,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -108,6 +112,7 @@ class DeliveryModel {
       'shopAddress': shopAddress,
       'clientLocation': clientLocation,
       'location': location,
+      'geoHash': geoHash,
       'createdAt': createdAt?.millisecondsSinceEpoch,
       'updatedAt': updatedAt?.millisecondsSinceEpoch,
     };
@@ -130,6 +135,7 @@ class DeliveryModel {
       shopAddress: map['shopAddress'] as String,
       clientLocation: map['clientLocation'] as GeoPoint,
       location: map['location'] as GeoPoint,
+      geoHash: map['geoHash'] as String,
       createdAt: map['createdAt'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
           : null,
@@ -161,6 +167,7 @@ class DeliveryModel {
         ' shopAddress: $shopAddress,'
         ' clientLocation: $clientLocation,'
         ' location: $location,'
+        ' geoHash: $geoHash,'
         ' createdAt: $createdAt,'
         ' updatedAt: $updatedAt)';
   }
@@ -184,6 +191,7 @@ class DeliveryModel {
         other.shopAddress == shopAddress &&
         other.clientLocation == clientLocation &&
         other.location == location &&
+        other.geoHash == geoHash &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt;
   }
@@ -205,6 +213,7 @@ class DeliveryModel {
         shopAddress.hashCode ^
         clientLocation.hashCode ^
         location.hashCode ^
+        geoHash.hashCode ^
         createdAt.hashCode ^
         updatedAt.hashCode;
   }

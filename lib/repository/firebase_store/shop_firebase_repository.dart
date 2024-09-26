@@ -256,6 +256,36 @@ class ShopFirebaseRepository implements AbstractShopRepository {
   }
 
   @override
+  Future<DataResult<List<ShopModel>>> getShopByOwner(String ownerId) async {
+    try {
+      final List<ShopModel> shops = [];
+      final query = await _firebase
+          .collection(keyShops)
+          .where(keyOwnerId, isEqualTo: ownerId)
+          .get();
+
+      if (query.docs.isEmpty) {
+        return DataResult.success([]);
+      }
+
+      for (final doc in query.docs) {
+        final shop = ShopModel.fromMap(doc.data()).copyWith(id: doc.id);
+        // final address = await getAddressesForShop(shopId: shop.id!);
+        // shop.address = address?.first;
+        shops.add(shop);
+      }
+      return DataResult.success(shops);
+    } catch (err) {
+      final message = 'ShopFirebaseRepository.getShopByManager: $err';
+      log(message);
+      return DataResult.failure(FireStoreFailure(
+        message: message,
+        code: 514,
+      ));
+    }
+  }
+
+  @override
   Stream<List<ShopModel>> streamShopByName() {
     final currentUser = locator<UserStore>().currentUser;
 

@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:mobx/mobx.dart';
 
+import '../../common/utils/geo_point_funcs.dart';
 import '/common/models/delivery.dart';
 import '/stores/user/user_store.dart';
 import '../../common/models/client.dart';
@@ -141,6 +142,8 @@ abstract class _AddDeliveryStore with Store {
       final managerId =
           (user!.role != UserRole.manager) ? shop.managerId : user.id!;
 
+      final geoPonitHash = createGeoPointHash(shop.location!);
+
       final delivery = DeliveryModel(
         shopId: shop.id!,
         shopName: shop.name,
@@ -156,6 +159,7 @@ abstract class _AddDeliveryStore with Store {
         shopAddress: shop.addressString!,
         clientLocation: client.location!,
         location: shop.location!,
+        geoHash: geoPonitHash,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );

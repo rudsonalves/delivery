@@ -11,4 +11,5 @@ abstract class AbstractShopRepository {
   Future<DataResult<List<ShopModel>>> getShopByName(String name);
   Future<DataResult<List<ShopModel>>> getShopByManager(String managerId);
   Stream<List<ShopModel>> streamShopByName();
+  Future<DataResult<List<ShopModel>>> getShopByOwner(String ownerId);
 }

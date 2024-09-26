@@ -1,7 +1,7 @@
-import 'package:delivery/components/widgets/big_bottom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
+import '/components/widgets/big_bottom.dart';
 import '../../common/theme/app_text_style.dart';
 import '../../stores/pages/add_delivery_store.dart';
 import '../../stores/pages/common/store_func.dart';
@@ -38,11 +38,11 @@ class _AddDeliveryPageState extends State<AddDeliveryPage> {
   }
 
   void _submitName(String name) {
-    ctrl.pageStore.searchClientsByName(name);
+    ctrl.store.searchClientsByName(name);
   }
 
   void _submitPhone(String phone) {
-    ctrl.pageStore.searchClentsByPhone(phone);
+    ctrl.store.searchClentsByPhone(phone);
   }
 
   Future<void> _createDelivery() async {
@@ -172,7 +172,7 @@ class _AddDeliveryPageState extends State<AddDeliveryPage> {
                             .toList(),
                         onChanged: (value) {
                           if (value != null) {
-                            ctrl.pageStore.setShopId(value);
+                            ctrl.store.setShopId(value);
                           }
                         },
                       ),
@@ -233,7 +233,7 @@ class _AddDeliveryPageState extends State<AddDeliveryPage> {
                                       title: Text(client.name),
                                       subtitle: Text(client.phone),
                                       onTap: () =>
-                                          ctrl.pageStore.selectClient(client),
+                                          ctrl.store.selectClient(client),
                                     ),
                                   );
                                 },
