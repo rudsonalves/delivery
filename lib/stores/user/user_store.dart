@@ -3,10 +3,12 @@ import 'dart:developer';
 
 import 'package:mobx/mobx.dart';
 
+import '../../common/models/shop.dart';
 import '../../common/models/user.dart';
 import '../../common/utils/data_result.dart';
 import '../../locator.dart';
 import '../../repository/firebase/auth_repository.dart';
+import '../../repository/firebase_store/shop_firebase_repository.dart';
 import '/repository/firebase/firebase_auth_repository.dart';
 import '../../services/local_storage_service.dart';
 
@@ -20,6 +22,7 @@ enum UserState { stateLoading, stateSuccess, stateError, stateInitial }
 abstract class _UserStore with Store {
   final localStore = locator<LocalStorageService>();
   final AuthRepository auth = FirebaseAuthRepository();
+  final shopRepository = ShopFirebaseRepository();
 
   @observable
   bool userStatus = true;
@@ -36,7 +39,11 @@ abstract class _UserStore with Store {
   @observable
   UserState state = UserState.stateInitial;
 
-  void dispose() {}
+  void dispose() {
+    // For possible dispose
+  }
+
+  List<ShopModel> shops = [];
 
   String? get id => currentUser?.id;
 
@@ -48,6 +55,9 @@ abstract class _UserStore with Store {
     if (user != null) {
       currentUser = user;
       isLoggedIn = true;
+
+      await getUserInfo(user);
+
       state = UserState.stateSuccess;
     } else {
       currentUser = null;
@@ -57,11 +67,43 @@ abstract class _UserStore with Store {
     toogleUSerStatus();
   }
 
+  Future<void> getUserInfo(UserModel user) async {
+    if (user.role == UserRole.manager) {
+      shops = localStore.getManagerShops();
+      if (shops.isEmpty) {
+        final result = await shopRepository.getShopByManager(user.id!);
+        if (result.isFailure) {
+          log('UserStore.initializeUser: ${result.error}');
+          return;
+        }
+        shops = result.data!;
+        await localStore.setManagerShops(shops);
+      }
+    } else if (user.role == UserRole.business) {
+      shops = localStore.getManagerShops();
+      if (shops.isEmpty) {
+        final result = await shopRepository.getShopByOwner(user.id!);
+        if (result.isFailure) {
+          log('UserStore.initializeUser: ${result.error}');
+          return;
+        }
+        shops = result.data!;
+        await localStore.setManagerShops(shops);
+      }
+    }
+  }
+
   bool get isAdmin =>
       currentUser != null && currentUser!.role == UserRole.admin;
 
   bool get isBusiness =>
       currentUser != null && currentUser!.role == UserRole.business;
+
+  bool get isManager =>
+      currentUser != null && currentUser!.role == UserRole.manager;
+
+  bool get isDelivery =>
+      currentUser != null && currentUser!.role == UserRole.delivery;
 
   @action
   void toogleUSerStatus() => userStatus = !userStatus;
@@ -111,6 +153,7 @@ abstract class _UserStore with Store {
         currentUser = user;
         isLoggedIn = true;
         errorMessage = null;
+        await getUserInfo(user);
         state = UserState.stateSuccess;
       },
     );
@@ -123,6 +166,7 @@ abstract class _UserStore with Store {
     try {
       state = UserState.stateLoading;
       await auth.signOut();
+      await localStore.clearCachedUser();
       isLoggedIn = false;
       errorMessage = null;
       currentUser = null;

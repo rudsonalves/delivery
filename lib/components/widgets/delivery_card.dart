@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '/common/extensions/delivery_status_extensions.dart';
-import '../../../common/models/delivery.dart';
-import '../../../common/theme/app_text_style.dart';
+import '../../common/models/delivery.dart';
+import '../../common/theme/app_text_style.dart';
 
 class DeliveryCard extends StatelessWidget {
   final DeliveryModel delivery;

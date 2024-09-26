@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../../common/models/delivery.dart';
 import '../../common/utils/data_result.dart';
 
@@ -9,4 +11,9 @@ abstract class AbstractDeliveriesRepository {
   Future<DataResult<DeliveryModel?>> get(String deliveryId);
   Stream<List<DeliveryModel>> streamDeliveryByShopId(String shopId);
   Stream<List<DeliveryModel>> streamShopByName();
+  Stream<List<DeliveryModel>> getDeliveryNearby({
+    required GeoPoint location,
+    required double radiusInKm,
+  });
+  Stream<List<DeliveryModel>> streamDeliveryByOwnerId(String ownerId);
 }
