@@ -1,6 +1,6 @@
-import 'package:delivery/common/models/delivery.dart';
 import 'package:flutter/material.dart';
 
+import '/common/models/delivery.dart';
 import 'common/models/shop.dart';
 import 'features/account_page/account_page.dart';
 import 'features/add_delivery/add_delivery_page.dart';

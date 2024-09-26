@@ -1,11 +1,11 @@
 import 'dart:math';
 
-import 'package:delivery/features/map/map_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
+import '/features/map/map_page.dart';
 import '/common/models/delivery.dart';
 import '../account_page/account_page.dart';
 import '../shops/shops_page.dart';

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:delivery/repository/firebase_store/deliveries_firebase_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../common/models/user.dart';
@@ -8,6 +7,7 @@ import '../../common/settings/app_settings.dart';
 import '../../locator.dart';
 import '../../stores/pages/home_store.dart';
 import '../../stores/user/user_store.dart';
+import '/repository/firebase_store/deliveries_firebase_repository.dart';
 
 class HomeController {
   StreamSubscription<User?>? _authSubscription;

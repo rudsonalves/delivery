@@ -1,7 +1,7 @@
-import 'package:delivery/components/widgets/big_bottom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
+import '/components/widgets/big_bottom.dart';
 import '../../common/theme/app_text_style.dart';
 import '../../stores/pages/add_delivery_store.dart';
 import '../../stores/pages/common/store_func.dart';
