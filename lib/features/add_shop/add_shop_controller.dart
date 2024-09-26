@@ -1,6 +1,6 @@
-import 'package:delivery/components/custons_text_controllers/masked_text_controller.dart';
 import 'package:flutter/material.dart';
 
+import '/components/custons_text_controllers/masked_text_controller.dart';
 import '../../common/models/shop.dart';
 import '../../common/utils/data_result.dart';
 import '../../stores/pages/common/store_func.dart';

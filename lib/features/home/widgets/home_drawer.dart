@@ -42,7 +42,9 @@ class HomeDrawer extends StatelessWidget {
             title: const Text('Conta'),
             onTap: account,
           ),
-          if (controller.isAdmin || controller.isBusiness)
+          if (controller.isAdmin ||
+              controller.isBusiness ||
+              controller.isManager)
             ListTile(
               leading: const Icon(Icons.people),
               title: const Text('Clientes'),
