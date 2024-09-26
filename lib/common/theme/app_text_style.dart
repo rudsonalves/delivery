@@ -44,6 +44,13 @@ class AppTextStyle {
     );
   }
 
+  static TextStyle font14({Color? color}) {
+    return TextStyle(
+      fontSize: 14,
+      color: color,
+    );
+  }
+
   static TextStyle font15({Color? color}) {
     return TextStyle(
       fontSize: 15,

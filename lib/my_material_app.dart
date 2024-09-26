@@ -1,9 +1,11 @@
+import 'package:delivery/common/models/delivery.dart';
 import 'package:flutter/material.dart';
 
 import 'common/models/shop.dart';
 import 'features/account_page/account_page.dart';
 import 'features/add_delivery/add_delivery_page.dart';
 import 'features/add_shop/add_shop_page.dart';
+import 'features/map/map_page.dart';
 import 'features/qrcode_read/qrcode_read_page.dart';
 import 'features/splash/splash_page.dart';
 import 'features/home/home_page.dart';
@@ -59,6 +61,11 @@ class _MyMaterialAppState extends State<MyMaterialApp> {
             },
             onGenerateRoute: (settings) {
               switch (settings.name) {
+                case MapPage.routeName:
+                  return MaterialPageRoute(builder: (context) {
+                    final delivery = settings.arguments as DeliveryModel;
+                    return MapPage(delivery: delivery);
+                  });
                 case AddClientPage.routeName:
                   return MaterialPageRoute(builder: (context) {
                     final client = settings.arguments as ClientModel?;

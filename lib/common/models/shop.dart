@@ -8,7 +8,8 @@ class ShopModel {
   String? id;
   String name;
   String? description;
-  String userId;
+  String ownerId;
+  String phone;
   String? managerId;
   String? managerName;
   AddressModel? address;
@@ -19,7 +20,8 @@ class ShopModel {
     this.id,
     required this.name,
     this.description,
-    required this.userId,
+    required this.ownerId,
+    required this.phone,
     this.managerId,
     this.managerName,
     this.address,
@@ -31,7 +33,8 @@ class ShopModel {
     String? id,
     String? name,
     String? description,
-    String? userId,
+    String? ownerId,
+    String? phone,
     String? managerId,
     String? managerName,
     AddressModel? address,
@@ -42,7 +45,8 @@ class ShopModel {
       id: id ?? this.id,
       name: name ?? this.name,
       description: description ?? this.description,
-      userId: userId ?? this.userId,
+      ownerId: ownerId ?? this.ownerId,
+      phone: phone ?? this.phone,
       managerId: managerId ?? this.managerId,
       managerName: managerName ?? this.managerName,
       address: address ?? this.address,
@@ -53,9 +57,11 @@ class ShopModel {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
+      'id': id,
       'name': name,
       'description': description,
-      'userId': userId,
+      'ownerId': ownerId,
+      'phone': phone,
       'managerId': managerId,
       'managerName': managerName,
       'addressString': addressString,
@@ -68,7 +74,8 @@ class ShopModel {
       id: map['id'] as String?,
       name: map['name'] as String,
       description: map['description'] as String?,
-      userId: map['userId'] as String,
+      ownerId: map['ownerId'] as String,
+      phone: map['phone'] as String,
       managerId: map['managerId'] as String?,
       managerName: map['managerName'] as String?,
       addressString: map['addressString'] as String?,
@@ -102,7 +109,8 @@ class ShopModel {
     return 'ShopModel(id: $id,'
         ' name: $name,'
         ' description: $description,'
-        ' userId: $userId,'
+        ' ownerId: $ownerId,'
+        ' phone: $phone,'
         ' managerId: $managerId,'
         ' managerName: $managerName,'
         ' address: $address,'
@@ -117,7 +125,8 @@ class ShopModel {
     return other.id == id &&
         other.name == name &&
         other.description == description &&
-        other.userId == userId &&
+        other.ownerId == ownerId &&
+        other.phone == phone &&
         other.managerId == managerId &&
         other.managerName == managerName &&
         other.address == address &&
@@ -130,7 +139,8 @@ class ShopModel {
     return id.hashCode ^
         name.hashCode ^
         description.hashCode ^
-        userId.hashCode ^
+        ownerId.hashCode ^
+        phone.hashCode ^
         managerId.hashCode ^
         managerName.hashCode ^
         address.hashCode ^

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:delivery/repository/firebase_store/deliveries_firebase_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../common/models/user.dart';
@@ -13,6 +14,7 @@ class HomeController {
   final userStore = locator<UserStore>();
   final app = locator<AppSettings>();
   final store = HomeStore();
+  final deliveryRepository = DeliveriesFirebaseRepository();
 
   bool get isLoggedIn => userStore.isLoggedIn;
   bool get isDark => app.isDark;

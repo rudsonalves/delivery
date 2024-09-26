@@ -16,6 +16,7 @@ class DeliveryModel {
   String? id;
   String shopId;
   String shopName;
+  String shopPhone;
   String clientId;
   String clientName;
   String clientPhone;
@@ -26,7 +27,7 @@ class DeliveryModel {
   String clientAddress;
   String shopAddress;
   GeoPoint clientLocation;
-  GeoPoint shopLocation;
+  GeoPoint location;
   DateTime? createdAt;
   DateTime? updatedAt;
 
@@ -34,6 +35,7 @@ class DeliveryModel {
     this.id,
     required this.shopId,
     required this.shopName,
+    required this.shopPhone,
     required this.clientId,
     required this.clientName,
     required this.clientPhone,
@@ -44,7 +46,7 @@ class DeliveryModel {
     required this.clientAddress,
     required this.shopAddress,
     required this.clientLocation,
-    required this.shopLocation,
+    required this.location,
     this.createdAt,
     this.updatedAt,
   });
@@ -53,6 +55,7 @@ class DeliveryModel {
     String? id,
     String? shopId,
     String? shopName,
+    String? shopPhone,
     String? clientId,
     String? clientName,
     String? clientPhone,
@@ -63,7 +66,7 @@ class DeliveryModel {
     String? clientAddress,
     String? shopAddress,
     GeoPoint? clientLocation,
-    GeoPoint? shopLocation,
+    GeoPoint? location,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -71,6 +74,7 @@ class DeliveryModel {
       id: id ?? this.id,
       shopId: shopId ?? this.shopId,
       shopName: shopName ?? this.shopName,
+      shopPhone: shopPhone ?? this.shopPhone,
       clientId: clientId ?? this.clientId,
       clientName: clientName ?? this.clientName,
       clientPhone: clientPhone ?? this.clientPhone,
@@ -81,7 +85,7 @@ class DeliveryModel {
       clientAddress: clientAddress ?? this.clientAddress,
       shopAddress: shopAddress ?? this.shopAddress,
       clientLocation: clientLocation ?? this.clientLocation,
-      shopLocation: shopLocation ?? this.shopLocation,
+      location: location ?? this.location,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -92,6 +96,7 @@ class DeliveryModel {
       'id': id,
       'shopId': shopId,
       'shopName': shopName,
+      'shopPhone': shopPhone,
       'clientId': clientId,
       'clientName': clientName,
       'clientPhone': clientPhone,
@@ -102,7 +107,7 @@ class DeliveryModel {
       'clientAddress': clientAddress,
       'shopAddress': shopAddress,
       'clientLocation': clientLocation,
-      'shopLocation': shopLocation,
+      'location': location,
       'createdAt': createdAt?.millisecondsSinceEpoch,
       'updatedAt': updatedAt?.millisecondsSinceEpoch,
     };
@@ -113,6 +118,7 @@ class DeliveryModel {
       id: map['id'] as String?,
       shopId: map['shopId'] as String,
       shopName: map['shopName'] as String,
+      shopPhone: map['shopPhone'] as String,
       clientId: map['clientId'] as String,
       clientName: map['clientName'] as String,
       clientPhone: map['clientPhone'] as String,
@@ -123,7 +129,7 @@ class DeliveryModel {
       clientAddress: map['clientAddress'] as String,
       shopAddress: map['shopAddress'] as String,
       clientLocation: map['clientLocation'] as GeoPoint,
-      shopLocation: map['shopLocation'] as GeoPoint,
+      location: map['location'] as GeoPoint,
       createdAt: map['createdAt'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
           : null,
@@ -143,6 +149,7 @@ class DeliveryModel {
     return 'DeliveryModel(id: $id,'
         ' shopId: $shopId,'
         ' shopName: $shopName,'
+        ' shopPhone: $shopPhone,'
         ' clientId: $clientId,'
         ' clientName: $clientName,'
         ' clientPhone: $clientPhone,'
@@ -153,7 +160,7 @@ class DeliveryModel {
         ' clientAddress: $clientAddress,'
         ' shopAddress: $shopAddress,'
         ' clientLocation: $clientLocation,'
-        ' shopLocation: $shopLocation,'
+        ' location: $location,'
         ' createdAt: $createdAt,'
         ' updatedAt: $updatedAt)';
   }
@@ -165,6 +172,7 @@ class DeliveryModel {
     return other.id == id &&
         other.shopId == shopId &&
         other.shopName == shopName &&
+        other.shopPhone == shopPhone &&
         other.clientId == clientId &&
         other.clientName == clientName &&
         other.clientPhone == clientPhone &&
@@ -175,7 +183,7 @@ class DeliveryModel {
         other.clientAddress == clientAddress &&
         other.shopAddress == shopAddress &&
         other.clientLocation == clientLocation &&
-        other.shopLocation == shopLocation &&
+        other.location == location &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt;
   }
@@ -185,6 +193,7 @@ class DeliveryModel {
     return id.hashCode ^
         shopId.hashCode ^
         shopName.hashCode ^
+        shopPhone.hashCode ^
         clientId.hashCode ^
         clientName.hashCode ^
         clientPhone.hashCode ^
@@ -195,7 +204,7 @@ class DeliveryModel {
         clientAddress.hashCode ^
         shopAddress.hashCode ^
         clientLocation.hashCode ^
-        shopLocation.hashCode ^
+        location.hashCode ^
         createdAt.hashCode ^
         updatedAt.hashCode;
   }
