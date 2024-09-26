@@ -1,10 +1,9 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:delivery/common/models/delivery.dart';
 
-import 'package:delivery/common/utils/data_result.dart';
-
+import '/common/utils/data_result.dart';
+import '/common/models/delivery.dart';
 import 'abstract_deliveries_repository.dart';
 
 class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
