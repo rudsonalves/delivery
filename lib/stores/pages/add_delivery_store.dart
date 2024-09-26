@@ -12,6 +12,7 @@ import '../../repository/firebase_store/client_firebase_repository.dart';
 import '../../repository/firebase_store/deliveries_firebase_repository.dart';
 import '../../services/local_storage_service.dart';
 import 'common/store_func.dart';
+import '/repository/firebase_store/shop_firebase_repository.dart';
 
 part 'add_delivery_store.g.dart';
 
@@ -20,10 +21,13 @@ class AddDeliveryStore = _AddDeliveryStore with _$AddDeliveryStore;
 
 enum SearchMode { name, phone }
 
+enum NoShopState { unknowError, noShops, ready, waiting }
+
 abstract class _AddDeliveryStore with Store {
   final localStore = locator<LocalStorageService>();
   final deliveryRepository = DeliveriesFirebaseRepository();
   final clientRepository = ClientFirebaseRepository();
+  final shopRepository = ShopFirebaseRepository();
 
   @observable
   List<ShopModel> shops = [];
@@ -43,9 +47,30 @@ abstract class _AddDeliveryStore with Store {
   @observable
   SearchMode searchBy = SearchMode.phone;
 
+  @observable
+  NoShopState noShopsState = NoShopState.ready;
+
   @action
-  init() {
+  Future<void> init() async {
+    noShopsState = NoShopState.waiting;
     getInLocalStore();
+    if (shops.isEmpty) {
+      final result = await shopRepository
+          .getShopByManager(locator<UserStore>().currentUser!.id!);
+      if (result.isFailure) {
+        log('AddDeliveryStore.init: ${result.error}');
+        noShopsState = NoShopState.unknowError;
+        return;
+      }
+      shops = result.data!;
+      if (shops.isEmpty) {
+        noShopsState = NoShopState.noShops;
+        return;
+      }
+      // save shops in local store
+      await localStore.setManagerShops(shops);
+    }
+    noShopsState = NoShopState.ready;
     state = PageState.success;
     shopId = shops.first.id;
   }
@@ -119,6 +144,7 @@ abstract class _AddDeliveryStore with Store {
       final delivery = DeliveryModel(
         shopId: shop.id!,
         shopName: shop.name,
+        shopPhone: shop.phone,
         clientId: client.id!,
         clientName: client.name,
         clientPhone: client.phone,
@@ -129,7 +155,7 @@ abstract class _AddDeliveryStore with Store {
         clientAddress: client.addressString!,
         shopAddress: shop.addressString!,
         clientLocation: client.location!,
-        shopLocation: shop.location!,
+        location: shop.location!,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
