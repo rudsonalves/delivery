@@ -11,6 +11,7 @@ class AddShopController {
 
   final nameController = TextEditingController();
   final descriptionController = TextEditingController();
+  final phoneController = MaskedTextController(mask: '(##) #####-####');
   final cepController = MaskedTextController(mask: '##.###-###');
   final numberController = TextEditingController();
   final complementController = TextEditingController();
@@ -29,6 +30,7 @@ class AddShopController {
     if (shop != null) {
       pageStore.setShopFromShop(shop);
       nameController.text = shop.name;
+      phoneController.text = shop.phone;
       descriptionController.text = shop.description ?? '';
       pageStore.addressType = shop.address?.type ?? 'Comercial';
       cepController.text = shop.address?.zipCode ?? '';
@@ -40,6 +42,7 @@ class AddShopController {
 
   void dispose() {
     nameController.dispose();
+    phoneController.dispose();
     cepController.dispose();
     numberController.dispose();
     complementController.dispose();

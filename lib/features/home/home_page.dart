@@ -1,14 +1,17 @@
 import 'dart:math';
 
+import 'package:delivery/features/map/map_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
+import '/common/models/delivery.dart';
 import '../account_page/account_page.dart';
 import '../shops/shops_page.dart';
 import '../add_delivery/add_delivery_page.dart';
 import '../clients/clients_page.dart';
+import 'widgets/delivery_card.dart';
 import 'widgets/home_drawer.dart';
 import '../../locator.dart';
 import '../person_data/person_data_page.dart';
@@ -75,11 +78,6 @@ class _HomePageState extends State<HomePage> {
     Navigator.pushNamed(context, ClientsPage.routeName);
   }
 
-  // void _deliceryRequest() {
-  //   Navigator.pop(context);
-  //   Navigator.pushNamed(context, DeliveryRequestPage.routeName);
-  // }
-
   void _storesPage() {
     Navigator.pop(context);
     Navigator.pushNamed(context, ShopsPage.routeName);
@@ -93,6 +91,10 @@ class _HomePageState extends State<HomePage> {
   void _addDelivery() {
     // Navigator.pushNamed(context, PersonDataPage.routeName);
     Navigator.pushNamed(context, AddDeliveryPage.routeName);
+  }
+
+  void _showInMap(DeliveryModel delivery) {
+    Navigator.pushNamed(context, MapPage.routeName, arguments: delivery);
   }
 
   @override
@@ -119,7 +121,6 @@ class _HomePageState extends State<HomePage> {
         clients: _clients,
         login: _login,
         logout: _logout,
-        // deliceryRequest: _deliceryRequest,
         stores: _storesPage,
         account: _accountPage,
       ),
@@ -128,7 +129,28 @@ class _HomePageState extends State<HomePage> {
         child: const Icon(Icons.delivery_dining_rounded),
       ),
       body: Observer(
-        builder: (context) => const Column(),
+        builder: (context) => Padding(
+          padding: const EdgeInsets.all(8),
+          child: StreamBuilder<List<DeliveryModel>>(
+            stream: ctrl.deliveryRepository
+                .streamDeliveryByShopId('HM8z3Rwzv7ZPK5qlOWcq'),
+            builder: (context, snapshot) {
+              List<DeliveryModel> deliveries = snapshot.data ?? [];
+
+              return ListView.builder(
+                itemCount: deliveries.length,
+                itemBuilder: (context, index) {
+                  final delivery = deliveries[index];
+
+                  return DeliveryCard(
+                    delivery: delivery,
+                    showInMap: _showInMap,
+                  );
+                },
+              );
+            },
+          ),
+        ),
       ),
     );
   }

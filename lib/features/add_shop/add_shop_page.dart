@@ -123,6 +123,14 @@ class _AddShopPageState extends State<AddShopPage> {
                       onChanged: ctrl.pageStore.setDescription,
                       textCapitalization: TextCapitalization.words,
                     ),
+                    CustomTextField(
+                      labelText: 'Telefone *',
+                      controller: ctrl.phoneController,
+                      textInputAction: TextInputAction.next,
+                      keyboardType: TextInputType.number,
+                      onChanged: ctrl.pageStore.setPhone,
+                      errorText: ctrl.pageStore.errorPhone,
+                    ),
                     InkWell(
                       onTap: _getManager,
                       child: Card(

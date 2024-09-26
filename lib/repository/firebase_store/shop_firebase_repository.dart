@@ -14,7 +14,7 @@ class ShopFirebaseRepository implements AbstractShopRepository {
 
   static const keyShops = 'shops';
   static const keyAddress = 'addresses';
-  static const keyUserId = 'userId';
+  static const keyOwnerId = 'ownerId';
   static const keyName = 'name';
   static const keyComments = 'comments';
   static const keyManagerId = 'managerId';
@@ -32,7 +32,8 @@ class ShopFirebaseRepository implements AbstractShopRepository {
       shop.id = shopRef.id;
 
       // Add data to batch
-      final shopMap = shop.toMap(); // a map without id
+      // Copy shop map without id
+      final shopMap = Map<String, dynamic>.from(shop.toMap())..remove('id');
       batch.set(shopRef, shopMap);
 
       // Save address field
@@ -277,7 +278,7 @@ class ShopFirebaseRepository implements AbstractShopRepository {
         default:
           return _firebase
               .collection(keyShops)
-              .where(keyUserId, isEqualTo: accountId)
+              .where(keyOwnerId, isEqualTo: accountId)
               .orderBy(keyName)
               .snapshots()
               .map((snapshot) => snapshot.docs

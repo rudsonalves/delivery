@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 import '../models/delivery.dart';
 
@@ -17,6 +18,23 @@ extension DeliveryStatusExtension on DeliveryStatus {
         return 'Pedido Fechado';
       case DeliveryStatus.orderReject:
         return 'Pedido Rejeitado';
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case DeliveryStatus.orderRegisteredForPickup:
+        return Symbols.concierge_rounded;
+      case DeliveryStatus.orderPickedUpForDelivery:
+        return Icons.delivery_dining_rounded;
+      case DeliveryStatus.orderInTransit:
+        return Symbols.local_shipping_rounded;
+      case DeliveryStatus.orderDelivered:
+        return Symbols.task_alt_rounded;
+      case DeliveryStatus.orderClosed:
+        return Symbols.flaky_rounded;
+      case DeliveryStatus.orderReject:
+        return Symbols.report_rounded;
     }
   }
 
