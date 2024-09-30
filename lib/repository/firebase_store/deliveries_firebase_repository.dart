@@ -218,7 +218,7 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
     );
 
     // Sets the reference to the 'deliveries' collection
-    final CollectionReference collectionRef =
+    final CollectionReference<Map<String, dynamic>> collectionRef =
         _firebase.collection(keyDeliveries);
 
     // Execute the geospatial query

@@ -79,7 +79,10 @@ class FirebaseAuthRepository implements AuthRepository {
     } catch (err) {
       final message = 'FirebaseAuthRepository.create error: $err';
       log(message);
-      final code = await _deleteFirebaseUser(firebaseUser!);
+      int? code;
+      if (firebaseUser != null) {
+        code = await _deleteFirebaseUser(firebaseUser);
+      }
       return DataResult.failure(FireAuthFailure(
         message: message,
         code: code ?? 202,
