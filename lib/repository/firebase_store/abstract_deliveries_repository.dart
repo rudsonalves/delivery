@@ -11,7 +11,7 @@ abstract class AbstractDeliveriesRepository {
   Future<DataResult<DeliveryModel?>> get(String deliveryId);
   Stream<List<DeliveryModel>> streamDeliveryByShopId(String shopId);
   Stream<List<DeliveryModel>> streamShopByName();
-  Stream<List<DeliveryModel>> getDeliveryNearby({
+  Stream<List<DeliveryModel>> getDeliveriesNearby({
     required GeoPoint location,
     required double radiusInKm,
   });

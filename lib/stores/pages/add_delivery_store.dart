@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:mobx/mobx.dart';
 
+import '../../common/utils/data_result.dart';
 import '../../common/utils/geo_point_funcs.dart';
 import '/common/models/delivery.dart';
 import '/stores/user/user_store.dart';
@@ -26,6 +27,7 @@ enum NoShopState { unknowError, noShops, ready, waiting }
 
 abstract class _AddDeliveryStore with Store {
   final localStore = locator<LocalStorageService>();
+  final userStore = locator<UserStore>();
   final deliveryRepository = DeliveriesFirebaseRepository();
   final clientRepository = ClientFirebaseRepository();
   final shopRepository = ShopFirebaseRepository();
@@ -53,24 +55,32 @@ abstract class _AddDeliveryStore with Store {
 
   @action
   Future<void> init() async {
-    noShopsState = NoShopState.waiting;
     getInLocalStore();
-    if (shops.isEmpty) {
-      final result = await shopRepository
-          .getShopByManager(locator<UserStore>().currentUser!.id!);
-      if (result.isFailure) {
-        log('AddDeliveryStore.init: ${result.error}');
-        noShopsState = NoShopState.unknowError;
-        return;
-      }
-      shops = result.data!;
-      if (shops.isEmpty) {
-        noShopsState = NoShopState.noShops;
-        return;
-      }
-      // save shops in local store
-      await localStore.setManagerShops(shops);
+    if (shops.isEmpty) await refreshShops();
+  }
+
+  @action
+  Future<void> refreshShops() async {
+    late final DataResult<List<ShopModel>> result;
+    if (userStore.isBusiness) {
+      result = await shopRepository.getShopByOwner(userStore.currentUser!.id!);
+    } else if (userStore.isManager) {
+      result =
+          await shopRepository.getShopByManager(userStore.currentUser!.id!);
     }
+    if (result.isFailure) {
+      log('AddDeliveryStore.init: ${result.error}');
+      noShopsState = NoShopState.unknowError;
+      return;
+    }
+    shops = result.data!;
+    if (shops.isEmpty) {
+      noShopsState = NoShopState.noShops;
+      return;
+    }
+    // save shops in local store
+    await localStore.setManagerShops(shops);
+
     noShopsState = NoShopState.ready;
     state = PageState.success;
     shopId = shops.first.id;

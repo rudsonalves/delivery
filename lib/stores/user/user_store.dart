@@ -102,7 +102,7 @@ abstract class _UserStore with Store {
   bool get isManager =>
       currentUser != null && currentUser!.role == UserRole.manager;
 
-  bool get isDelivery =>
+  bool get isDeliveryman =>
       currentUser != null && currentUser!.role == UserRole.delivery;
 
   @action

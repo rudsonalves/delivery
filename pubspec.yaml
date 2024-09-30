@@ -2,7 +2,7 @@ name: delivery
 description: "Aplicativo de entregas."
 publish_to: 'none' 
 
-version: 0.6.04+26
+version: 0.6.05+27
 
 environment:
   sdk: ^3.5.1
@@ -28,6 +28,7 @@ dependencies:
   dart_geohash: ^2.1.0
   geoflutterfire2:
     path: ../../Packages/GeoFlutterFire2
+  geolocator: ^13.0.1
   mobile_scanner: ^5.2.3
   firebase_auth: ^5.3.1
   firebase_core: ^3.6.0
