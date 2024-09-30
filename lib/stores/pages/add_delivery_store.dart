@@ -155,6 +155,7 @@ abstract class _AddDeliveryStore with Store {
       final geoPonitHash = createGeoPointHash(shop.location!);
 
       final delivery = DeliveryModel(
+        ownerId: shop.ownerId,
         shopId: shop.id!,
         shopName: shop.name,
         shopPhone: shop.phone,

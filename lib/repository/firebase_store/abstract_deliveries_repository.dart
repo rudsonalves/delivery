@@ -15,5 +15,5 @@ abstract class AbstractDeliveriesRepository {
     required GeoPoint location,
     required double radiusInKm,
   });
-  Stream<List<DeliveryModel>> streamDeliveryByOwnerId(String ownerId);
+  Stream<List<DeliveryModel>> getDeliveryByOwnerId(String ownerId);
 }
