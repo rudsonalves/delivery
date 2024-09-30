@@ -261,7 +261,7 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
   }
 
   @override
-  Stream<List<DeliveryModel>> streamDeliveryByOwnerId(String ownerId) {
+  Stream<List<DeliveryModel>> getDeliveryByOwnerId(String ownerId) {
     return _firebase
         .collection(keyDeliveries)
         .where(keyOwnerId, isEqualTo: ownerId)

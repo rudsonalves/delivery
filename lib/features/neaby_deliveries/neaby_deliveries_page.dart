@@ -32,7 +32,7 @@ class _NeabyDeliveriesPageState extends State<NeabyDeliveriesPage> {
 
     ctrl = NeabyDeliveriesController(store: store);
     // Initialize the location and search for deliveries
-    ctrl.initialize(userId, _initialRadius);
+    ctrl.init(userId, _initialRadius);
   }
 
   @override
@@ -121,7 +121,7 @@ class _NeabyDeliveriesPageState extends State<NeabyDeliveriesPage> {
                     final deliveries = store.deliveries;
                     if (deliveries.isEmpty) {
                       return const Center(
-                        child: Text('Nenhuma entrega próxima encontrada'),
+                        child: Text('Nenhuma entrega próxima encontrada!'),
                       );
                     }
 
