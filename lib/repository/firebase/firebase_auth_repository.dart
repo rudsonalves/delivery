@@ -112,7 +112,7 @@ class FirebaseAuthRepository implements AuthRepository {
           'uid': user.id,
           'role': user.role.index,
           'status': user.userStatus.index,
-          'managerId': user.managerId,
+          'managerId': user.bossId,
         });
       } else {
         throw Exception("User not authenticated");
@@ -295,7 +295,7 @@ class FirebaseAuthRepository implements AuthRepository {
     return user.copyWith(
       role: UserRole.values[claims['role'] as int],
       userStatus: UserStatus.values[claims['status'] as int],
-      managerId: claims['managerId'] as String?,
+      bossId: claims['managerId'] as String?,
       // emailVerified: claims['email_verified'] as bool,
     );
   }

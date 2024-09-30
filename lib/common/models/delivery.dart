@@ -14,6 +14,7 @@ enum DeliveryStatus {
 
 class DeliveryModel {
   String? id;
+  String ownerId;
   String shopId;
   String shopName;
   String shopPhone;
@@ -34,6 +35,7 @@ class DeliveryModel {
 
   DeliveryModel({
     this.id,
+    required this.ownerId,
     required this.shopId,
     required this.shopName,
     required this.shopPhone,
@@ -49,12 +51,14 @@ class DeliveryModel {
     required this.clientLocation,
     required this.location,
     required this.geoHash,
-    this.createdAt,
-    this.updatedAt,
-  });
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  })  : createdAt = createdAt ?? DateTime.now(),
+        updatedAt = updatedAt ?? DateTime.now();
 
   DeliveryModel copyWith({
     String? id,
+    String? ownerId,
     String? shopId,
     String? shopName,
     String? shopPhone,
@@ -75,6 +79,7 @@ class DeliveryModel {
   }) {
     return DeliveryModel(
       id: id ?? this.id,
+      ownerId: ownerId ?? this.ownerId,
       shopId: shopId ?? this.shopId,
       shopName: shopName ?? this.shopName,
       shopPhone: shopPhone ?? this.shopPhone,
@@ -98,6 +103,7 @@ class DeliveryModel {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
+      'ownerId': ownerId,
       'shopId': shopId,
       'shopName': shopName,
       'shopPhone': shopPhone,
@@ -121,6 +127,7 @@ class DeliveryModel {
   factory DeliveryModel.fromMap(Map<String, dynamic> map) {
     return DeliveryModel(
       id: map['id'] as String?,
+      ownerId: map['ownerId'] as String,
       shopId: map['shopId'] as String,
       shopName: map['shopName'] as String,
       shopPhone: map['shopPhone'] as String,
@@ -153,6 +160,7 @@ class DeliveryModel {
   @override
   String toString() {
     return 'DeliveryModel(id: $id,'
+        ' ownerId: $ownerId,'
         ' shopId: $shopId,'
         ' shopName: $shopName,'
         ' shopPhone: $shopPhone,'
@@ -177,6 +185,7 @@ class DeliveryModel {
     if (identical(this, other)) return true;
 
     return other.id == id &&
+        other.ownerId == ownerId &&
         other.shopId == shopId &&
         other.shopName == shopName &&
         other.shopPhone == shopPhone &&
@@ -199,6 +208,7 @@ class DeliveryModel {
   @override
   int get hashCode {
     return id.hashCode ^
+        ownerId.hashCode ^
         shopId.hashCode ^
         shopName.hashCode ^
         shopPhone.hashCode ^
