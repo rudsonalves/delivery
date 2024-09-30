@@ -1,8 +1,8 @@
-import 'package:delivery/components/widgets/delivery_card.dart';
-import 'package:delivery/features/user_business/user_business_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
+import '/components/widgets/delivery_card.dart';
+import '/features/user_business/user_business_controller.dart';
 import '../../common/models/delivery.dart';
 import '../add_delivery/add_delivery_page.dart';
 import '../map/map_page.dart';
@@ -48,25 +48,27 @@ class _UserBusinessPageState extends State<UserBusinessPage> {
       body: Observer(
         builder: (context) => Padding(
           padding: const EdgeInsets.all(8),
-          child: StreamBuilder<List<DeliveryModel>>(
-            stream: ctrl.deliveryRepository
-                .streamDeliveryByOwnerId(ctrl.currentUser!.id!),
-            builder: (context, snapshot) {
-              List<DeliveryModel> deliveries = snapshot.data ?? [];
+          child: ctrl.currentUser != null
+              ? StreamBuilder<List<DeliveryModel>>(
+                  stream: ctrl.deliveryRepository
+                      .streamDeliveryByOwnerId(ctrl.currentUser!.id!),
+                  builder: (context, snapshot) {
+                    List<DeliveryModel> deliveries = snapshot.data ?? [];
 
-              return ListView.builder(
-                itemCount: deliveries.length,
-                itemBuilder: (context, index) {
-                  final delivery = deliveries[index];
+                    return ListView.builder(
+                      itemCount: deliveries.length,
+                      itemBuilder: (context, index) {
+                        final delivery = deliveries[index];
 
-                  return DeliveryCard(
-                    delivery: delivery,
-                    showInMap: _showInMap,
-                  );
-                },
-              );
-            },
-          ),
+                        return DeliveryCard(
+                          delivery: delivery,
+                          showInMap: _showInMap,
+                        );
+                      },
+                    );
+                  },
+                )
+              : null,
         ),
       ),
     );

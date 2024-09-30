@@ -207,9 +207,10 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
   }
 
   @override
-  Stream<List<DeliveryModel>> getDeliveryNearby({
+  Stream<List<DeliveryModel>> getDeliveriesNearby({
     required GeoPoint location,
     required double radiusInKm,
+    int limit = 50,
   }) {
     // Create a GeoFirePoint for the center point (delivery user location)
     GeoFirePoint center = geo.point(
@@ -232,25 +233,28 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
         )
         .asyncMap((snapshot) async {
       // Map documents to DeliveryModel
-      List<DeliveryModel> deliveries = snapshot.map((doc) {
-        final data = doc.data() as Map<String, dynamic>;
+      List<DeliveryModel> deliveries = snapshot
+          .map((doc) {
+            final data = doc.data() as Map<String, dynamic>;
 
-        // Extract timestamps
-        final createdAtTimestamp = data['createdAt'] as Timestamp?;
-        final updatedAtTimestamp = data['updatedAt'] as Timestamp?;
+            // Extract timestamps
+            final createdAtTimestamp = data['createdAt'] as Timestamp?;
+            final updatedAtTimestamp = data['updatedAt'] as Timestamp?;
 
-        // Remove fields
-        data.remove('createdAt');
-        data.remove('updatedAt');
+            // Remove fields
+            data.remove('createdAt');
+            data.remove('updatedAt');
 
-        // Create DeliveryModel
-        final delivery = DeliveryModel.fromMap(data).copyWith(
-          createdAt: createdAtTimestamp?.toDate(),
-          updatedAt: updatedAtTimestamp?.toDate(),
-        );
+            // Create DeliveryModel
+            final delivery = DeliveryModel.fromMap(data).copyWith(
+              createdAt: createdAtTimestamp?.toDate(),
+              updatedAt: updatedAtTimestamp?.toDate(),
+            );
 
-        return delivery;
-      }).toList();
+            return delivery;
+          })
+          .take(limit)
+          .toList();
 
       return deliveries;
     });

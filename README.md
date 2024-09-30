@@ -18,6 +18,63 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/09/30 - version: 0.6.05+27
+
+Updated Firebase packages and implemented geolocation-based delivery features.
+
+1. **General Package Updates**
+   - Updated all Firebase-related packages to the latest versions to address compatibility issues.
+   - Updated the `geoflutterfire2` package locally and began testing it to ensure it functions correctly.
+
+2. **Android Manifest**
+   - Added `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`, and `ACCESS_BACKGROUND_LOCATION` permissions in the `AndroidManifest.xml` to support geolocation services in the app.
+
+3. **lib/common/extensions/user_role_extensions.dart** (New)
+   - Created `UserRoleExtensions` to add utility methods like `displayName` and `iconData` for `UserRole`.
+
+4. **lib/common/models/user.dart**
+   - Removed the deprecated `ptUserRole` method.
+   - Updated code to use the new extension methods from `UserRoleExtensions`.
+
+5. **lib/features/add_delivery/add_delivery_page.dart**
+   - Added a refresh button for shops to the dropdown menu in the delivery creation form.
+
+6. **lib/features/home/home_controller.dart**
+   - Renamed `isDelivery` to `isDeliveryman` to better reflect the role's meaning.
+
+7. **lib/features/home/home_page.dart**
+   - Replaced `UserDeliveryPage` with `NearbyDeliveriesPage` in the PageView navigation.
+
+8. **lib/features/home/widgets/custom_drawer_header.dart**
+   - Updated to use the `UserRoleExtensions` for cleaner code and separation of concerns.
+
+9. **lib/features/neaby_deliveries/neaby_deliveries_controller.dart** (New)
+   - Implemented `NearbyDeliveriesController` to manage geolocation-based queries and subscriptions for nearby deliveries.
+
+10. **lib/features/neaby_deliveries/neaby_deliveries_page.dart** (New)
+    - Created a new page `NearbyDeliveriesPage` to display deliveries within a certain radius of the user's current location.
+
+11. **lib/repository/firebase_store/abstract_deliveries_repository.dart**
+    - Renamed method `getDeliveryNearby` to `getDeliveriesNearby` for naming consistency.
+
+12. **lib/repository/firebase_store/deliveries_firebase_repository.dart**
+    - Updated the geolocation query method to include a limit on the number of results and added better error handling.
+
+13. **lib/services/location_service.dart** (New)
+    - Implemented a new `LocationService` class to handle permission requests and updating the user's location in Firestore.
+
+14. **lib/stores/pages/add_delivery_store.dart**
+    - Added the `refreshShops` method to dynamically update the list of available shops based on the user's role.
+
+15. **lib/stores/pages/user_business_store.dart** (New)
+    - Created a new MobX store for managing state in the business user page.
+
+16. **pubspec.yaml / pubspec.lock**
+    - Updated `geolocator` and added its dependencies (`geolocator_android`, `geolocator_apple`, etc.) to support geolocation in the app.
+
+This commit introduces significant updates to geolocation-based functionality in the delivery app. It refactors user role handling, introduces new pages and controllers for managing nearby deliveries, and updates the project dependencies to ensure compatibility and stability.
+
+
 ## 2024/09/26 - version: 0.6.04+26
 
 Added geoHash field to DeliveryModel and introduced geolocation-based queries for deliveries.
