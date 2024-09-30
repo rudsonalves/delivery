@@ -29,7 +29,7 @@ class NeabyDeliveriesController {
   }
 
   // Method to inicialize location and search for deliveries
-  Future<void> initialize(String? userId, double radiusInKm) async {
+  Future<void> init(String? userId, double radiusInKm) async {
     if (userId == null) {
       store.setError('Usuário não conectado!');
       return;

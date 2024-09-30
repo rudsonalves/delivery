@@ -18,6 +18,50 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/09/30 - version: 0.6.06+28
+
+Refactored `DeliveryModel` and `UserModel` to include new fields and updated page functionality for business users.
+
+1. **General Package Updates**
+   - Updated `DeliveryModel` to include the new `ownerId` field.
+   - Refactored `UserModel` by renaming the `managerId` field to `bossId` for better clarity.
+
+2. **lib/common/models/delivery.dart**
+   - Added `ownerId` field to `DeliveryModel` for better association between deliveries and their respective owners.
+   - Adjusted constructors, methods, and `copyWith` pattern to accommodate the new field.
+
+3. **lib/common/models/user.dart**
+   - Renamed the `managerId` field to `bossId` throughout the class to better reflect the role hierarchy.
+   - Updated all related methods and factory constructors accordingly.
+
+4. **lib/features/user_business/user_business_controller.dart**
+   - Refactored the `UserBusinessController` to properly use the `ownerId` field for querying deliveries.
+   - Implemented new state management for loading and displaying deliveries specific to business users.
+
+5. **lib/features/user_business/user_business_page.dart**
+   - Modified `UserBusinessPage` to leverage the new `UserBusinessStore` for managing deliveries.
+   - Added error handling and refresh functionality to improve user experience.
+
+6. **lib/stores/pages/user_business_store.dart**
+   - Added `deliveries` observable list and methods for updating deliveries in the store.
+   - Implemented `pageState` observable to manage loading and error states.
+
+7. **lib/repository/firebase_store/abstract_deliveries_repository.dart**
+   - Renamed `streamDeliveryByOwnerId` to `getDeliveryByOwnerId` for better method naming consistency.
+
+8. **lib/repository/firebase_store/deliveries_firebase_repository.dart**
+   - Updated the implementation of `getDeliveryByOwnerId` to fetch deliveries based on the new `ownerId` field.
+
+9. **lib/stores/pages/add_delivery_store.dart**
+   - Updated the delivery creation logic to include `ownerId` when creating new deliveries in the store.
+
+10. **Other minor updates:**
+    - Adjusted various field names and method calls to match the new field names (`bossId` instead of `managerId`).
+    - Updated error messages and UI text to provide clearer information to the user.
+
+This commit improves the consistency and clarity of the data models, introduces better state management for business users, and ensures that deliveries are correctly associated with their respective owners using the new `ownerId` field.
+
+
 ## 2024/09/30 - version: 0.6.05+27
 
 Updated Firebase packages and implemented geolocation-based delivery features.

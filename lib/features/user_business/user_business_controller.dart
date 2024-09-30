@@ -1,33 +1,45 @@
 import 'dart:async';
 
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:delivery/stores/pages/common/store_func.dart';
 
-import '../../common/models/user.dart';
+import '../../common/models/delivery.dart';
 import '../../common/settings/app_settings.dart';
 import '../../locator.dart';
 import '../../repository/firebase_store/deliveries_firebase_repository.dart';
 import '../../stores/pages/user_business_store.dart';
-import '../../stores/user/user_store.dart';
 
 class UserBusinessController {
-  StreamSubscription<User?>? _authSubscription;
-  final userStore = locator<UserStore>();
+  final UserBusinessStore store;
+
+  UserBusinessController({
+    required this.store,
+  });
+
   final app = locator<AppSettings>();
-  final store = UserBusinessStore();
+
   final deliveryRepository = DeliveriesFirebaseRepository();
+  StreamSubscription<List<DeliveryModel>>? _deliveriesSubscription;
 
-  bool get isLoggedIn => userStore.isLoggedIn;
-  bool get isDark => app.isDark;
-  bool get isAdmin => userStore.isAdmin;
-  bool get isBusiness => userStore.isBusiness;
-  bool get isManager => userStore.isManager;
-  bool get doesNotHavePhone =>
-      currentUser!.phone == null || currentUser!.phone!.isEmpty;
-  UserModel? get currentUser => userStore.currentUser;
+  String ownerId = '';
 
-  init() {}
+  Future<void> init(String userId) async {
+    ownerId = userId;
+    _getDeliveries();
+  }
 
   void dispose() {
-    _authSubscription?.cancel();
+    _deliveriesSubscription?.cancel();
+  }
+
+  void _getDeliveries() {
+    _deliveriesSubscription?.cancel(); // Cancel any previus subscriptions
+    _deliveriesSubscription = deliveryRepository
+        .getDeliveryByOwnerId(ownerId)
+        .listen((List<DeliveryModel> fetchedDeliveries) {
+      store.setDeliveries(fetchedDeliveries);
+      store.setPageState(PageState.success);
+    }, onError: (error) {
+      store.setError('Erro ao buscar entregas: $error');
+    });
   }
 }
