@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '/common/extensions/user_role_extensions.dart';
 import '/common/theme/app_text_style.dart';
-import '../../../common/models/user.dart';
 import '../home_controller.dart';
 
 class CustomDrawerHeader extends StatelessWidget {
@@ -69,10 +69,9 @@ class CustomDrawerHeader extends StatelessWidget {
                 ),
                 Builder(
                   builder: (context) {
-                    String title = '';
-                    IconData icon;
-                    (title, icon) =
-                        UserModel.ptUserRole(controller.currentUser!.role);
+                    String title = controller.currentUser!.role.displayName;
+                    IconData icon = controller.currentUser!.role.iconData;
+
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

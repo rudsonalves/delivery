@@ -2,10 +2,10 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../neaby_deliveries/neaby_deliveries_page.dart';
 import '/features/user_business/user_business_page.dart';
 import '/features/user_manager/user_manager_page.dart';
 import '/features/user_admin/user_admin_page.dart';
-import '../use_delivery/user_delivery_page.dart';
 import '../account/account_page.dart';
 import '../shops/shops_page.dart';
 import '../clients/clients_page.dart';
@@ -110,7 +110,7 @@ class _HomePageState extends State<HomePage> {
         children: const [
           UserAdminPage(),
           UserBusinessPage(),
-          UserDeliveryPage(),
+          NeabyDeliveriesPage(),
           UserManagerPage(),
         ],
       ),

@@ -18,7 +18,7 @@ class HomeController {
   bool get isAdmin => userStore.isAdmin;
   bool get isBusiness => userStore.isBusiness;
   bool get isManager => userStore.isManager;
-  bool get isDelivery => userStore.isDelivery;
+  bool get isDelivery => userStore.isDeliveryman;
 
   bool get doesNotHavePhone =>
       currentUser!.phone == null || currentUser!.phone!.isEmpty;

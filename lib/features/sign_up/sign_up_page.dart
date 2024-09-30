@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
+import '/common/extensions/user_role_extensions.dart';
 import '../../common/models/user.dart';
 import '../../components/widgets/message_snack_bar.dart';
 import '../../components/widgets/state_loading.dart';
@@ -146,9 +147,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                       ? false
                                       : true;
 
-                              String title = '';
-                              IconData icon;
-                              (title, icon) = UserModel.ptUserRole(role);
+                              String title = role.displayName;
+                              IconData icon = role.iconData;
+
                               return DropdownMenuItem<UserRole>(
                                 value: role,
                                 enabled: enable,

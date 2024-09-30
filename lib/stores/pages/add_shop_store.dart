@@ -1,5 +1,6 @@
 import 'package:mobx/mobx.dart';
 
+import '../../services/local_storage_service.dart';
 import '/common/extensions/generic_extensions.dart';
 import '../../common/utils/data_result.dart';
 import '/common/models/shop.dart';
@@ -17,6 +18,8 @@ class AddShopStore = _AddShopStore with _$AddShopStore;
 final repository = ShopFirebaseRepository();
 
 abstract class _AddShopStore with Store {
+  final localStore = locator<LocalStorageService>();
+
   @observable
   String? name;
 
@@ -207,9 +210,12 @@ abstract class _AddShopStore with Store {
   void _validPhone() {
     String numbers = phone!.onlyNumbers();
     int length = numbers.length;
-    String firstDigit = numbers[2];
+    String? firstDigit;
+    if (length > 2) {
+      firstDigit = numbers[2];
+    }
     bool isPhoneNumber = (length == 10 && firstDigit != '9') ||
-        (length == 11 || firstDigit == '9');
+        (length == 11 && firstDigit == '9');
     errorPhone = !isPhoneNumber ? 'Telefone inválido' : null;
   }
 
@@ -296,6 +302,11 @@ abstract class _AddShopStore with Store {
     }
     final result = await repository.add(shop);
     state = result.isSuccess ? PageState.success : PageState.error;
+
+    // Update local shop list
+    final shops = localStore.getManagerShops();
+    shops.add(shop);
+    localStore.setManagerShops(shops);
     return result;
   }
 

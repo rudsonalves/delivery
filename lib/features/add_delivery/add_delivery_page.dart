@@ -159,7 +159,12 @@ class _AddDeliveryPageState extends State<AddDeliveryPage> {
                     children: [
                       const Text('Origem'),
                       DropdownButton<String>(
-                        icon: const Icon(Icons.store),
+                        icon: IconButton(
+                          icon: const Icon(Icons.refresh),
+                          onPressed: () {
+                            ctrl.store.refreshShops();
+                          },
+                        ),
                         isExpanded: true,
                         value: ctrl.selectedShopId,
                         items: ctrl.shops

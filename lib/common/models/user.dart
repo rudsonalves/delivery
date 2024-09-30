@@ -1,9 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
-
 /// role descriptions
 /// - admin: administrador do sistema.
 /// - delivery: the one who makes the deliveries.
@@ -41,33 +38,6 @@ class UserModel {
     this.creationAt,
     this.lastSignIn,
   });
-
-  static (String, IconData) ptUserRole(UserRole userRole) {
-    String title;
-    IconData icon;
-    switch (userRole) {
-      case UserRole.admin:
-        title = 'Administrador';
-        icon = Symbols.admin_panel_settings_rounded;
-        break;
-      case UserRole.delivery:
-        title = 'Entregador';
-        icon = Icons.delivery_dining_rounded;
-        break;
-      case UserRole.business:
-        title = 'Comerciante';
-        icon = Symbols.business;
-        break;
-      case UserRole.manager:
-        title = 'Gerente';
-        icon = Symbols.manage_accounts_rounded;
-      default:
-        title = 'Clique para entrar';
-        icon = Symbols.people_rounded;
-    }
-
-    return (title, icon);
-  }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
