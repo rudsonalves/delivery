@@ -58,7 +58,7 @@ class NeabyDeliveriesController {
           .listen(
         (List<DeliveryModel> fetchedDeliveries) {
           store.setDeliveries(fetchedDeliveries);
-          store.setPageState(PageState.success);
+          store.setState(PageState.success);
         },
         onError: (error) {
           store.setError('Erro ao buscar entregas próximas: $error');
@@ -71,7 +71,7 @@ class NeabyDeliveriesController {
 
   // Method to manually update location and re-fetch deliveries
   Future<void> refresh(String? userId, double radiusInKm) async {
-    store.setPageState(PageState.loading);
+    store.setState(PageState.loading);
     if (userId == null) {
       store.setError('Usuário não conectado!');
       return;
@@ -99,7 +99,7 @@ class NeabyDeliveriesController {
       )
           .listen((List<DeliveryModel> fetchedDeliveries) {
         store.setDeliveries(fetchedDeliveries);
-        store.setPageState(PageState.success);
+        store.setState(PageState.success);
       }, onError: (error) {
         store.setError('Erro ao buscar entregas próximas: $error');
       });

@@ -11,7 +11,7 @@ class NearbyDeliveriesStore = _NearbyDeliveriesStore
 
 abstract class _NearbyDeliveriesStore with Store {
   @observable
-  PageState pageState = PageState.initial;
+  PageState state = PageState.initial;
 
   @observable
   ObservableList<DeliveryModel> deliveries = ObservableList<DeliveryModel>();
@@ -23,8 +23,8 @@ abstract class _NearbyDeliveriesStore with Store {
   double radiusInKm = 5.0; // Default radius
 
   @action
-  void setPageState(PageState state) {
-    pageState = state;
+  void setState(PageState newState) {
+    state = newState;
   }
 
   @action
@@ -35,13 +35,13 @@ abstract class _NearbyDeliveriesStore with Store {
   @action
   void setError(String message) {
     errorMessage = message;
-    setPageState(PageState.error);
+    setState(PageState.error);
   }
 
   @action
   void cleanError() {
     errorMessage = null;
-    setPageState(PageState.initial);
+    setState(PageState.initial);
   }
 
   @action

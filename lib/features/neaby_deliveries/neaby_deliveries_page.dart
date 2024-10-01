@@ -111,7 +111,7 @@ class _NeabyDeliveriesPageState extends State<NeabyDeliveriesPage> {
           Expanded(
             child: Observer(
               builder: (_) {
-                switch (store.pageState) {
+                switch (store.state) {
                   case PageState.initial:
                   case PageState.loading:
                     return const Center(

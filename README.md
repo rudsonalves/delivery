@@ -18,6 +18,71 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/01 - version: 0.6.08+30
+
+Refactored Client and Shop-related features to improve state management and UI consistency.
+
+1. **lib/common/models/client.dart**
+   - Adjusted `copyWith` method for `address` to handle potential null values properly.
+
+2. **lib/features/add_client/add_client_controller.dart**
+   - Refactored `AddClientController` to use `AddClientStore` for better state management.
+   - Introduced `_mountAddress` and `_setClientValues` methods to handle address setup.
+   - Added reaction disposers for observables to manage form updates.
+
+3. **lib/features/add_client/add_cliend_page.dart**
+   - Updated page to use `AddClientStore` for state handling and input validation.
+   - Replaced direct access to controller properties with store properties.
+
+4. **lib/features/clients/clients_controller.dart**
+   - Implemented stream subscription for client data using `ClientsStore`.
+   - Added methods for client data retrieval and state updates.
+
+5. **lib/features/clients/clients_page.dart**
+   - Replaced `StreamBuilder` with `Observer` for MobX-based state management.
+   - Improved error handling and UI state consistency using `ClientsStore`.
+
+6. **lib/features/add_shop/add_shop_controller.dart**
+   - Refined `AddShopController` to use `AddShopStore` for form management.
+   - Implemented state updates and error handling through store methods.
+   - Consolidated address setup methods for cleaner code structure.
+
+7. **lib/features/add_shop/add_shop_page.dart**
+   - Integrated `AddShopStore` into the page for more reactive state updates and cleaner UI logic.
+
+8. **lib/features/shops/shops_controller.dart**
+   - Refactored `ShopsController` to use `ShopsStore` for shop data management.
+   - Added shop data streaming and improved error handling through store.
+
+9. **lib/features/shops/shops_page.dart**
+   - Replaced previous implementation with `Observer` for reactive UI updates.
+   - Refactored `Dismissible` widgets into a separate component (`DismissibleShop`).
+
+10. **lib/features/shops/widgets/dismissible_shop.dart**
+    - Created a reusable `DismissibleShop` widget for managing shop edit/delete actions in a dismissible container.
+
+11. **lib/stores/pages/clients_store.dart**
+    - Created a new `ClientsStore` for managing client data and UI states.
+    - Implemented methods for setting client data, handling errors, and state management.
+
+12. **lib/stores/pages/shops_store.dart**
+    - Updated `ShopsStore` to handle shop data and UI state more effectively.
+    - Added methods for setting shop data and managing errors.
+
+13. **lib/stores/pages/add_client_store.dart**
+    - Refined `AddClientStore` by separating address and state management methods.
+    - Improved form validation and error handling through store methods.
+
+14. **lib/stores/pages/add_shop_store.dart**
+    - Simplified error handling and state management by consolidating methods.
+
+15. **lib/stores/pages/nearby_deliveries_store.dart**
+    - Renamed `setPageState` to `setState` for consistency across stores.
+    - Adjusted error handling methods to use the new naming convention.
+
+This commit introduces a comprehensive refactor of Client and Shop-related features, focusing on state management improvements using MobX stores, better error handling, and UI consistency. The refactor leads to a more maintainable codebase and clearer separation of concerns between controllers and stores.
+
+
 ## 2024/10/01 - version: 0.6.07+29
 
 Refactored `user_business`, `add_user_business`, and related features.

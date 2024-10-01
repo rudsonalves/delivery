@@ -1,31 +1,46 @@
-import 'package:delivery/repository/firebase_store/deliveries_firebase_repository.dart';
+import 'dart:async';
+
+import 'package:delivery/stores/pages/common/store_func.dart';
 import 'package:flutter/material.dart';
 
-import '../../common/models/user.dart';
+import '/repository/firebase_store/deliveries_firebase_repository.dart';
 import '../../common/utils/data_result.dart';
 import '../../repository/firebase_store/abstract_deliveries_repository.dart';
 import '../../repository/firebase_store/abstract_shop_repository.dart';
-import '/locator.dart';
 import '/common/models/shop.dart';
 import '../../repository/firebase_store/shop_firebase_repository.dart';
-import '../../stores/pages/common/store_func.dart';
 import '../../stores/pages/shops_store.dart';
-import '../../stores/user/user_store.dart';
 import '../add_shop/add_shop_page.dart';
 
 class ShopsController {
-  final store = ShopsStore();
   final AbstractShopRepository shopRepository = ShopFirebaseRepository();
   final AbstractDeliveriesRepository deliveriesRepository =
       DeliveriesFirebaseRepository();
-  final userStore = locator<UserStore>();
 
-  PageState get state => store.state;
-  bool get isAdmin => userStore.isAdmin;
-  UserModel? get currentUser => userStore.currentUser;
-  String accountId = '';
+  StreamSubscription<List<ShopModel>>? _shopsSubscription;
 
-  void init() {}
+  late final ShopsStore store;
+
+  void init(ShopsStore newStore) {
+    store = newStore;
+    getShops();
+  }
+
+  void dispose() {
+    _shopsSubscription?.cancel();
+  }
+
+  Future<void> getShops() async {
+    store.setState(PageState.loading);
+    _shopsSubscription?.cancel(); // Cancel any previous subscriptions
+    _shopsSubscription = shopRepository.streamShopByName().listen(
+        (List<ShopModel> fetchedShops) {
+      store.setShops(fetchedShops);
+      store.setState(PageState.success);
+    }, onError: (err) {
+      store.setError('Erro ao buscar lojas: $err');
+    });
+  }
 
   Future<void> editShop(BuildContext context, ShopModel shop) async {
     final result = await shopRepository.getAddressesForShop(shop.id!);
@@ -58,7 +73,7 @@ class ShopsController {
       );
 
       if (result.isFailure) {
-        store.setErrorMessage('Ocorreu um erro. Tente mais tarde!');
+        store.setError('Ocorreu um erro. Tente mais tarde!');
       }
     }
   }

@@ -1,14 +1,14 @@
 import 'package:mobx/mobx.dart';
 
-import '../../common/models/shop.dart';
+import '../../common/models/client.dart';
 import 'common/store_func.dart';
 
-part 'shops_store.g.dart';
+part 'clients_store.g.dart';
 
 // ignore: library_private_types_in_public_api
-class ShopsStore = _ShopsStore with _$ShopsStore;
+class ClientsStore = _ClientsStore with _$ClientsStore;
 
-abstract class _ShopsStore with Store {
+abstract class _ClientsStore with Store {
   @observable
   PageState state = PageState.initial;
 
@@ -16,7 +16,7 @@ abstract class _ShopsStore with Store {
   String? errorMessage;
 
   @observable
-  ObservableList<ShopModel> shops = ObservableList<ShopModel>();
+  ObservableList<ClientModel> clients = ObservableList<ClientModel>();
 
   @action
   setState(PageState newState) {
@@ -24,8 +24,8 @@ abstract class _ShopsStore with Store {
   }
 
   @action
-  void setShops(List<ShopModel> newShops) {
-    shops = ObservableList<ShopModel>.of(newShops);
+  void setClients(List<ClientModel> newShops) {
+    clients = ObservableList<ClientModel>.of(newShops);
   }
 
   @action

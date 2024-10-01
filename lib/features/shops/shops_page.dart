@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
+import '../../components/widgets/dismissible_help_row.dart';
+import '/stores/pages/common/store_func.dart';
+import '../../stores/pages/shops_store.dart';
 import '/features/add_shop/add_shop_page.dart';
 import '../../common/models/shop.dart';
 import '../../common/theme/app_text_style.dart';
-import '../../components/widgets/base_dismissible_container.dart';
-import '../../components/widgets/dismissible_help_row.dart';
-import '../../components/widgets/state_loading.dart';
 import 'shops_controller.dart';
+import 'widgets/dismissible_shop.dart';
 
 class ShopsPage extends StatefulWidget {
   const ShopsPage({super.key});
@@ -20,12 +22,20 @@ class ShopsPage extends StatefulWidget {
 
 class _ShopsPageState extends State<ShopsPage> {
   final ctrl = ShopsController();
+  final store = ShopsStore();
 
   @override
   void initState() {
     super.initState();
 
-    ctrl.init();
+    ctrl.init(store);
+  }
+
+  @override
+  void dispose() {
+    ctrl.dispose();
+
+    super.dispose();
   }
 
   void _backPage() {
@@ -92,8 +102,6 @@ class _ShopsPageState extends State<ShopsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Gerenciar Lojas'),
@@ -108,91 +116,66 @@ class _ShopsPageState extends State<ShopsPage> {
         child: const Icon(Symbols.add_business),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: StreamBuilder<List<ShopModel>>(
-          stream: ctrl.shopRepository.streamShopByName(),
-          builder: (context, snapshot) {
-            List<ShopModel> shops = snapshot.data ?? [];
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          children: [
+            const DismissibleHelpRow(),
+            Expanded(
+              child: Observer(
+                builder: (_) {
+                  switch (store.state) {
+                    case PageState.initial:
+                    case PageState.loading:
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    case PageState.success:
+                      final shops = store.shops;
+                      if (shops.isEmpty) {
+                        return const Center(
+                          child: Text('Nenhuma loja encontrada!'),
+                        );
+                      }
 
-            return Stack(
-              children: [
-                if (shops.isNotEmpty)
-                  Column(
-                    children: [
-                      const DismissibleHelpRow(),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: shops.length,
-                          itemBuilder: (context, index) => Dismissible(
-                            key: UniqueKey(),
-                            background: baseDismissibleContainer(
-                              context,
-                              alignment: Alignment.centerLeft,
-                              color: Colors.green.withOpacity(.30),
-                              icon: Icons.edit,
-                              label: 'Editar',
+                      return ListView.builder(
+                        itemCount: shops.length,
+                        itemBuilder: (_, index) {
+                          final shop = shops[index];
+
+                          return DismissibleShop(
+                            shop: shop,
+                            editShop: _editShop,
+                            deleteShop: _deleteShop,
+                          );
+                        },
+                      );
+                    case PageState.error:
+                      return Center(
+                        child: Column(
+                          children: [
+                            Text(
+                              store.errorMessage ?? 'Ocorreu um erro.',
+                              textAlign: TextAlign.center,
+                              style: AppTextStyle.font16Bold(color: Colors.red),
                             ),
-                            secondaryBackground: baseDismissibleContainer(
-                              context,
-                              alignment: Alignment.centerRight,
-                              color: Colors.red.withOpacity(.30),
-                              icon: Icons.delete,
-                              label: 'Apagar',
-                              // enable: ctrl.isAdmin,
+                            const SizedBox(height: 20),
+                            FilledButton.icon(
+                              onPressed: () {
+                                // ctrl.refresh(userId, store.radiusInKm);
+                              },
+                              label: const Text('Tentar Novamente.'),
+                              icon: const Icon(Icons.refresh),
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(4),
-                              child: Card(
-                                margin: EdgeInsets.zero,
-                                color: colorScheme.surfaceContainerHigh,
-                                child: ListTile(
-                                  title: Text(shops[index].name),
-                                  subtitle:
-                                      Text(shops[index].description ?? ''),
-                                ),
-                              ),
-                            ),
-                            confirmDismiss: (direction) async {
-                              if (direction == DismissDirection.startToEnd) {
-                                _editShop(shops[index]);
-                              } else if (direction ==
-                                  DismissDirection.endToStart) {
-                                return await _deleteShop(shops[index]);
-                              }
-                              return false;
-                            },
-                          ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                if (shops.isEmpty)
-                  const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Center(
-                        child: Card(
-                          child: Padding(
-                            padding: EdgeInsets.all(20),
-                            child: Column(
-                              children: [
-                                Icon(
-                                  Icons.warning_amber_rounded,
-                                  size: 60,
-                                ),
-                                Text('Nenhum cliente encontrado.')
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                if (snapshot.connectionState == ConnectionState.waiting)
-                  const StateLoading(),
-              ],
-            );
-          },
+                      );
+                    default:
+                      return Container();
+                  }
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

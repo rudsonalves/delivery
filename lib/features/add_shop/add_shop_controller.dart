@@ -30,8 +30,6 @@ class AddShopController {
   bool get isValid => store.isValid();
   PageState get state => store.state;
 
-  bool isAddMode = true;
-
   ShopModel? shop;
   AddressModel? address;
   ReactionDisposer? _disposer;
@@ -48,7 +46,7 @@ class AddShopController {
       (_) => store.mountAddress,
       (valor) {
         if (valor) {
-          mountAddress();
+          _mountAddress();
           store.resetMountAddress();
         }
       },
@@ -57,6 +55,7 @@ class AddShopController {
 
   void _setShopValues() {
     store.setShopFromShop(shop!);
+
     nameController.text = shop!.name;
     phoneController.text = shop!.phone;
     descriptionController.text = shop!.description ?? '';
@@ -65,7 +64,6 @@ class AddShopController {
     numberController.text = shop!.address?.number ?? '';
     complementController.text = shop!.address?.complement ?? '';
     address = shop!.address;
-    isAddMode = false;
   }
 
   void dispose() {
@@ -78,20 +76,15 @@ class AddShopController {
     _disposer?.call();
   }
 
-  void setManager(Map<String, dynamic> manager) {
-    store.setManager(manager);
-  }
-
   Future<ShopModel?> getShopFromForm() async {
     store.setState(PageState.loading);
     if (!store.isValid()) {
-      store.setErrorMessage(
-          'Verifique os campos obrigatórios (*) do formulário.');
+      store.setError('Verifique os campos obrigatórios (*) do formulário.');
       return null;
     }
 
     if (address == null) {
-      await mountAddress();
+      await _mountAddress();
     }
     if (store.updateLocation) {
       address!.complement = store.complement;
@@ -120,7 +113,7 @@ class AddShopController {
     store.resetUpdateLocation();
   }
 
-  Future<void> mountAddress() async {
+  Future<void> _mountAddress() async {
     store.setZipStatus(ZipStatus.loading);
 
     ZipStatus status;
@@ -155,8 +148,7 @@ class AddShopController {
   Future<DataResult<ShopModel>> saveShop() async {
     store.setState(PageState.loading);
     if (!store.isValid()) {
-      store.setErrorMessage(
-          'Preencha os campos obrigatórios (*) do formulário.');
+      store.setError('Preencha os campos obrigatórios (*) do formulário.');
       return DataResult.failure(const GenericFailure(
         message: 'form fields are invalid.',
         code: 550,
@@ -164,7 +156,7 @@ class AddShopController {
     }
     ShopModel? newShop = await getShopFromForm();
     if (newShop == null) {
-      store.setErrorMessage('Ocorreu um erro ineperado. Tente mais tarde.');
+      store.setError('Ocorreu um erro ineperado. Tente mais tarde.');
       return DataResult.failure(const GenericFailure(
         message: 'Unexpected error: Client return null.',
         code: 550,
@@ -172,7 +164,7 @@ class AddShopController {
     }
     final result = await repository.add(newShop);
     if (result.isFailure) {
-      store.setErrorMessage('Ocorreu um erro ineperado. Tente mais tarde.');
+      store.setError('Ocorreu um erro ineperado. Tente mais tarde.');
       return DataResult.failure(GenericFailure(
         message: 'Unexpected error: ${result.error.toString()}',
         code: 551,
@@ -196,8 +188,7 @@ class AddShopController {
   Future<DataResult<ShopModel>> updateShop() async {
     store.setState(PageState.loading);
     if (!store.isValid()) {
-      store.setErrorMessage(
-          'Preencha os campos obrigatórios (*) do formulário.');
+      store.setError('Preencha os campos obrigatórios (*) do formulário.');
       return DataResult.failure(const GenericFailure(
         message: 'Form fields are invalid.',
         code: 550,
@@ -205,7 +196,7 @@ class AddShopController {
     }
     ShopModel? newShop = await getShopFromForm();
     if (newShop == null) {
-      store.setErrorMessage('Ocorreu um erro ineperado. Tente mais tarde.');
+      store.setError('Ocorreu um erro ineperado. Tente mais tarde.');
       return DataResult.failure(const GenericFailure(
         message: 'Unexpected error: Shop return null.',
         code: 550,
@@ -214,7 +205,7 @@ class AddShopController {
     final result = await repository.update(newShop);
 
     if (result.isFailure) {
-      store.setErrorMessage('Ocorreu um erro ineperado. Tente mais tarde.');
+      store.setError('Ocorreu um erro ineperado. Tente mais tarde.');
       return DataResult.failure(GenericFailure(
         message: 'Unexpected error: ${result.error.toString()}',
         code: 551,
