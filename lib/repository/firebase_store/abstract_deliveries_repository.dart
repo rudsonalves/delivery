@@ -9,11 +9,13 @@ abstract class AbstractDeliveriesRepository {
   Future<DataResult<DeliveryModel>> updateStatus(DeliveryStatus deliveryStatus);
   Future<DataResult<void>> delete(String deliveryId);
   Future<DataResult<DeliveryModel?>> get(String deliveryId);
-  Stream<List<DeliveryModel>> streamDeliveryByShopId(String shopId);
+  Stream<List<DeliveryModel>> getByShopId(String shopId);
   Stream<List<DeliveryModel>> streamShopByName();
-  Stream<List<DeliveryModel>> getDeliveriesNearby({
+  Stream<List<DeliveryModel>> getNearby({
     required GeoPoint location,
     required double radiusInKm,
   });
-  Stream<List<DeliveryModel>> getDeliveryByOwnerId(String ownerId);
+  Stream<List<DeliveryModel>> getByOwnerId(String ownerId);
+  Stream<List<DeliveryModel>> getByManagerId(String managerId);
+  Future<DataResult<void>> updateManagerId(String shopId, String managerId);
 }

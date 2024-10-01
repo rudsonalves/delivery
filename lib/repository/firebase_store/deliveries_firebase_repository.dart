@@ -17,6 +17,8 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
   static const keyClientId = 'clientId';
   static const keyStatus = 'status';
   static const keyGeoHash = 'geoHash';
+  static const keyManagerId = 'managerId';
+  static const keyUpdatedAt = 'updatedAt';
 
   @override
   Future<DataResult<DeliveryModel>> add(DeliveryModel delivery) async {
@@ -99,6 +101,41 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
   }
 
   @override
+  Future<DataResult<void>> updateManagerId(
+      String shopId, String managerId) async {
+    try {
+      // get delivey reference
+      final deliveryRef = _firebase.collection(keyDeliveries);
+
+      // filter deliveries by shopId
+      final deliverySnapshot =
+          await deliveryRef.where(keyShopId, isEqualTo: shopId).get();
+
+      // update managerId
+      WriteBatch batch = _firebase.batch();
+      for (final doc in deliverySnapshot.docs) {
+        batch.update(doc.reference, {
+          keyManagerId: managerId,
+          keyUpdatedAt: FieldValue.serverTimestamp(),
+        });
+      }
+
+      // Commit batch
+      await batch.commit();
+
+      return DataResult.success(null);
+    } catch (err) {
+      final message =
+          'DeliveriesFirebaseRepository.updateDeliveriesManagerId: $err';
+      log(message);
+      return DataResult.failure(GenericFailure(
+        message: message,
+        code: 615,
+      ));
+    }
+  }
+
+  @override
   Future<DataResult<void>> delete(String deliveryId) async {
     try {
       final deliveryDoc = _firebase.collection(keyDeliveries).doc(deliveryId);
@@ -164,13 +201,13 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
       log(message, stackTrace: stackTrace);
       return DataResult.failure(FireStoreFailure(
         message: message,
-        code: 513,
+        code: 613,
       ));
     }
   }
 
   @override
-  Stream<List<DeliveryModel>> streamDeliveryByShopId(String shopId) {
+  Stream<List<DeliveryModel>> getByShopId(String shopId) {
     return _firebase
         .collection(keyDeliveries)
         .where(keyShopId, isEqualTo: shopId)
@@ -196,7 +233,7 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
             return delivery.copyWith(id: doc.id);
           } catch (err) {
             final message =
-                'DeliveriesFirebaseRepository.streamDeliveryByShopId :$err';
+                'DeliveriesFirebaseRepository.getDeliveryByShopId :$err';
             log(message);
             throw Exception(message);
           }
@@ -207,7 +244,44 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
   }
 
   @override
-  Stream<List<DeliveryModel>> getDeliveriesNearby({
+  Stream<List<DeliveryModel>> getByManagerId(String managerId) {
+    return _firebase
+        .collection(keyDeliveries)
+        .where(keyManagerId, isEqualTo: managerId)
+        .snapshots()
+        .asyncMap((snapshot) async {
+      List<DeliveryModel> deliveries = await Future.wait(snapshot.docs.map(
+        (doc) async {
+          try {
+            final data = Map<String, dynamic>.from(doc.data());
+
+            final createdAtTimestamp = data['createdAt'] as Timestamp?;
+            final updatedAtTimestamp = data['updatedAt'] as Timestamp?;
+
+            data.remove('createdAt');
+            data.remove('updatedAt');
+
+            final delivery = DeliveryModel.fromMap(data).copyWith(
+              id: doc.id,
+              createdAt: createdAtTimestamp?.toDate(),
+              updatedAt: updatedAtTimestamp?.toDate(),
+            );
+
+            return delivery.copyWith(id: doc.id);
+          } catch (err) {
+            final message =
+                'DeliveriesFirebaseRepository.getDeliveryByManagerId :$err';
+            log(message);
+            throw Exception(message);
+          }
+        },
+      ));
+      return deliveries;
+    });
+  }
+
+  @override
+  Stream<List<DeliveryModel>> getNearby({
     required GeoPoint location,
     required double radiusInKm,
     int limit = 50,
@@ -261,7 +335,7 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
   }
 
   @override
-  Stream<List<DeliveryModel>> getDeliveryByOwnerId(String ownerId) {
+  Stream<List<DeliveryModel>> getByOwnerId(String ownerId) {
     return _firebase
         .collection(keyDeliveries)
         .where(keyOwnerId, isEqualTo: ownerId)
@@ -287,7 +361,7 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
             return delivery.copyWith(id: doc.id);
           } catch (err) {
             final message =
-                'DeliveriesFirebaseRepository.streamDeliveryByShopId :$err';
+                'DeliveriesFirebaseRepository.getDeliveryByOwnerId :$err';
             log(message);
             throw Exception(message);
           }
