@@ -5,6 +5,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import '../../stores/pages/account_store.dart';
 import '../../stores/pages/common/store_func.dart';
 import 'account_controller.dart';
 
@@ -19,11 +20,12 @@ class AccountPage extends StatefulWidget {
 
 class _AccountPageState extends State<AccountPage> {
   final ctrl = AccountController();
+  final store = AccountStore();
 
   @override
   void initState() {
     super.initState();
-    ctrl.init();
+    ctrl.init(store);
   }
 
   void _backPage() {
@@ -45,7 +47,7 @@ class _AccountPageState extends State<AccountPage> {
         ),
       ),
       body: Observer(builder: (context) {
-        if (!ctrl.showQRCode) {
+        if (!store.showQRCode) {
           return SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -53,7 +55,7 @@ class _AccountPageState extends State<AccountPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   TextButton.icon(
-                    onPressed: ctrl.toogleShowQRCode,
+                    onPressed: store.toogleShowQRCode,
                     icon: const Icon(Symbols.qr_code_scanner_rounded),
                     label: const Text('Gerar QR Code'),
                   ),
@@ -62,11 +64,11 @@ class _AccountPageState extends State<AccountPage> {
                     icon: const Icon(Symbols.refresh),
                     label: const Text('Carregar Lojas'),
                   ),
-                  if (ctrl.state == PageState.loading)
+                  if (store.state == PageState.loading)
                     const Center(
                       child: CircularProgressIndicator(),
                     ),
-                  if (ctrl.state == PageState.success)
+                  if (store.state == PageState.success)
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Column(
@@ -76,13 +78,13 @@ class _AccountPageState extends State<AccountPage> {
                           ListView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            itemCount: ctrl.shops.length,
+                            itemCount: store.shops.length,
                             itemBuilder: (context, index) => Card(
                               child: ListTile(
                                 leading: const Icon(Icons.store),
-                                title: Text(ctrl.shops[index].name),
+                                title: Text(store.shops[index].name),
                                 subtitle:
-                                    Text(ctrl.shops[index].description ?? ''),
+                                    Text(store.shops[index].description ?? ''),
                               ),
                             ),
                           ),
@@ -119,7 +121,7 @@ class _AccountPageState extends State<AccountPage> {
             FilledButton.tonalIcon(
               label: const Text('Fechar'),
               icon: const Icon(Icons.close),
-              onPressed: ctrl.toogleShowQRCode,
+              onPressed: store.toogleShowQRCode,
             ),
           ],
         );

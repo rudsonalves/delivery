@@ -49,8 +49,7 @@ class _UserAdminPageState extends State<UserAdminPage> {
         builder: (context) => Padding(
           padding: const EdgeInsets.all(8),
           child: StreamBuilder<List<DeliveryModel>>(
-            stream: ctrl.deliveryRepository
-                .streamDeliveryByShopId('HM8z3Rwzv7ZPK5qlOWcq'),
+            stream: ctrl.deliveryRepository.getByShopId('HM8z3Rwzv7ZPK5qlOWcq'),
             builder: (context, snapshot) {
               List<DeliveryModel> deliveries = snapshot.data ?? [];
 

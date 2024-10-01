@@ -7,6 +7,7 @@ import '../../common/utils/data_result.dart';
 import '../../components/widgets/address_card.dart';
 import '../../components/widgets/message_snack_bar.dart';
 import '../../components/widgets/state_loading.dart';
+import '../../stores/pages/add_shop_store.dart';
 import '../qrcode_read/qrcode_read_page.dart';
 import '/features/add_shop/add_shop_controller.dart';
 import '../../common/theme/app_text_style.dart';
@@ -29,13 +30,14 @@ class AddShopPage extends StatefulWidget {
 }
 
 class _AddShopPageState extends State<AddShopPage> {
+  final store = AddShopStore();
   final ctrl = AddShopController();
 
   @override
   void initState() {
     super.initState();
 
-    ctrl.init(widget.shop);
+    ctrl.init(store, widget.shop);
   }
 
   void _backPage() {
@@ -76,7 +78,7 @@ class _AddShopPageState extends State<AddShopPage> {
         return;
       }
     }
-    _backPage();
+    if (mounted) Navigator.of(context).pop(ctrl.shop!.copyWith());
   }
 
   Future<void> _getManager() async {
@@ -112,15 +114,15 @@ class _AddShopPageState extends State<AddShopPage> {
                       labelText: 'Nome *',
                       controller: ctrl.nameController,
                       textInputAction: TextInputAction.next,
-                      onChanged: ctrl.pageStore.setName,
-                      errorText: ctrl.pageStore.errorName,
+                      onChanged: store.setName,
+                      errorText: store.errorName,
                       textCapitalization: TextCapitalization.sentences,
                     ),
                     CustomTextField(
                       labelText: 'Descrição',
                       controller: ctrl.descriptionController,
                       textInputAction: TextInputAction.next,
-                      onChanged: ctrl.pageStore.setDescription,
+                      onChanged: store.setDescription,
                       textCapitalization: TextCapitalization.words,
                     ),
                     CustomTextField(
@@ -128,15 +130,15 @@ class _AddShopPageState extends State<AddShopPage> {
                       controller: ctrl.phoneController,
                       textInputAction: TextInputAction.next,
                       keyboardType: TextInputType.number,
-                      onChanged: ctrl.pageStore.setPhone,
-                      errorText: ctrl.pageStore.errorPhone,
+                      onChanged: store.setPhone,
+                      errorText: store.errorPhone,
                     ),
                     InkWell(
                       onTap: _getManager,
                       child: Card(
                         child: ListTile(
                           leading: const Icon(Symbols.manage_accounts_rounded),
-                          title: Text(ctrl.pageStore.managerName ?? '- * -'),
+                          title: Text(store.managerName ?? '- * -'),
                         ),
                       ),
                     ),
@@ -168,26 +170,26 @@ class _AddShopPageState extends State<AddShopPage> {
                             ),
                           )
                           .toList(),
-                      value: ctrl.pageStore.addressType,
+                      value: store.addressType,
                       isExpanded: true,
                       onChanged: (value) {
                         if (value != null) {
-                          ctrl.pageStore.setAddressType(value);
+                          store.setAddressType(value);
                         }
                       },
                     ),
                     CustomTextField(
-                      onChanged: (value) => ctrl.pageStore.setZipCode(value),
+                      onChanged: (value) => store.setZipCode(value),
                       controller: ctrl.cepController,
                       keyboardType: TextInputType.number,
                       textInputAction: TextInputAction.next,
                       labelText: 'CEP *',
                       hintText: 'xx-xxx.xxx',
-                      errorText: ctrl.pageStore.errorZipCode,
+                      errorText: store.errorZipCode,
                     ),
                     AddressCard(
-                      zipStatus: ctrl.pageStore.zipStatus,
-                      address: ctrl.pageStore.address,
+                      zipStatus: store.zipStatus,
+                      address: ctrl.address,
                     ),
                     CustomTextField(
                       controller: ctrl.numberController,
@@ -195,8 +197,8 @@ class _AddShopPageState extends State<AddShopPage> {
                       textInputAction: TextInputAction.next,
                       // floatingLabelBehavior: FloatingLabelBehavior.always,
                       labelText: 'Número *',
-                      onChanged: ctrl.pageStore.setNumber,
-                      errorText: ctrl.pageStore.errorNumber,
+                      onChanged: store.setNumber,
+                      errorText: store.errorNumber,
                       // hintText: '',
                     ),
                     CustomTextField(
@@ -206,7 +208,7 @@ class _AddShopPageState extends State<AddShopPage> {
                       // floatingLabelBehavior: FloatingLabelBehavior.always,
                       textCapitalization: TextCapitalization.words,
                       labelText: 'Complemento',
-                      onChanged: ctrl.pageStore.setComplement,
+                      onChanged: store.setComplement,
                       hintText: '- * -',
                     ),
                     BigButton(

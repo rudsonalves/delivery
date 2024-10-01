@@ -10,7 +10,7 @@ class UserBusinessStore = _UserBusinessStore with _$UserBusinessStore;
 
 abstract class _UserBusinessStore with Store {
   @observable
-  PageState pageState = PageState.initial;
+  PageState state = PageState.initial;
 
   @observable
   ObservableList<DeliveryModel> deliveries = ObservableList<DeliveryModel>();
@@ -19,8 +19,8 @@ abstract class _UserBusinessStore with Store {
   String? errorMessage;
 
   @action
-  void setPageState(PageState state) {
-    pageState = state;
+  void setPageState(PageState newState) {
+    state = newState;
   }
 
   @action

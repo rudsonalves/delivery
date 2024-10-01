@@ -1,7 +1,10 @@
+import 'package:delivery/stores/pages/common/store_func.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 import '../../common/models/delivery.dart';
+import '../../common/theme/app_text_style.dart';
+import '../../stores/pages/user_manager_store.dart';
 import '../add_delivery/add_delivery_page.dart';
 import '../../components/widgets/delivery_card.dart';
 import '../map/map_page.dart';
@@ -16,11 +19,13 @@ class UserManagerPage extends StatefulWidget {
 
 class _UserManagerPageState extends State<UserManagerPage> {
   final ctrl = UserManagerController();
+  final store = UserManagerStore();
 
   @override
   void initState() {
     super.initState();
-    ctrl.init();
+
+    ctrl.init(store);
   }
 
   @override
@@ -45,29 +50,61 @@ class _UserManagerPageState extends State<UserManagerPage> {
         onPressed: _addDelivery,
         child: const Icon(Icons.delivery_dining_rounded),
       ),
-      body: Observer(
-        builder: (context) => Padding(
-          padding: const EdgeInsets.all(8),
-          child: StreamBuilder<List<DeliveryModel>>(
-            stream: ctrl.deliveryRepository
-                .streamDeliveryByShopId('HM8z3Rwzv7ZPK5qlOWcq'),
-            builder: (context, snapshot) {
-              List<DeliveryModel> deliveries = snapshot.data ?? [];
+      body: Column(
+        children: [
+          Expanded(
+            child: Observer(
+              builder: (_) {
+                switch (store.state) {
+                  case PageState.initial:
+                  case PageState.loading:
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  case PageState.success:
+                    final deliveries = store.deliveries;
+                    if (deliveries.isEmpty) {
+                      return const Center(
+                        child: Text('Nenhuma entrega encontrada!'),
+                      );
+                    }
 
-              return ListView.builder(
-                itemCount: deliveries.length,
-                itemBuilder: (context, index) {
-                  final delivery = deliveries[index];
+                    return ListView.builder(
+                      itemCount: deliveries.length,
+                      itemBuilder: (_, index) {
+                        final delivery = deliveries[index];
 
-                  return DeliveryCard(
-                    delivery: delivery,
-                    showInMap: _showInMap,
-                  );
-                },
-              );
-            },
+                        return DeliveryCard(
+                          delivery: delivery,
+                          showInMap: _showInMap,
+                        );
+                      },
+                    );
+                  case PageState.error:
+                    return Center(
+                      child: Column(
+                        children: [
+                          Text(
+                            store.errorMessage ?? 'Ocorreu um erro.',
+                            textAlign: TextAlign.center,
+                            style: AppTextStyle.font16Bold(color: Colors.red),
+                          ),
+                          const SizedBox(height: 20),
+                          FilledButton.icon(
+                            onPressed: () {
+                              // ctrl.refresh(userId, store.radiusInKm);
+                            },
+                            label: const Text('Tentar Novamente.'),
+                            icon: const Icon(Icons.refresh),
+                          ),
+                        ],
+                      ),
+                    );
+                }
+              },
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

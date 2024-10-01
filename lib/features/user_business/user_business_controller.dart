@@ -32,10 +32,10 @@ class UserBusinessController {
   }
 
   void _getDeliveries() {
+    store.setPageState(PageState.loading);
     _deliveriesSubscription?.cancel(); // Cancel any previus subscriptions
-    _deliveriesSubscription = deliveryRepository
-        .getDeliveryByOwnerId(ownerId)
-        .listen((List<DeliveryModel> fetchedDeliveries) {
+    _deliveriesSubscription = deliveryRepository.getByOwnerId(ownerId).listen(
+        (List<DeliveryModel> fetchedDeliveries) {
       store.setDeliveries(fetchedDeliveries);
       store.setPageState(PageState.success);
     }, onError: (error) {
