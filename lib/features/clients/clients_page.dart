@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
+import '/stores/pages/common/store_func.dart';
 import '../../components/widgets/dismissible_help_row.dart';
+import '../../stores/pages/clients_store.dart';
 import '/common/theme/app_text_style.dart';
-import '/components/widgets/state_loading.dart';
 import '../../common/models/client.dart';
 import 'clients_controller.dart';
 import '/features/add_client/add_cliend_page.dart';
@@ -18,13 +20,21 @@ class ClientsPage extends StatefulWidget {
 }
 
 class _ClientsPageState extends State<ClientsPage> {
+  final store = ClientsStore();
   final ctrl = ClientsController();
 
   @override
   void initState() {
     super.initState();
 
-    ctrl.init();
+    ctrl.init(store);
+  }
+
+  @override
+  void dispose() {
+    ctrl.dispose();
+
+    super.dispose();
   }
 
   Future<void> _editClient(ClientModel client) async {
@@ -103,61 +113,66 @@ class _ClientsPageState extends State<ClientsPage> {
         icon: const Icon(Icons.person_add),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: StreamBuilder<List<ClientModel>>(
-          stream: ctrl.clientRepository.streamClientByName(),
-          builder: (context, snapshot) {
-            List<ClientModel> clients = snapshot.data ?? [];
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          children: [
+            const DismissibleHelpRow(),
+            Expanded(
+              child: Observer(
+                builder: (_) {
+                  switch (store.state) {
+                    case PageState.initial:
+                    case PageState.loading:
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    case PageState.success:
+                      final clients = store.clients;
+                      if (clients.isEmpty) {
+                        return const Center(
+                          child: Text('Nenhum cliente encontrado!'),
+                        );
+                      }
 
-            return Stack(
-              children: [
-                if (clients.isNotEmpty)
-                  Column(
-                    children: [
-                      const DismissibleHelpRow(),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: clients.length,
-                          itemBuilder: (context, index) {
-                            final client = clients[index];
-                            return DismissibleClient(
-                              ctrl: ctrl,
-                              editClient: _editClient,
-                              deleteClient: _deleteClient,
-                              client: client,
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                if (clients.isEmpty)
-                  const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Center(
-                        child: Card(
-                          child: Padding(
-                            padding: EdgeInsets.all(20),
-                            child: Column(
-                              children: [
-                                Icon(
-                                  Icons.warning_amber_rounded,
-                                  size: 60,
-                                ),
-                                Text('Nenhum cliente encontrado.')
-                              ],
+                      return ListView.builder(
+                        itemCount: clients.length,
+                        itemBuilder: (context, index) {
+                          final client = clients[index];
+                          return DismissibleClient(
+                            ctrl: ctrl,
+                            editClient: _editClient,
+                            deleteClient: _deleteClient,
+                            client: client,
+                          );
+                        },
+                      );
+                    case PageState.error:
+                      return Center(
+                        child: Column(
+                          children: [
+                            Text(
+                              store.errorMessage ?? 'Ocorreu um erro.',
+                              textAlign: TextAlign.center,
+                              style: AppTextStyle.font16Bold(color: Colors.red),
                             ),
-                          ),
+                            const SizedBox(height: 20),
+                            FilledButton.icon(
+                              onPressed: () {
+                                // ctrl.refresh(userId, store.radiusInKm);
+                              },
+                              label: const Text('Tentar Novamente.'),
+                              icon: const Icon(Icons.refresh),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                if (snapshot.connectionState == ConnectionState.waiting)
-                  const StateLoading(),
-              ],
-            );
-          },
+                      );
+                    default:
+                      return Container();
+                  }
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

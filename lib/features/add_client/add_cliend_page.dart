@@ -9,6 +9,7 @@ import '../../components/widgets/big_bottom.dart';
 import '../../components/widgets/custom_text_field.dart';
 import '../../components/widgets/message_snack_bar.dart';
 import '../../components/widgets/state_loading.dart';
+import '../../stores/pages/add_client_store.dart';
 import '../../stores/pages/common/store_func.dart';
 import 'add_client_controller.dart';
 
@@ -28,11 +29,14 @@ class AddClientPage extends StatefulWidget {
 
 class _AddClientPageState extends State<AddClientPage> {
   final ctrl = AddClientController();
+  final store = AddClientStore();
+  late final bool isAddMode;
 
   @override
   void initState() {
     super.initState();
-    ctrl.init(widget.client);
+    isAddMode = (widget.client == null);
+    ctrl.init(store, widget.client);
   }
 
   void _backPage() {
@@ -40,10 +44,10 @@ class _AddClientPageState extends State<AddClientPage> {
   }
 
   Future<void> _saveClient() async {
-    if (!ctrl.isValid) return;
-    if (ctrl.isEdited) {
+    if (!store.isValid()) return;
+    if (store.isEdited) {
       DataResult<ClientModel?> result;
-      if (ctrl.isAddMode) {
+      if (isAddMode) {
         result = await ctrl.saveClient();
       } else {
         result = await ctrl.updateClient();
@@ -82,7 +86,7 @@ class _AddClientPageState extends State<AddClientPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(ctrl.isAddMode ? 'Adicionar Cliente' : 'Editar Cliente'),
+        title: Text(isAddMode ? 'Adicionar Cliente' : 'Editar Cliente'),
         centerTitle: true,
         elevation: 5,
         leading: IconButton(
@@ -92,7 +96,7 @@ class _AddClientPageState extends State<AddClientPage> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.all(8),
           child: Observer(
             builder: (context) => Stack(
               children: [
@@ -103,8 +107,8 @@ class _AddClientPageState extends State<AddClientPage> {
                       labelText: 'Nome *',
                       controller: ctrl.nameController,
                       textInputAction: TextInputAction.next,
-                      onChanged: ctrl.pageStore.setName,
-                      errorText: ctrl.pageStore.errorName,
+                      onChanged: store.setName,
+                      errorText: store.errorName,
                       textCapitalization: TextCapitalization.words,
                     ),
                     CustomTextField(
@@ -112,16 +116,16 @@ class _AddClientPageState extends State<AddClientPage> {
                       controller: ctrl.emailController,
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
-                      onChanged: ctrl.pageStore.setEmail,
-                      errorText: ctrl.pageStore.errorEmail,
+                      onChanged: store.setEmail,
+                      errorText: store.errorEmail,
                     ),
                     CustomTextField(
                       labelText: 'Telefone *',
                       controller: ctrl.phoneController,
                       textInputAction: TextInputAction.next,
                       keyboardType: TextInputType.number,
-                      onChanged: ctrl.pageStore.setPhone,
-                      errorText: ctrl.pageStore.errorPhone,
+                      onChanged: store.setPhone,
+                      errorText: store.errorPhone,
                     ),
                     Row(
                       children: [
@@ -151,24 +155,24 @@ class _AddClientPageState extends State<AddClientPage> {
                             ),
                           )
                           .toList(),
-                      value: ctrl.pageStore.addressType,
+                      value: store.addressType,
                       isExpanded: true,
                       onChanged: (value) {
-                        ctrl.pageStore.setAddressType(value ?? '');
+                        store.setAddressType(value ?? '');
                       },
                     ),
                     CustomTextField(
-                      onChanged: (value) => ctrl.pageStore.setZipCode(value),
+                      onChanged: (value) => store.setZipCode(value),
                       controller: ctrl.cepController,
                       keyboardType: TextInputType.number,
                       textInputAction: TextInputAction.next,
                       labelText: 'CEP *',
                       hintText: 'xx-xxx.xxx',
-                      errorText: ctrl.pageStore.errorZipCode,
+                      errorText: store.errorZipCode,
                     ),
                     AddressCard(
-                      zipStatus: ctrl.pageStore.zipStatus,
-                      address: ctrl.pageStore.address,
+                      zipStatus: store.zipStatus,
+                      address: ctrl.address,
                     ),
                     CustomTextField(
                       controller: ctrl.numberController,
@@ -176,8 +180,8 @@ class _AddClientPageState extends State<AddClientPage> {
                       textInputAction: TextInputAction.next,
                       // floatingLabelBehavior: FloatingLabelBehavior.always,
                       labelText: 'Número *',
-                      onChanged: ctrl.pageStore.setNumber,
-                      errorText: ctrl.pageStore.errorNumber,
+                      onChanged: store.setNumber,
+                      errorText: store.errorNumber,
                       // hintText: '',
                     ),
                     CustomTextField(
@@ -187,7 +191,7 @@ class _AddClientPageState extends State<AddClientPage> {
                       // floatingLabelBehavior: FloatingLabelBehavior.always,
                       textCapitalization: TextCapitalization.words,
                       labelText: 'Complemento',
-                      onChanged: ctrl.pageStore.setComplement,
+                      onChanged: store.setComplement,
                       hintText: '- * -',
                     ),
                     // CustomTextField(
@@ -197,13 +201,13 @@ class _AddClientPageState extends State<AddClientPage> {
                     //   floatingLabelBehavior: FloatingLabelBehavior.always,
                     //   labelText: 'CPF *',
                     //   hintText: '###.###.###-##',
-                    //   onChanged: ctrl.pageStore.setCpf,
-                    //   errorText: ctrl.pageStore.errorCpfMsg,
+                    //   onChanged: store.setCpf,
+                    //   errorText: store.errorCpfMsg,
                     // ),
                     BigButton(
                       color: Colors.purpleAccent,
-                      label: ctrl.isEdited
-                          ? ctrl.isAddMode
+                      label: store.isEdited
+                          ? isAddMode
                               ? 'Salvar'
                               : 'Atualizar'
                           : 'Cancelar',
@@ -211,7 +215,7 @@ class _AddClientPageState extends State<AddClientPage> {
                     ),
                   ],
                 ),
-                if (ctrl.state == PageState.loading) const StateLoading(),
+                if (store.state == PageState.loading) const StateLoading(),
               ],
             ),
           ),

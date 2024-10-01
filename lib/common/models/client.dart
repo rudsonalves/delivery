@@ -43,7 +43,7 @@ class ClientModel {
       name: name ?? this.name,
       email: email ?? this.email,
       phone: phone ?? this.phone,
-      address: address ?? this.address,
+      address: address?.copyWith() ?? this.address?.copyWith(),
       addressString: addressString ?? this.addressString,
       location: location ?? this.location,
       createdAt: createdAt ?? this.createdAt,

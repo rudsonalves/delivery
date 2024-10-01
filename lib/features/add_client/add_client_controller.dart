@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:mobx/mobx.dart';
 
+import '../../common/models/address.dart';
 import '../../common/models/client.dart';
+import '../../common/models/via_cep_address.dart';
 import '../../common/utils/data_result.dart';
 import '../../stores/pages/common/store_func.dart';
 import '/components/custons_text_controllers/masked_text_controller.dart';
 import '../../stores/pages/add_client_store.dart';
 
 class AddClientController {
-  final pageStore = AddClientStore();
-
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final phoneController = MaskedTextController(mask: '(##) #####-####');
@@ -16,28 +17,42 @@ class AddClientController {
   final numberController = TextEditingController();
   final complementController = TextEditingController();
 
-  ZipStatus get zipStatus => pageStore.zipStatus;
-  PageState get state => pageStore.state;
-  bool get isValid => pageStore.isValid();
-  bool get isEdited => pageStore.isEdited;
+  late final AddClientStore store;
 
-  Future<DataResult<ClientModel?>> saveClient() => pageStore.saveClient();
-  Future<DataResult<ClientModel?>> updateClient() => pageStore.updateClient();
+  ClientModel? client;
+  AddressModel? address;
+  ReactionDisposer? _disposer;
 
-  bool isAddMode = true;
+  void init(AddClientStore newStore, ClientModel? editClient) {
+    store = newStore;
 
-  void init(ClientModel? client) {
-    if (client != null) {
-      pageStore.setClientFromClient(client);
-      nameController.text = client.name;
-      emailController.text = client.email ?? '';
-      phoneController.text = client.phone;
-      pageStore.addressType = client.address?.type ?? 'Residencial';
-      cepController.text = client.address?.zipCode ?? '';
-      numberController.text = client.address?.number ?? '';
-      complementController.text = client.address?.complement ?? '';
-      isAddMode = false;
+    if (editClient != null) {
+      client = editClient.copyWith();
+      _setClientValues();
     }
+
+    _disposer = reaction<bool>(
+      (_) => store.mountAddress,
+      (valor) {
+        if (valor) {
+          _mountAddress();
+          store.resetMountAddress();
+        }
+      },
+    );
+  }
+
+  void _setClientValues() {
+    store.setClientFromClient(client!);
+
+    nameController.text = client!.name;
+    emailController.text = client!.email ?? '';
+    phoneController.text = client!.phone;
+    store.addressType = client!.address?.type ?? 'Residencial';
+    cepController.text = client!.address?.zipCode ?? '';
+    numberController.text = client!.address?.number ?? '';
+    complementController.text = client!.address?.complement ?? '';
+    address = client!.address;
   }
 
   void dispose() {
@@ -47,5 +62,136 @@ class AddClientController {
     cepController.dispose();
     numberController.dispose();
     complementController.dispose();
+    _disposer?.call();
+  }
+
+  Future<ClientModel?> getClientFromForm() async {
+    store.setState(PageState.loading);
+    if (!store.isValid()) {
+      store.setError('Verifique os campos obrigatórios (*) do formulário.');
+      return null;
+    }
+
+    if (address == null) {
+      await _mountAddress();
+    }
+    if (store.updateLocation) {
+      address!.complement = store.complement;
+      address!.number = store.number!;
+      await _setCoordinates();
+    }
+    address!.type = store.addressType!;
+
+    store.setState(PageState.success);
+    return ClientModel(
+      id: client?.id,
+      name: store.name!,
+      email: store.email,
+      phone: store.phone!,
+      address: address?.copyWith(),
+      addressString: address?.geoAddressString,
+      location: address?.location,
+    );
+  }
+
+  Future<void> _setCoordinates() async {
+    address = await address!.updateLocation();
+    store.resetUpdateLocation();
+  }
+
+  Future<void> _mountAddress() async {
+    store.setZipStatus(ZipStatus.loading);
+
+    ZipStatus status;
+    String? err;
+    ViaCepAddressModel? via;
+    (status, err, via) = await StoreFunc.fetchAddress(store.zipCode);
+
+    store.setZipStatus(status);
+    store.setErrorZipCode(err);
+
+    if (via == null) return;
+
+    if (store.updateLocation) {
+      address = AddressModel(
+        id: address?.id,
+        type: store.addressType ?? 'Residencial',
+        zipCode: via.zipCode,
+        street: via.street,
+        number: store.number ?? 'S/N',
+        complement: store.complement,
+        neighborhood: via.neighborhood,
+        state: via.state,
+        city: via.city,
+        location: null,
+        updatedAt: DateTime.now(),
+      );
+    }
+    store.setZipStatus(ZipStatus.success);
+  }
+
+  @action
+  Future<DataResult<ClientModel?>> saveClient() async {
+    store.setState(PageState.loading);
+    if (!store.isValid()) {
+      store.setError('Preencha os campos obrigatórios (*) do formulário.');
+      return DataResult.failure(const GenericFailure(
+        message: 'Form fields are invalid.',
+        code: 350,
+      ));
+    }
+    final newClient = await getClientFromForm();
+    if (newClient == null) {
+      store.setError('Ocorreu um erro ineperado. Tente mais tarde.');
+      return DataResult.failure(const GenericFailure(
+        message: 'Unexpected error: Client return null.',
+        code: 350,
+      ));
+    }
+    final result = await repository.add(newClient);
+    if (result.isFailure) {
+      store.setError('Ocorreu um erro ineperado. Tente mais tarde.');
+      return DataResult.failure(GenericFailure(
+        message: 'Unexpected error: ${result.error.toString()}',
+        code: 351,
+      ));
+    }
+    // Update client
+    client = result.data!;
+    store.setState(PageState.success);
+    return result;
+  }
+
+  @action
+  Future<DataResult<ClientModel?>> updateClient() async {
+    store.setState(PageState.loading);
+    if (!store.isValid()) {
+      store.setError('Preencha os campos obrigatórios (*) do formulário.');
+      return DataResult.failure(const GenericFailure(
+        message: 'Form fields are invalid.',
+        code: 350,
+      ));
+    }
+    final newClient = await getClientFromForm();
+    if (newClient == null) {
+      store.setError('Ocorreu um erro ineperado. Tente mais tarde.');
+      return DataResult.failure(const GenericFailure(
+        message: 'Unexpected error: Client return null.',
+        code: 350,
+      ));
+    }
+    final result = await repository.update(newClient);
+
+    if (result.isFailure) {
+      store.setError('Ocorreu um erro ineperado. Tente mais tarde.');
+      return DataResult.failure(GenericFailure(
+        message: 'Unexpected error: ${result.error.toString()}',
+        code: 351,
+      ));
+    }
+    // Update client
+    client = result.data!;
+    store.setState(PageState.success);
+    return result;
   }
 }
