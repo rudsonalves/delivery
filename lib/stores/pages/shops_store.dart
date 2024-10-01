@@ -11,8 +11,17 @@ abstract class _ShopsStore with Store {
   @observable
   PageState state = PageState.initial;
 
+  @observable
+  String? errorMessage;
+
   @action
   setState(PageState newState) {
     state = newState;
+  }
+
+  @action
+  setErrorMessage(String message) {
+    errorMessage = message;
+    setState(PageState.error);
   }
 }

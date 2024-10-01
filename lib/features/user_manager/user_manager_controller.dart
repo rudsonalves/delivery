@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:firebase_auth/firebase_auth.dart';
-
+import '/stores/pages/common/store_func.dart';
+import '../../common/models/delivery.dart';
 import '../../common/models/user.dart';
 import '../../common/settings/app_settings.dart';
 import '../../locator.dart';
@@ -10,34 +10,44 @@ import '../../stores/pages/user_manager_store.dart';
 import '../../stores/user/user_store.dart';
 
 class UserManagerController {
-  StreamSubscription<User?>? _authSubscription;
-  final userStore = locator<UserStore>();
+  StreamSubscription<List<DeliveryModel>>? _deliveriesSubscription;
+  final user = locator<UserStore>();
   final app = locator<AppSettings>();
-  final store = UserManagerStore();
+  late final UserManagerStore store;
   final deliveryRepository = DeliveriesFirebaseRepository();
 
-  bool get isLoggedIn => userStore.isLoggedIn;
-  bool get isDark => app.isDark;
-  bool get isAdmin => userStore.isAdmin;
-  bool get isBusiness => userStore.isBusiness;
-  bool get isManager => userStore.isManager;
-  bool get doesNotHavePhone =>
-      currentUser!.phone == null || currentUser!.phone!.isEmpty;
-  String get shopId => store.shopId;
-  UserModel? get currentUser => userStore.currentUser;
+  UserModel? get currentUser => user.currentUser;
 
-  init() {
-    if (isLoggedIn) {
-      // store.setHasPhone(currentUser!.phone != null);
-      // store.setHasAddress(currentUser!.address != null);
-    }
+  void init(UserManagerStore newStore) {
+    store = newStore;
+    _getDeliveries();
   }
 
   void dispose() {
-    _authSubscription?.cancel();
+    _deliveriesSubscription?.cancel();
   }
 
-  Future<void> logout() async {
-    if (isLoggedIn) await userStore.logout();
+  void _getDeliveries() {
+    store.setPageState(PageState.loading);
+    _deliveriesSubscription?.cancel(); // Cancel any previus subscription
+    if (store.shopId != null) {
+      _deliveriesSubscription = deliveryRepository
+          .getByShopId(store.shopId!)
+          .listen((List<DeliveryModel> fetchedDeliveries) {
+        store.setDeliveries(fetchedDeliveries);
+        store.setPageState(PageState.success);
+      }, onError: (err) {
+        store.setError('Erro ao buscar entregas: $err');
+      });
+    } else {
+      _deliveriesSubscription = deliveryRepository
+          .getByManagerId(user.id!)
+          .listen((List<DeliveryModel> fetchedDeliveries) {
+        store.setDeliveries(fetchedDeliveries);
+        store.setPageState(PageState.success);
+      }, onError: (err) {
+        store.setError('Erro ao buscar entregas: $err');
+      });
+    }
   }
 }

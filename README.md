@@ -18,6 +18,60 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/01 - version: 0.6.07+29
+
+Refactored `user_business`, `add_user_business`, and related features.
+
+1. **lib/features/account/account_controller.dart**
+   - Updated `AccountController` to use `AccountStore` for state management.
+   - Implemented `getManagerShops()` method to retrieve and store manager shops locally.
+
+2. **lib/features/account/account_page.dart**
+   - Integrated `AccountStore` into `AccountPage` for state management and UI updates.
+   - Replaced references to `pageStore` with `store` to reflect the new structure.
+
+3. **lib/features/add_shop/add_shop_controller.dart**
+   - Modified `AddShopController` to utilize `AddShopStore` for improved state handling.
+   - Refactored methods like `saveShop()` and `updateShop()` for cleaner logic and local store updates.
+   - Updated shop values initialization to correctly set store properties.
+
+4. **lib/features/add_shop/add_shop_page.dart**
+   - Adjusted page to work with `AddShopStore` for reactive state management.
+   - Implemented improved error handling and display for the form fields.
+
+5. **lib/features/user_business/user_business_controller.dart**
+   - Adjusted to utilize `UserBusinessStore` for state management.
+   - Refactored delivery fetching logic to use the new `getByOwnerId()` method.
+
+6. **lib/features/user_business/user_business_page.dart**
+   - Updated page to use `UserBusinessStore` for state management and reactive UI updates.
+
+7. **lib/repository/firebase_store/abstract_deliveries_repository.dart**
+   - Renamed methods like `streamDeliveryByShopId` and `getDeliveryByOwnerId` for better clarity and consistency.
+   - Added new methods like `updateManagerId` to handle specific delivery updates in the repository.
+
+8. **lib/repository/firebase_store/deliveries_firebase_repository.dart**
+   - Refactored method names to align with repository conventions (e.g., `getByShopId`, `getNearby`).
+   - Implemented new method `updateManagerId` for batch updating the manager ID in delivery documents.
+
+9. **lib/stores/pages/account_store.dart**
+   - Simplified store logic by removing direct repository calls and focusing on state management.
+   - Refactored state update methods for consistency.
+
+10. **lib/stores/pages/add_shop_store.dart**
+    - Separated store logic from the controller, focusing on reactive state updates and form validation.
+
+11. **lib/stores/pages/user_business_store.dart**
+    - Updated `PageState` to `state` for naming consistency across stores.
+    - Added error handling and state management methods to handle various UI states.
+
+12. **lib/stores/pages/user_manager_store.dart**
+    - Integrated delivery and shop data management into `UserManagerStore`.
+    - Added state and error handling methods for cleaner management of UI states.
+
+This commit refactors and streamlines the business-related pages, controllers, and stores, introducing better state management and separation of concerns, leading to a more maintainable and consistent codebase.
+
+
 ## 2024/09/30 - version: 0.6.06+28
 
 Refactored `DeliveryModel` and `UserModel` to include new fields and updated page functionality for business users.

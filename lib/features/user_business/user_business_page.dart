@@ -65,7 +65,7 @@ class _UserBusinessPageState extends State<UserBusinessPage> {
           Expanded(
             child: Observer(
               builder: (_) {
-                switch (store.pageState) {
+                switch (store.state) {
                   case PageState.initial:
                   case PageState.loading:
                     return const Center(
@@ -78,6 +78,7 @@ class _UserBusinessPageState extends State<UserBusinessPage> {
                         child: Text('Nenhuma entrega encontrada!'),
                       );
                     }
+
                     return ListView.builder(
                       itemCount: deliveries.length,
                       itemBuilder: (_, index) {
