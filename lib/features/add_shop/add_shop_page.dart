@@ -32,11 +32,13 @@ class AddShopPage extends StatefulWidget {
 class _AddShopPageState extends State<AddShopPage> {
   final store = AddShopStore();
   final ctrl = AddShopController();
+  late final bool isAddMode;
 
   @override
   void initState() {
     super.initState();
 
+    isAddMode = widget.shop == null;
     ctrl.init(store, widget.shop);
   }
 
@@ -48,7 +50,7 @@ class _AddShopPageState extends State<AddShopPage> {
     if (!ctrl.isValid) return;
     if (ctrl.isEdited) {
       DataResult<ShopModel?> result;
-      if (ctrl.isAddMode) {
+      if (isAddMode) {
         result = await ctrl.saveShop();
       } else {
         result = await ctrl.updateShop();
@@ -85,7 +87,7 @@ class _AddShopPageState extends State<AddShopPage> {
     final manager = await Navigator.pushNamed(context, QRCodeReadPage.routeName)
         as Map<String, dynamic>?;
 
-    if (manager != null) ctrl.setManager(manager);
+    if (manager != null) store.setManager(manager);
   }
 
   @override
@@ -214,7 +216,7 @@ class _AddShopPageState extends State<AddShopPage> {
                     BigButton(
                       color: Colors.purpleAccent,
                       label: ctrl.isEdited
-                          ? ctrl.isAddMode
+                          ? isAddMode
                               ? 'Salvar'
                               : 'Atualizar'
                           : 'Cancelar',

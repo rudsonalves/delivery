@@ -80,7 +80,7 @@ abstract class _AddShopStore with Store {
   void resetUpdateLocation() => updateLocation = false;
 
   @action
-  void setErrorMessage(String message) {
+  void setError(String message) {
     errorMessage = message;
     setState(PageState.error);
   }
