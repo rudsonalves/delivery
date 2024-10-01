@@ -1,12 +1,6 @@
-import 'dart:developer';
-
 import 'package:mobx/mobx.dart';
 
 import '../../common/models/shop.dart';
-import '../../locator.dart';
-import '../../repository/firebase_store/shop_firebase_repository.dart';
-import '../../services/local_storage_service.dart';
-import '../user/user_store.dart';
 import 'common/store_func.dart';
 
 part 'account_store.g.dart';
@@ -15,9 +9,6 @@ part 'account_store.g.dart';
 class AccountStore = _AccountStore with _$AccountStore;
 
 abstract class _AccountStore with Store {
-  final shopRepository = ShopFirebaseRepository();
-  final localStore = locator<LocalStorageService>();
-
   @observable
   bool showQRCode = false;
 
@@ -33,40 +24,12 @@ abstract class _AccountStore with Store {
   }
 
   @action
-  Future<void> init() async {
-    getInLocalStore();
-    state = PageState.success;
+  void setState(PageState newState) {
+    state = newState;
   }
 
   @action
-  Future<void> getManagerShops() async {
-    try {
-      state = PageState.loading;
-      final managerId = locator<UserStore>().id;
-      if (managerId == null) {
-        throw Exception('Manager id is null!');
-      }
-
-      final result = await shopRepository.getShopByManager(managerId);
-      if (result.isFailure) {
-        throw Exception('Repository.getShopByManager: ${result.error}');
-      }
-      shops = result.data!;
-      await setInLocalStore();
-      state = PageState.success;
-    } catch (err) {
-      final message = 'getManagerShops: $err';
-      log(message);
-      state = PageState.error;
-    }
-  }
-
-  Future<void> setInLocalStore() async {
-    await localStore.setManagerShops(shops);
-  }
-
-  @action
-  void getInLocalStore() {
-    shops = localStore.getManagerShops();
+  void setShops(List<ShopModel> newShops) {
+    shops = newShops;
   }
 }

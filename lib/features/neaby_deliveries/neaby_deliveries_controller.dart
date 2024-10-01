@@ -51,7 +51,7 @@ class NeabyDeliveriesController {
       // Start the stream to get nearby deliveries
       _deliveriesSubscription?.cancel(); // Cancel any previous subscriptions
       _deliveriesSubscription = deliveriesRepository
-          .getDeliveriesNearby(
+          .getNearby(
         location: currentLocation,
         radiusInKm: radiusInKm,
       )
@@ -93,7 +93,7 @@ class NeabyDeliveriesController {
       // Start the stream to get nearby deliveries
       _deliveriesSubscription?.cancel(); // Cancel any previous subscriptions
       _deliveriesSubscription = deliveriesRepository
-          .getDeliveriesNearby(
+          .getNearby(
         location: currentLocation,
         radiusInKm: radiusInKm,
       )
