@@ -2,8 +2,6 @@ import 'package:mobx/mobx.dart';
 
 import '../../common/models/address.dart';
 import '../../common/models/client.dart';
-import '../../common/models/via_cep_address.dart';
-import '../../common/utils/data_result.dart';
 import '../../repository/firebase_store/client_firebase_repository.dart';
 import 'common/store_func.dart';
 import '/common/extensions/generic_extensions.dart';
@@ -72,40 +70,32 @@ abstract class _AddClientStore with Store {
   @observable
   bool updateLocation = false;
 
-  String? id;
+  @observable
+  bool mountAddress = false;
 
-  Future<ClientModel?> getClientFromForm() async {
-    state = PageState.loading;
-    if (!isValid()) {
-      state = PageState.success;
-      return null;
-    }
+  @observable
+  String? errorMessage;
 
-    if (address == null) {
-      await _mountAddress();
-    }
-    if (updateLocation) {
-      address!.complement = complement;
-      address!.number = number!;
-      await _setCoordinates();
-    }
-    address!.type = addressType!;
+  @action
+  void setMountAddress() => mountAddress = true;
 
-    state = PageState.success;
-    return ClientModel(
-      id: id,
-      name: name!,
-      email: email,
-      phone: phone!,
-      address: address?.copyWith(),
-      addressString: address?.geoAddressString,
-      location: address?.location,
-    );
+  @action
+  void resetMountAddress() => mountAddress = false;
+
+  @action
+  void setUpdateLocation() => updateLocation = true;
+
+  @action
+  void resetUpdateLocation() => updateLocation = false;
+
+  @action
+  void setError(String message) {
+    errorMessage = message;
+    setState(PageState.error);
   }
 
   @action
   void setClientFromClient(ClientModel client) {
-    id = client.id;
     name = client.name;
     email = client.email;
     phone = client.phone;
@@ -113,7 +103,6 @@ abstract class _AddClientStore with Store {
     number = client.address?.number;
     zipCode = client.address?.zipCode;
     complement = client.address?.complement;
-    address = client.address?.copyWith();
     zipStatus = address != null ? ZipStatus.success : ZipStatus.initial;
     isEdited = false;
     updateLocation = false;
@@ -215,7 +204,19 @@ abstract class _AddClientStore with Store {
     updateLocation = updateLocation || (zipCode != value);
     zipCode = value;
     _validZipCode();
-    if (errorZipCode == null) _mountAddress();
+    if (errorZipCode == null) {
+      setMountAddress();
+    }
+  }
+
+  @action
+  void setZipStatus(ZipStatus status) {
+    zipStatus = status;
+  }
+
+  @action
+  void setErrorZipCode(String? message) {
+    errorZipCode = message;
   }
 
   @action
@@ -242,47 +243,7 @@ abstract class _AddClientStore with Store {
   }
 
   @action
-  Future<void> _mountAddress() async {
-    zipStatus = ZipStatus.loading;
-
-    ZipStatus status;
-    String? err;
-    ViaCepAddressModel? via;
-    (status, err, via) = await StoreFunc.fetchAddress(zipCode);
-
-    zipStatus = status;
-    errorZipCode = err;
-
-    if (via == null) return;
-
-    if (updateLocation) {
-      address = AddressModel(
-        zipCode: via.zipCode,
-        street: via.street,
-        number: number ?? 'S/N',
-        complement: complement,
-        type: addressType ?? 'Residencial',
-        neighborhood: via.neighborhood,
-        location: null,
-        state: via.state,
-        city: via.city,
-      );
-    }
-
-    if (address!.isValidAddress) {
-      await _setCoordinates();
-    }
-    zipStatus = ZipStatus.success;
-  }
-
-  @action
-  Future<void> _setCoordinates() async {
-    address = await address!.updateLocation();
-    updateLocation = false;
-  }
-
-  @action
-  void setPageState(PageState status) {
+  void setState(PageState status) {
     state = status;
   }
 
@@ -299,52 +260,5 @@ abstract class _AddClientStore with Store {
         errorZipCode == null &&
         errorName == null &&
         errorPhone == null;
-  }
-
-  @action
-  Future<DataResult<ClientModel?>> saveClient() async {
-    state = PageState.loading;
-    if (!isValid()) {
-      state = PageState.error;
-      return DataResult.failure(const GenericFailure(
-        message: 'Form fields are invalid.',
-        code: 350,
-      ));
-    }
-    final client = await getClientFromForm();
-    if (client == null) {
-      state = PageState.error;
-      return DataResult.failure(const GenericFailure(
-        message: 'Unexpected error: Client return null.',
-        code: 350,
-      ));
-    }
-    final result = await repository.add(client);
-    state = result.isSuccess ? PageState.success : PageState.error;
-    return result;
-  }
-
-  @action
-  Future<DataResult<ClientModel?>> updateClient() async {
-    state = PageState.loading;
-    if (!isValid()) {
-      state = PageState.error;
-      return DataResult.failure(const GenericFailure(
-        message: 'Form fields are invalid.',
-        code: 350,
-      ));
-    }
-    final client = await getClientFromForm();
-    if (client == null) {
-      state = PageState.error;
-      return DataResult.failure(const GenericFailure(
-        message: 'Unexpected error: Client return null.',
-        code: 350,
-      ));
-    }
-    // client.id = id;
-    final result = await repository.update(client);
-    state = result.isSuccess ? PageState.success : PageState.error;
-    return result;
   }
 }
