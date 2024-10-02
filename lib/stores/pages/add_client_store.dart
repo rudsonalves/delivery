@@ -2,7 +2,6 @@ import 'package:mobx/mobx.dart';
 
 import '../../common/models/address.dart';
 import '../../common/models/client.dart';
-import '../../repository/firebase_store/client_firebase_repository.dart';
 import 'common/store_func.dart';
 import '/common/extensions/generic_extensions.dart';
 
@@ -10,7 +9,6 @@ part 'add_client_store.g.dart';
 
 // ignore: library_private_types_in_public_api
 class AddClientStore = _AddClientStore with _$AddClientStore;
-final repository = ClientFirebaseRepository();
 
 abstract class _AddClientStore with Store {
   @observable

@@ -19,7 +19,7 @@ class PersonController {
   final passWordController = TextEditingController();
   final passWordCheckController = TextEditingController();
 
-  final store = locator<UserStore>();
+  final user = locator<UserStore>();
 
   final formKey = GlobalKey<FormState>();
 
@@ -29,7 +29,7 @@ class PersonController {
 
   Future<void> save(BuildContext context) async {
     try {
-      await store.auth.requestPhoneNumberVerification(personalData.phone!);
+      await user.auth.requestPhoneNumberVerification(personalData.phone!);
 
       if (context.mounted) {
         final response = await TextInputDialog.open(
@@ -39,7 +39,7 @@ class PersonController {
         ) as String?;
         log(response.toString());
         if (response == null || response.isEmpty) return;
-        await store.auth.updatePhoneInAuth(response);
+        await user.auth.updatePhoneInAuth(response);
       }
     } catch (err) {
       log(err.toString());

@@ -1,5 +1,8 @@
 import 'package:mobx/mobx.dart';
 
+import '../../common/models/delivery.dart';
+import 'common/store_func.dart';
+
 part 'user_admin_store.g.dart';
 
 // ignore: library_private_types_in_public_api
@@ -7,18 +10,27 @@ class UserAdminStore = _UserAdminStore with _$UserAdminStore;
 
 abstract class _UserAdminStore with Store {
   @observable
-  bool hasPhone = true;
+  PageState state = PageState.initial;
 
   @observable
-  bool hasAddress = true;
+  ObservableList<DeliveryModel> deliveries = ObservableList<DeliveryModel>();
+
+  @observable
+  String? errorMessage;
 
   @action
-  setHasPhone(bool value) {
-    hasPhone = value;
+  void setPageState(PageState newState) {
+    state = newState;
   }
 
   @action
-  setHasAddress(bool value) {
-    hasAddress = value;
+  void setDeliveries(List<DeliveryModel> newDeliveries) {
+    deliveries = ObservableList<DeliveryModel>.of(newDeliveries);
+  }
+
+  @action
+  void setError(String message) {
+    errorMessage = message;
+    setPageState(PageState.error);
   }
 }
