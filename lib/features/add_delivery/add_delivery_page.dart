@@ -18,12 +18,13 @@ class AddDeliveryPage extends StatefulWidget {
 
 class _AddDeliveryPageState extends State<AddDeliveryPage> {
   final ctrl = AddDeliveryController();
+  final store = AddDeliveryStore();
 
   @override
   void initState() {
     super.initState();
 
-    ctrl.init();
+    ctrl.init(store);
   }
 
   @override
@@ -38,11 +39,11 @@ class _AddDeliveryPageState extends State<AddDeliveryPage> {
   }
 
   void _submitName(String name) {
-    ctrl.store.searchClientsByName(name);
+    ctrl.searchClientsByName(name);
   }
 
   void _submitPhone(String phone) {
-    ctrl.store.searchClentsByPhone(phone);
+    ctrl.searchClentsByPhone(phone);
   }
 
   Future<void> _createDelivery() async {
@@ -162,7 +163,7 @@ class _AddDeliveryPageState extends State<AddDeliveryPage> {
                         icon: IconButton(
                           icon: const Icon(Icons.refresh),
                           onPressed: () {
-                            ctrl.store.refreshShops();
+                            ctrl.refreshShops();
                           },
                         ),
                         isExpanded: true,
@@ -188,14 +189,14 @@ class _AddDeliveryPageState extends State<AddDeliveryPage> {
                           RadioMenuButton<SearchMode>(
                             value: SearchMode.name,
                             groupValue: ctrl.searchBy,
-                            onChanged: (_) => ctrl.toogleSearchBy(),
+                            onChanged: (_) => store.toogleSearchBy(),
                             child: const Text('Nome'),
                           ),
                           RadioMenuButton<SearchMode>(
                             value: SearchMode.phone,
                             toggleable: true,
                             groupValue: ctrl.searchBy,
-                            onChanged: (_) => ctrl.toogleSearchBy(),
+                            onChanged: (_) => store.toogleSearchBy(),
                             child: const Text('Telefone'),
                           ),
                         ],

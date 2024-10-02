@@ -20,7 +20,7 @@ class UserBusinessPage extends StatefulWidget {
 }
 
 class _UserBusinessPageState extends State<UserBusinessPage> {
-  late final UserBusinessController ctrl;
+  final ctrl = UserBusinessController();
   final store = UserBusinessStore();
   final _currentUser = locator<UserStore>().currentUser;
   late final String userId;
@@ -34,8 +34,7 @@ class _UserBusinessPageState extends State<UserBusinessPage> {
       return;
     }
     userId = _currentUser.id!;
-    ctrl = UserBusinessController(store: store);
-    ctrl.init(userId);
+    ctrl.init(store, userId);
   }
 
   @override

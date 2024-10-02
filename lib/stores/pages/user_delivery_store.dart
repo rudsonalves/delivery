@@ -1,5 +1,7 @@
 import 'package:mobx/mobx.dart';
 
+import 'common/store_func.dart';
+
 part 'user_delivery_store.g.dart';
 
 // ignore: library_private_types_in_public_api
@@ -7,10 +9,19 @@ class UserDeliveryStore = _UserDeliveryStore with _$UserDeliveryStore;
 
 abstract class _UserDeliveryStore with Store {
   @observable
-  String shopId = '';
+  PageState state = PageState.initial;
+
+  @observable
+  String? errorMessage;
 
   @action
-  void setShopId(String value) {
-    shopId = value;
+  void setState(PageState newState) {
+    state = newState;
+  }
+
+  @action
+  void setError(String message) {
+    errorMessage = message;
+    setState(PageState.error);
   }
 }

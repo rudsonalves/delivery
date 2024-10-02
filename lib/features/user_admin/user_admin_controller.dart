@@ -1,42 +1,39 @@
 import 'dart:async';
 
-import 'package:firebase_auth/firebase_auth.dart';
-
-import '../../common/models/user.dart';
+import '../../common/models/delivery.dart';
 import '../../common/settings/app_settings.dart';
 import '../../locator.dart';
 import '../../repository/firebase_store/deliveries_firebase_repository.dart';
+import '../../stores/pages/common/store_func.dart';
 import '../../stores/pages/user_admin_store.dart';
-import '../../stores/user/user_store.dart';
 
 class UserAdminController {
-  StreamSubscription<User?>? _authSubscription;
-  final userStore = locator<UserStore>();
+  late final UserAdminStore store;
+
   final app = locator<AppSettings>();
-  final store = UserAdminStore();
+
   final deliveryRepository = DeliveriesFirebaseRepository();
+  StreamSubscription<List<DeliveryModel>>? _deliveriesSubscription;
 
-  bool get isLoggedIn => userStore.isLoggedIn;
-  bool get isDark => app.isDark;
-  bool get isAdmin => userStore.isAdmin;
-  bool get isBusiness => userStore.isBusiness;
-  bool get isManager => userStore.isManager;
-  bool get doesNotHavePhone =>
-      currentUser!.phone == null || currentUser!.phone!.isEmpty;
-  UserModel? get currentUser => userStore.currentUser;
+  Future<void> init(UserAdminStore newStore) async {
+    store = newStore;
 
-  init() {
-    if (isLoggedIn) {
-      // store.setHasPhone(currentUser!.phone != null);
-      // store.setHasAddress(currentUser!.address != null);
-    }
+    _getDeliveries();
   }
 
   void dispose() {
-    _authSubscription?.cancel();
+    _deliveriesSubscription?.cancel();
   }
 
-  Future<void> logout() async {
-    if (isLoggedIn) await userStore.logout();
+  void _getDeliveries() {
+    store.setPageState(PageState.loading);
+    _deliveriesSubscription?.cancel(); // Cancel any previus subscriptions
+    _deliveriesSubscription = deliveryRepository.getAll().listen(
+        (List<DeliveryModel> fetchedDeliveries) {
+      store.setDeliveries(fetchedDeliveries);
+      store.setPageState(PageState.success);
+    }, onError: (error) {
+      store.setError('Erro ao buscar entregas: $error');
+    });
   }
 }

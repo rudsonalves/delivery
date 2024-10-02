@@ -9,11 +9,7 @@ import '../../repository/firebase_store/deliveries_firebase_repository.dart';
 import '../../stores/pages/user_business_store.dart';
 
 class UserBusinessController {
-  final UserBusinessStore store;
-
-  UserBusinessController({
-    required this.store,
-  });
+  late final UserBusinessStore store;
 
   final app = locator<AppSettings>();
 
@@ -22,7 +18,9 @@ class UserBusinessController {
 
   String ownerId = '';
 
-  Future<void> init(String userId) async {
+  Future<void> init(UserBusinessStore newStore, String userId) async {
+    store = newStore;
+
     ownerId = userId;
     _getDeliveries();
   }
@@ -32,12 +30,12 @@ class UserBusinessController {
   }
 
   void _getDeliveries() {
-    store.setPageState(PageState.loading);
+    store.setState(PageState.loading);
     _deliveriesSubscription?.cancel(); // Cancel any previus subscriptions
     _deliveriesSubscription = deliveryRepository.getByOwnerId(ownerId).listen(
         (List<DeliveryModel> fetchedDeliveries) {
       store.setDeliveries(fetchedDeliveries);
-      store.setPageState(PageState.success);
+      store.setState(PageState.success);
     }, onError: (error) {
       store.setError('Erro ao buscar entregas: $error');
     });
