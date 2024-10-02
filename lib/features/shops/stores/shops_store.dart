@@ -1,7 +1,7 @@
 import 'package:mobx/mobx.dart';
 
-import '../../common/models/shop.dart';
-import 'common/store_func.dart';
+import '../../../common/models/shop.dart';
+import '../../../stores/pages/common/store_func.dart';
 
 part 'shops_store.g.dart';
 

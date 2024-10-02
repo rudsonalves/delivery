@@ -4,7 +4,7 @@ import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 import '../../components/widgets/dismissible_help_row.dart';
 import '/stores/pages/common/store_func.dart';
-import '../../stores/pages/shops_store.dart';
+import 'stores/shops_store.dart';
 import '/features/add_shop/add_shop_page.dart';
 import '../../common/models/shop.dart';
 import '../../common/theme/app_text_style.dart';

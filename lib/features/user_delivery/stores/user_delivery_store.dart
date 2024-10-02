@@ -1,6 +1,6 @@
 import 'package:mobx/mobx.dart';
 
-import 'common/store_func.dart';
+import '../../../stores/pages/common/store_func.dart';
 
 part 'user_delivery_store.g.dart';
 

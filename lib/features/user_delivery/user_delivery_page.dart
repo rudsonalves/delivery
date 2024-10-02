@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../stores/pages/user_delivery_store.dart';
+import 'stores/user_delivery_store.dart';
 import 'user_delivery_controller.dart';
 
 class UserDeliveryPage extends StatefulWidget {

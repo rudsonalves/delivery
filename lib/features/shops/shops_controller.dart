@@ -9,7 +9,7 @@ import '../../repository/firebase_store/abstract_deliveries_repository.dart';
 import '../../repository/firebase_store/abstract_shop_repository.dart';
 import '/common/models/shop.dart';
 import '../../repository/firebase_store/shop_firebase_repository.dart';
-import '../../stores/pages/shops_store.dart';
+import 'stores/shops_store.dart';
 import '../add_shop/add_shop_page.dart';
 
 class ShopsController {

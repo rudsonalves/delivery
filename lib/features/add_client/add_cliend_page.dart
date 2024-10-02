@@ -9,7 +9,7 @@ import '../../components/widgets/big_bottom.dart';
 import '../../components/widgets/custom_text_field.dart';
 import '../../components/widgets/message_snack_bar.dart';
 import '../../components/widgets/state_loading.dart';
-import '../../stores/pages/add_client_store.dart';
+import 'stores/add_client_store.dart';
 import '../../stores/pages/common/store_func.dart';
 import 'add_client_controller.dart';
 

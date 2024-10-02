@@ -4,7 +4,7 @@ import 'package:delivery/stores/pages/common/store_func.dart';
 import 'package:flutter/material.dart';
 
 import '../../common/models/user.dart';
-import '../../stores/pages/clients_store.dart';
+import 'stores/clients_store.dart';
 import '/stores/user/user_store.dart';
 import '../../common/utils/data_result.dart';
 import '/features/add_client/add_cliend_page.dart';

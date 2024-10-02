@@ -18,6 +18,70 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/02 - version: 0.6.10+32
+
+Refactored Directory Structure for Stores and Controllers in `features` Module
+
+1. **Renamed and Moved Store Files:**
+   - Moved store files from `lib/stores/pages/` to `lib/features/{feature_name}/stores/`.
+   - Updated imports across controllers and pages to reflect new paths for store files.
+   - This change affects the following stores:
+     - `account_store.dart`
+     - `add_client_store.dart`
+     - `add_delivery_store.dart`
+     - `add_shop_store.dart`
+     - `clients_store.dart`
+     - `home_store.dart`
+     - `nearby_deliveries_store.dart`
+     - `personal_data_store.dart`
+     - `shops_store.dart`
+     - `sign_in_store.dart`
+     - `sign_up_store.dart`
+     - `user_admin_store.dart`
+     - `user_business_store.dart`
+     - `user_delivery_store.dart`
+     - `user_manager_store.dart`
+
+2. **Updated Imports and Dependencies:**
+   - Updated all controller and page imports to reference the new paths for store files.
+   - Adjusted the import statements for each affected file to ensure compatibility with the new structure.
+
+3. **Renamed `use_delivery` Feature to `user_delivery`:**
+   - Renamed `lib/features/use_delivery/` to `lib/features/user_delivery/` to maintain consistency in feature naming.
+   - Updated all related imports to reflect this name change.
+
+4. **Refactored Controllers and Pages:**
+   - Updated the following controllers and pages to accommodate the new store file structure:
+     - `account_controller.dart`
+     - `account_page.dart`
+     - `add_client_controller.dart`
+     - `add_client_page.dart`
+     - `add_delivery_controller.dart`
+     - `add_delivery_page.dart`
+     - `add_shop_controller.dart`
+     - `add_shop_page.dart`
+     - `clients_controller.dart`
+     - `clients_page.dart`
+     - `home_store.dart`
+     - `neaby_deliveries_controller.dart`
+     - `neaby_deliveries_page.dart`
+     - `person_data_controller.dart`
+     - `shops_controller.dart`
+     - `shops_page.dart`
+     - `sign_in_controller.dart`
+     - `sign_up_controller.dart`
+     - `user_admin_controller.dart`
+     - `user_admin_page.dart`
+     - `user_business_controller.dart`
+     - `user_business_page.dart`
+     - `user_delivery_controller.dart`
+     - `user_delivery_page.dart`
+     - `user_manager_controller.dart`
+     - `user_manager_page.dart`
+
+This commit restructures the project by organizing store files within each feature module, promoting a more modular and maintainable codebase. The refactor improves readability and helps in future scalability of the project.
+
+
 ## 2024/10/02 - version: 0.6.09+31
 
 Refactored Delivery and Client Controllers to Utilize Improved Repository and State Management

@@ -6,7 +6,7 @@ import '/common/models/delivery.dart';
 import '/common/theme/app_text_style.dart';
 import '/locator.dart';
 import '/stores/pages/common/store_func.dart';
-import '/stores/pages/nearby_deliveries_store.dart';
+import 'stores/nearby_deliveries_store.dart';
 import '../../stores/user/user_store.dart';
 import 'neaby_deliveries_controller.dart';
 

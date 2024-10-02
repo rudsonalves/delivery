@@ -6,7 +6,7 @@ import '../../common/models/user.dart';
 import '../../common/settings/app_settings.dart';
 import '../../locator.dart';
 import '../../repository/firebase_store/deliveries_firebase_repository.dart';
-import '../../stores/pages/user_manager_store.dart';
+import 'stores/user_manager_store.dart';
 import '../../stores/user/user_store.dart';
 
 class UserManagerController {
