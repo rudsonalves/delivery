@@ -18,6 +18,65 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/02 - version: 0.6.09+31
+
+Refactored Delivery and Client Controllers to Utilize Improved Repository and State Management
+
+1. **lib/features/add_client/add_client_controller.dart**
+   - Added `repository` to `AddClientController` for managing client-related operations.
+   - Implemented `ClientFirebaseRepository` for client data management.
+
+2. **lib/features/add_delivery/add_delivery_controller.dart**
+   - Reorganized dependencies with final variables for repositories and user store.
+   - Refactored the `createDelivery` method to handle errors and state transitions more effectively.
+   - Implemented methods for searching clients and refreshing shop data using repositories.
+
+3. **lib/features/add_delivery/add_delivery_page.dart**
+   - Updated `AddDeliveryPage` to use `AddDeliveryStore` for state management and refactored controller initialization.
+
+4. **lib/features/map/map_page.dart**
+   - Added a back navigation button to improve the user experience.
+
+5. **lib/features/person_data/person_data_controller.dart**
+   - Replaced store references with user store properties for better separation of concerns.
+
+6. **lib/features/use_delivery/user_delivery_controller.dart**
+   - Integrated `UserDeliveryStore` for state management and controller initialization.
+
+7. **lib/features/user_admin/user_admin_controller.dart**
+   - Reorganized state management using `UserAdminStore`.
+   - Replaced individual state properties with general state management logic.
+
+8. **lib/features/user_business/user_business_controller.dart**
+   - Integrated `UserBusinessStore` and consolidated state management.
+
+9. **lib/repository/firebase_store/abstract_deliveries_repository.dart**
+   - Added `getAll` method to fetch all deliveries in the system.
+
+10. **lib/repository/firebase_store/deliveries_firebase_repository.dart**
+    - Implemented `getAll` method to support the retrieval of all delivery records from the database.
+    - Added error handling and logging for repository operations.
+
+11. **lib/stores/pages/add_client_store.dart**
+    - Removed repository dependency to reduce coupling.
+
+12. **lib/stores/pages/add_delivery_store.dart**
+    - Updated store to use observable lists for managing clients and shops.
+    - Simplified error handling and state management.
+
+13. **lib/stores/pages/user_admin_store.dart**
+    - Introduced a new state management pattern using `PageState` for consistency.
+    - Replaced individual state properties with a single observable state property.
+
+14. **lib/stores/pages/user_business_store.dart**
+    - Refactored state handling methods for consistency with other stores.
+
+15. **lib/stores/pages/user_delivery_store.dart**
+    - Introduced `errorMessage` and `state` observables for better error handling and UI updates.
+
+This commit refines the delivery and client-related features by integrating repository patterns and improving state management with MobX stores. The refactor enhances code readability, reduces coupling between controllers and stores, and improves error handling and user feedback mechanisms.
+
+
 ## 2024/10/01 - version: 0.6.08+30
 
 Refactored Client and Shop-related features to improve state management and UI consistency.
