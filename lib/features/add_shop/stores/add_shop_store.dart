@@ -2,7 +2,7 @@ import 'package:mobx/mobx.dart';
 
 import '/common/extensions/generic_extensions.dart';
 import '/common/models/shop.dart';
-import 'common/store_func.dart';
+import '../../../stores/pages/common/store_func.dart';
 
 part 'add_shop_store.g.dart';
 

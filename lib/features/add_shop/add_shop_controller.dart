@@ -12,7 +12,7 @@ import '/components/custons_text_controllers/masked_text_controller.dart';
 import '../../common/models/shop.dart';
 import '../../common/utils/data_result.dart';
 import '../../stores/pages/common/store_func.dart';
-import '../../stores/pages/add_shop_store.dart';
+import 'stores/add_shop_store.dart';
 
 class AddShopController {
   late final AddShopStore store;
