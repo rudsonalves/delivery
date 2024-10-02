@@ -7,7 +7,7 @@ import '../../common/utils/data_result.dart';
 import '../../components/widgets/address_card.dart';
 import '../../components/widgets/message_snack_bar.dart';
 import '../../components/widgets/state_loading.dart';
-import '../../stores/pages/add_shop_store.dart';
+import 'stores/add_shop_store.dart';
 import '../qrcode_read/qrcode_read_page.dart';
 import '/features/add_shop/add_shop_controller.dart';
 import '../../common/theme/app_text_style.dart';

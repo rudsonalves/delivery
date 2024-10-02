@@ -1,8 +1,8 @@
 import 'package:mobx/mobx.dart';
 
-import '../../common/models/address.dart';
-import '../../common/models/client.dart';
-import 'common/store_func.dart';
+import '../../../common/models/address.dart';
+import '../../../common/models/client.dart';
+import '../../../stores/pages/common/store_func.dart';
 import '/common/extensions/generic_extensions.dart';
 
 part 'add_client_store.g.dart';

@@ -4,7 +4,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 
 import '../../common/models/delivery.dart';
 import '../../common/theme/app_text_style.dart';
-import '../../stores/pages/user_manager_store.dart';
+import 'stores/user_manager_store.dart';
 import '../add_delivery/add_delivery_page.dart';
 import '../../components/widgets/delivery_card.dart';
 import '../map/map_page.dart';

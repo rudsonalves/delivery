@@ -3,7 +3,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 
 import '/stores/pages/common/store_func.dart';
 import '../../components/widgets/dismissible_help_row.dart';
-import '../../stores/pages/clients_store.dart';
+import 'stores/clients_store.dart';
 import '/common/theme/app_text_style.dart';
 import '../../common/models/client.dart';
 import 'clients_controller.dart';

@@ -8,7 +8,7 @@ import '../../common/utils/data_result.dart';
 import '../../repository/firebase_store/client_firebase_repository.dart';
 import '../../stores/pages/common/store_func.dart';
 import '/components/custons_text_controllers/masked_text_controller.dart';
-import '../../stores/pages/add_client_store.dart';
+import 'stores/add_client_store.dart';
 
 class AddClientController {
   final repository = ClientFirebaseRepository();

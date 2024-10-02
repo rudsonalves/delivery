@@ -4,7 +4,7 @@ import '../../common/models/user.dart';
 import '../../locator.dart';
 import '../../repository/firebase_store/shop_firebase_repository.dart';
 import '../../services/local_storage_service.dart';
-import '../../stores/pages/account_store.dart';
+import 'stores/account_store.dart';
 import '../../stores/pages/common/store_func.dart';
 import '../../stores/user/user_store.dart';
 
