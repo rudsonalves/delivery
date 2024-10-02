@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../stores/pages/user_delivery_store.dart';
 import 'user_delivery_controller.dart';
 
 class UserDeliveryPage extends StatefulWidget {
@@ -11,11 +12,12 @@ class UserDeliveryPage extends StatefulWidget {
 
 class _UserDeliveryPageState extends State<UserDeliveryPage> {
   final ctrl = UserDeliveryController();
+  final store = UserDeliveryStore();
 
   @override
   void initState() {
     super.initState();
-    ctrl.init();
+    ctrl.init(store);
   }
 
   @override

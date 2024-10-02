@@ -19,7 +19,7 @@ abstract class _UserBusinessStore with Store {
   String? errorMessage;
 
   @action
-  void setPageState(PageState newState) {
+  void setState(PageState newState) {
     state = newState;
   }
 
@@ -31,6 +31,6 @@ abstract class _UserBusinessStore with Store {
   @action
   void setError(String message) {
     errorMessage = message;
-    setPageState(PageState.error);
+    setState(PageState.error);
   }
 }

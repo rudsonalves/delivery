@@ -18,4 +18,5 @@ abstract class AbstractDeliveriesRepository {
   Stream<List<DeliveryModel>> getByOwnerId(String ownerId);
   Stream<List<DeliveryModel>> getByManagerId(String managerId);
   Future<DataResult<void>> updateManagerId(String shopId, String managerId);
+  Stream<List<DeliveryModel>> getAll();
 }

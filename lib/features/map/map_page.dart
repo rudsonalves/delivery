@@ -37,12 +37,20 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
+  void _backPage() {
+    Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Delevery Map'),
         centerTitle: true,
+        leading: IconButton(
+          onPressed: _backPage,
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+        ),
       ),
       body: GoogleMap(
         onMapCreated: ctrl.onMapCreated,

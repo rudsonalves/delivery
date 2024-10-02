@@ -1,5 +1,11 @@
+import '../../stores/pages/user_delivery_store.dart';
+
 class UserDeliveryController {
-  void init() {}
+  late final UserDeliveryStore store;
+
+  void init(UserDeliveryStore newStore) {
+    store = newStore;
+  }
 
   void dispose() {}
 }

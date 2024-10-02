@@ -372,6 +372,43 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
   }
 
   @override
+  Stream<List<DeliveryModel>> getAll() {
+    return _firebase
+        .collection(keyDeliveries)
+        .snapshots()
+        .asyncMap((snapshot) async {
+      List<DeliveryModel> deliveries = await Future.wait(snapshot.docs.map(
+        (doc) async {
+          try {
+            final data = Map<String, dynamic>.from(doc.data());
+
+            final createdAtTimestamp = data['createdAt'] as Timestamp?;
+            final updatedAtTimestamp = data['updatedAt'] as Timestamp?;
+
+            data.remove('createdAt');
+            data.remove('updatedAt');
+
+            final delivery = DeliveryModel.fromMap(data).copyWith(
+              id: doc.id,
+              createdAt: createdAtTimestamp?.toDate(),
+              updatedAt: updatedAtTimestamp?.toDate(),
+            );
+
+            return delivery.copyWith(id: doc.id);
+          } catch (err) {
+            final message =
+                'DeliveriesFirebaseRepository.getDeliveryByOwnerId :$err';
+            log(message);
+            throw Exception(message);
+          }
+        },
+      ));
+      log('Número de entregas retornadas após processamento: ${deliveries.length}');
+      return deliveries;
+    });
+  }
+
+  @override
   Stream<List<DeliveryModel>> streamShopByName() {
     // TODO: implement streamShopByName
     throw UnimplementedError();
