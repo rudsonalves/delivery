@@ -1,15 +1,14 @@
-import 'package:delivery/common/models/shop.dart';
 import 'package:mobx/mobx.dart';
 
-import '../../common/models/delivery.dart';
-import 'common/store_func.dart';
+import '../../../common/models/delivery.dart';
+import '../../../stores/pages/common/store_func.dart';
 
-part 'user_manager_store.g.dart';
+part 'user_admin_store.g.dart';
 
 // ignore: library_private_types_in_public_api
-class UserManagerStore = _UserManagerStore with _$UserManagerStore;
+class UserAdminStore = _UserAdminStore with _$UserAdminStore;
 
-abstract class _UserManagerStore with Store {
+abstract class _UserAdminStore with Store {
   @observable
   PageState state = PageState.initial;
 
@@ -19,25 +18,9 @@ abstract class _UserManagerStore with Store {
   @observable
   String? errorMessage;
 
-  @observable
-  String? shopId;
-
-  @observable
-  List<ShopModel> shops = [];
-
-  @action
-  setShops(List<ShopModel> newShops) {
-    shops = newShops;
-  }
-
   @action
   void setPageState(PageState newState) {
     state = newState;
-  }
-
-  @action
-  void setShopId(String value) {
-    shopId = value;
   }
 
   @action

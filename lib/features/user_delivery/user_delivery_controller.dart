@@ -1,4 +1,4 @@
-import '../../stores/pages/user_delivery_store.dart';
+import 'stores/user_delivery_store.dart';
 
 class UserDeliveryController {
   late final UserDeliveryStore store;

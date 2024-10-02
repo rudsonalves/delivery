@@ -9,7 +9,7 @@ import 'package:delivery/stores/pages/common/store_func.dart';
 import '/common/models/delivery.dart';
 import '/repository/firebase_store/deliveries_firebase_repository.dart';
 import '/services/location_service.dart';
-import '/stores/pages/nearby_deliveries_store.dart';
+import 'stores/nearby_deliveries_store.dart';
 
 class NeabyDeliveriesController {
   final NearbyDeliveriesStore store;

@@ -5,7 +5,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import '../../stores/pages/account_store.dart';
+import 'stores/account_store.dart';
 import '../../stores/pages/common/store_func.dart';
 import 'account_controller.dart';
 

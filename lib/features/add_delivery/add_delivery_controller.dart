@@ -16,7 +16,7 @@ import '/components/custons_text_controllers/masked_text_controller.dart';
 import '/stores/pages/common/store_func.dart';
 import '../../common/models/client.dart';
 import '../../common/models/shop.dart';
-import '../../stores/pages/add_delivery_store.dart';
+import 'stores/add_delivery_store.dart';
 
 class AddDeliveryController {
   final phoneController = MaskedTextController(mask: '(##) #####-####');
