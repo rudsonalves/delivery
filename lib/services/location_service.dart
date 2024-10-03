@@ -10,7 +10,7 @@ class LocationService {
 
   static const keyDeliverymen = 'deliverymen';
   static const keyLocation = 'location';
-  static const keyGeoHash = 'geoHash';
+  static const keyGeohash = 'geohash';
   static const keyUpdatedAt = 'updatedAt';
 
   // Function to check and request permissions
@@ -70,7 +70,7 @@ class LocationService {
     // Update the location in Firebase
     await _firebase.collection(keyDeliverymen).doc(userId).set({
       keyLocation: geoPoint.geoPoint,
-      keyGeoHash: geoPoint.hash,
+      keyGeohash: geoPoint.hash,
       keyUpdatedAt: FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
 

@@ -93,7 +93,7 @@ class AddClientController {
       phone: store.phone!,
       address: address?.copyWith(),
       addressString: address?.geoAddressString,
-      location: address?.location,
+      geopoint: address?.geopoint,
     );
   }
 
@@ -126,7 +126,7 @@ class AddClientController {
         neighborhood: via.neighborhood,
         state: via.state,
         city: via.city,
-        location: null,
+        geopoint: null,
         updatedAt: DateTime.now(),
       );
     }

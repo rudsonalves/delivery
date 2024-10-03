@@ -11,7 +11,7 @@ class ClientModel {
   String phone;
   AddressModel? address;
   String? addressString;
-  GeoPoint? location;
+  GeoPoint? geopoint;
   DateTime? createdAt;
   DateTime? updatedAt;
 
@@ -22,7 +22,7 @@ class ClientModel {
     required this.phone,
     this.address,
     this.addressString,
-    this.location,
+    this.geopoint,
     this.createdAt,
     this.updatedAt,
   });
@@ -34,7 +34,7 @@ class ClientModel {
     String? phone,
     AddressModel? address,
     String? addressString,
-    GeoPoint? location,
+    GeoPoint? geopoint,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -45,7 +45,7 @@ class ClientModel {
       phone: phone ?? this.phone,
       address: address?.copyWith() ?? this.address?.copyWith(),
       addressString: addressString ?? this.addressString,
-      location: location ?? this.location,
+      geopoint: geopoint ?? this.geopoint,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -57,7 +57,7 @@ class ClientModel {
       'email': email,
       'phone': phone,
       'addressString': addressString,
-      'location': location,
+      'geopoint': geopoint,
     };
   }
 
@@ -68,7 +68,7 @@ class ClientModel {
       email: map['email'] as String?,
       phone: map['phone'] as String,
       addressString: map['addressString'] as String?,
-      location: map['location'] as GeoPoint?,
+      geopoint: map['geopoint'] as GeoPoint?,
     );
   }
 
@@ -84,7 +84,7 @@ class ClientModel {
         ' phone: $phone,'
         ' address: $address,'
         ' addressString: $addressString,'
-        ' location: $location,'
+        ' geopoint: $geopoint,'
         ' createdAt: $createdAt,'
         ' updatedAt: $updatedAt)';
   }
@@ -99,7 +99,7 @@ class ClientModel {
         other.phone == phone &&
         other.address == address &&
         other.addressString == addressString &&
-        other.location == location &&
+        other.geopoint == geopoint &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt;
   }
@@ -112,7 +112,7 @@ class ClientModel {
         phone.hashCode ^
         address.hashCode ^
         addressString.hashCode ^
-        location.hashCode ^
+        geopoint.hashCode ^
         createdAt.hashCode ^
         updatedAt.hashCode;
   }

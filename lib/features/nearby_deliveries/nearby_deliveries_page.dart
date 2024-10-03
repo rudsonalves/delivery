@@ -8,31 +8,40 @@ import '/locator.dart';
 import '/stores/pages/common/store_func.dart';
 import 'stores/nearby_deliveries_store.dart';
 import '../../stores/user/user_store.dart';
-import 'neaby_deliveries_controller.dart';
+import 'nearby_deliveries_controller.dart';
 
-class NeabyDeliveriesPage extends StatefulWidget {
-  const NeabyDeliveriesPage({super.key});
+class NearbyDeliveriesPage extends StatefulWidget {
+  const NearbyDeliveriesPage({super.key});
 
   @override
-  State<NeabyDeliveriesPage> createState() => _NeabyDeliveriesPageState();
+  State<NearbyDeliveriesPage> createState() => _NearbyDeliveriesPageState();
 }
 
-class _NeabyDeliveriesPageState extends State<NeabyDeliveriesPage> {
+class _NearbyDeliveriesPageState extends State<NearbyDeliveriesPage> {
   final store = NearbyDeliveriesStore();
-  late final NeabyDeliveriesController ctrl;
+  final ctrl = NearbyDeliveriesController();
   final _currentUser = locator<UserStore>().currentUser;
-  late final String userId;
+
   final double _initialRadius = 5.0;
+
+  late final String userId;
 
   @override
   void initState() {
     super.initState();
 
-    userId = _currentUser?.id ?? '';
+    if (_currentUser == null || _currentUser.id == null) {
+      store.setError('Usuário não autenticado.');
+      return;
+    }
+    userId = _currentUser.id!;
 
-    ctrl = NeabyDeliveriesController(store: store);
     // Initialize the location and search for deliveries
-    ctrl.init(userId, _initialRadius);
+    ctrl.init(
+      store: store,
+      userId: userId,
+      radiusInKm: _initialRadius,
+    );
   }
 
   @override
@@ -75,7 +84,7 @@ class _NeabyDeliveriesPageState extends State<NeabyDeliveriesPage> {
         actions: [
           IconButton(
             onPressed: () {
-              ctrl.refresh(userId, store.radiusInKm);
+              ctrl.refresh(store.radiusInKm);
             },
             icon: const Icon(Icons.refresh),
           ),
@@ -100,7 +109,7 @@ class _NeabyDeliveriesPageState extends State<NeabyDeliveriesPage> {
                       value: store.radiusInKm,
                       label: '${store.radiusInKm.toStringAsFixed(1)} km',
                       onChanged: (value) {
-                        ctrl.updateRadius(value, userId);
+                        ctrl.updateRadius(value);
                       },
                     ),
                   ),
@@ -130,13 +139,15 @@ class _NeabyDeliveriesPageState extends State<NeabyDeliveriesPage> {
                       itemBuilder: (_, index) {
                         final delivery = deliveries[index];
 
-                        return ListTile(
-                          title: Text(delivery.clientName),
-                          subtitle: Text(delivery.clientAddress),
-                          trailing: Text(delivery.status.displayName),
-                          onTap: () {
-                            _showDeliveryDetails(delivery);
-                          },
+                        return Card(
+                          child: ListTile(
+                            title: Text(delivery.clientName),
+                            subtitle: Text(delivery.clientAddress),
+                            trailing: Icon(delivery.status.icon),
+                            onTap: () {
+                              _showDeliveryDetails(delivery);
+                            },
+                          ),
                         );
                       },
                     );
@@ -152,7 +163,7 @@ class _NeabyDeliveriesPageState extends State<NeabyDeliveriesPage> {
                           const SizedBox(height: 20),
                           FilledButton.icon(
                             onPressed: () {
-                              ctrl.refresh(userId, store.radiusInKm);
+                              ctrl.refresh(store.radiusInKm);
                             },
                             label: const Text('Tentar Novamente.'),
                             icon: const Icon(Icons.refresh),
