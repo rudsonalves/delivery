@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:delivery/stores/pages/common/store_func.dart';
+import 'package:delivery/stores/common/store_func.dart';
 import 'package:flutter/material.dart';
 
 import '/repository/firebase_store/deliveries_firebase_repository.dart';

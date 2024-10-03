@@ -9,7 +9,7 @@ class LocationService {
   final GeoFlutterFire _geo = GeoFlutterFire();
 
   static const keyDeliverymen = 'deliverymen';
-  static const keyLocation = 'location';
+  static const keyGeoPoint = 'geopoint';
   static const keyGeohash = 'geohash';
   static const keyUpdatedAt = 'updatedAt';
 
@@ -69,8 +69,8 @@ class LocationService {
 
     // Update the location in Firebase
     await _firebase.collection(keyDeliverymen).doc(userId).set({
-      keyLocation: geoPoint.geoPoint,
-      keyGeohash: geoPoint.hash,
+      keyGeoPoint: geoPoint.geoPoint,
+      keyGeohash: geoPoint.hash.substring(0, 5),
       keyUpdatedAt: FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
 

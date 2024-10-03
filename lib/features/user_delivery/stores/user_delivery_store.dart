@@ -1,6 +1,7 @@
 import 'package:mobx/mobx.dart';
 
-import '../../../stores/pages/common/store_func.dart';
+import '/common/models/delivery.dart';
+import '../../../stores/common/store_func.dart';
 
 part 'user_delivery_store.g.dart';
 
@@ -12,7 +13,13 @@ abstract class _UserDeliveryStore with Store {
   PageState state = PageState.initial;
 
   @observable
+  ObservableList<DeliveryModel> deliveries = ObservableList<DeliveryModel>();
+
+  @observable
   String? errorMessage;
+
+  @observable
+  double radiusInKm = 5.0; // Default radius
 
   @action
   void setState(PageState newState) {
@@ -20,8 +27,24 @@ abstract class _UserDeliveryStore with Store {
   }
 
   @action
+  void setDeliveries(List<DeliveryModel> newDeliveries) {
+    deliveries = ObservableList<DeliveryModel>.of(newDeliveries);
+  }
+
+  @action
   void setError(String message) {
     errorMessage = message;
     setState(PageState.error);
+  }
+
+  @action
+  void cleanError() {
+    errorMessage = null;
+    setState(PageState.initial);
+  }
+
+  @action
+  void setRadius(double newRadius) {
+    radiusInKm = newRadius;
   }
 }
