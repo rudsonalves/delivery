@@ -16,7 +16,8 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
   static const keyOwnerId = 'ownerId';
   static const keyClientId = 'clientId';
   static const keyStatus = 'status';
-  static const keyGeoHash = 'geoHash';
+  static const keyGeohash = 'geohash';
+  // static const KeyGeoPoint = 'geopoint';
   static const keyManagerId = 'managerId';
   static const keyUpdatedAt = 'updatedAt';
 
@@ -293,8 +294,7 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
     );
 
     // Sets the reference to the 'deliveries' collection
-    final CollectionReference<Map<String, dynamic>> collectionRef =
-        _firebase.collection(keyDeliveries);
+    final collectionRef = _firebase.collection(keyDeliveries);
 
     // Execute the geospatial query
     return geo
@@ -302,11 +302,12 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
         .within(
           center: center,
           radius: radiusInKm,
-          field: keyGeoHash,
-          strictMode: true,
+          field: keyGeohash,
+          strictMode: false,
         )
         .asyncMap((snapshot) async {
       // Map documents to DeliveryModel
+      log('Número de documentos retornados: ${snapshot.length}');
       List<DeliveryModel> deliveries = snapshot
           .map((doc) {
             final data = doc.data() as Map<String, dynamic>;
@@ -330,6 +331,7 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
           .take(limit)
           .toList();
 
+      log('Número de deliveries processadas: ${deliveries.length}');
       return deliveries;
     });
   }

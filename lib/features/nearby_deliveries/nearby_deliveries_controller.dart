@@ -6,39 +6,43 @@ import 'package:geolocator/geolocator.dart';
 
 import 'package:delivery/stores/pages/common/store_func.dart';
 
+import '../../repository/firebase_store/abstract_deliveries_repository.dart';
 import '/common/models/delivery.dart';
 import '/repository/firebase_store/deliveries_firebase_repository.dart';
 import '/services/location_service.dart';
 import 'stores/nearby_deliveries_store.dart';
 
-class NeabyDeliveriesController {
-  final NearbyDeliveriesStore store;
-
-  NeabyDeliveriesController({
-    required this.store,
-  });
+class NearbyDeliveriesController {
+  NearbyDeliveriesController();
 
   StreamSubscription<List<DeliveryModel>>? _deliveriesSubscription;
 
   final locationService = LocationService();
-  final deliveriesRepository = DeliveriesFirebaseRepository();
+  final AbstractDeliveriesRepository deliveriesRepository =
+      DeliveriesFirebaseRepository();
 
   // Method to unsubscribe from the stream when it is no longer needed
   void dispose() {
     _deliveriesSubscription?.cancel();
   }
 
+  late final NearbyDeliveriesStore store;
+  late String userId;
+
   // Method to inicialize location and search for deliveries
-  Future<void> init(String? userId, double radiusInKm) async {
-    if (userId == null) {
-      store.setError('Usuário não conectado!');
-      return;
-    }
+  Future<void> init({
+    required NearbyDeliveriesStore store,
+    required String userId,
+    required double radiusInKm,
+  }) async {
+    this.userId = userId;
+    this.store = store;
+
     try {
       // Get and update location in Firebase
       final Position? position = await locationService.updateLocation(userId);
       if (position == null) {
-        store.setError('Não fio possível obter sua localização.');
+        store.setError('Não foi possível obter sua localização.');
         return;
       }
 
@@ -70,12 +74,8 @@ class NeabyDeliveriesController {
   }
 
   // Method to manually update location and re-fetch deliveries
-  Future<void> refresh(String? userId, double radiusInKm) async {
+  Future<void> refresh(double radiusInKm) async {
     store.setState(PageState.loading);
-    if (userId == null) {
-      store.setError('Usuário não conectado!');
-      return;
-    }
     try {
       // Get and Update location in Firebase
       final Position? position = await locationService.updateLocation(userId);
@@ -109,8 +109,8 @@ class NeabyDeliveriesController {
   }
 
   // Update search radius
-  void updateRadius(double newRadius, String userId) {
+  void updateRadius(double newRadius) {
     store.setRadius(newRadius);
-    refresh(userId, newRadius);
+    refresh(newRadius);
   }
 }

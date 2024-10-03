@@ -28,8 +28,8 @@ class DeliveryModel {
   String clientAddress;
   String shopAddress;
   GeoPoint clientLocation;
-  GeoPoint location;
-  String geoHash;
+  GeoPoint geopoint;
+  String geohash;
   DateTime? createdAt;
   DateTime? updatedAt;
 
@@ -49,8 +49,8 @@ class DeliveryModel {
     required this.clientAddress,
     required this.shopAddress,
     required this.clientLocation,
-    required this.location,
-    required this.geoHash,
+    required this.geopoint,
+    required this.geohash,
     DateTime? createdAt,
     DateTime? updatedAt,
   })  : createdAt = createdAt ?? DateTime.now(),
@@ -72,8 +72,8 @@ class DeliveryModel {
     String? clientAddress,
     String? shopAddress,
     GeoPoint? clientLocation,
-    GeoPoint? location,
-    String? geoHash,
+    GeoPoint? geopoint,
+    String? geohash,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -93,8 +93,8 @@ class DeliveryModel {
       clientAddress: clientAddress ?? this.clientAddress,
       shopAddress: shopAddress ?? this.shopAddress,
       clientLocation: clientLocation ?? this.clientLocation,
-      location: location ?? this.location,
-      geoHash: geoHash ?? this.geoHash,
+      geopoint: geopoint ?? this.geopoint,
+      geohash: geohash ?? this.geohash,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -117,8 +117,8 @@ class DeliveryModel {
       'clientAddress': clientAddress,
       'shopAddress': shopAddress,
       'clientLocation': clientLocation,
-      'location': location,
-      'geoHash': geoHash,
+      'geopoint': geopoint,
+      'geohash': geohash,
       'createdAt': createdAt?.millisecondsSinceEpoch,
       'updatedAt': updatedAt?.millisecondsSinceEpoch,
     };
@@ -141,8 +141,8 @@ class DeliveryModel {
       clientAddress: map['clientAddress'] as String,
       shopAddress: map['shopAddress'] as String,
       clientLocation: map['clientLocation'] as GeoPoint,
-      location: map['location'] as GeoPoint,
-      geoHash: map['geoHash'] as String,
+      geopoint: map['geopoint'] as GeoPoint,
+      geohash: map['geohash'] as String,
       createdAt: map['createdAt'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
           : null,
@@ -174,8 +174,8 @@ class DeliveryModel {
         ' clientAddress: $clientAddress,'
         ' shopAddress: $shopAddress,'
         ' clientLocation: $clientLocation,'
-        ' location: $location,'
-        ' geoHash: $geoHash,'
+        ' geopoint: $geopoint,'
+        ' geoHash: $geohash,'
         ' createdAt: $createdAt,'
         ' updatedAt: $updatedAt)';
   }
@@ -199,8 +199,8 @@ class DeliveryModel {
         other.clientAddress == clientAddress &&
         other.shopAddress == shopAddress &&
         other.clientLocation == clientLocation &&
-        other.location == location &&
-        other.geoHash == geoHash &&
+        other.geopoint == geopoint &&
+        other.geohash == geohash &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt;
   }
@@ -222,8 +222,8 @@ class DeliveryModel {
         clientAddress.hashCode ^
         shopAddress.hashCode ^
         clientLocation.hashCode ^
-        location.hashCode ^
-        geoHash.hashCode ^
+        geopoint.hashCode ^
+        geohash.hashCode ^
         createdAt.hashCode ^
         updatedAt.hashCode;
   }
