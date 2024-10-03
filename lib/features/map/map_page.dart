@@ -28,8 +28,8 @@ class _MapPageState extends State<MapPage> {
     super.initState();
 
     position = LatLng(
-      widget.delivery.location.latitude,
-      widget.delivery.location.longitude,
+      widget.delivery.geopoint.latitude,
+      widget.delivery.geopoint.longitude,
     );
     destiny = LatLng(
       widget.delivery.clientLocation.latitude,

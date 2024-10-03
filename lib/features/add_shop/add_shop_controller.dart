@@ -104,7 +104,7 @@ class AddShopController {
       managerName: store.managerName,
       address: address?.copyWith(),
       addressString: address?.geoAddressString,
-      location: address?.location,
+      geopoint: address?.geopoint,
     );
   }
 
@@ -137,7 +137,7 @@ class AddShopController {
         neighborhood: via.neighborhood,
         state: via.state,
         city: via.city,
-        location: null,
+        geopoint: null,
         updatedAt: DateTime.now(),
       );
     }

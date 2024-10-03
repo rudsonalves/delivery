@@ -14,7 +14,7 @@ class ShopModel {
   String? managerName;
   AddressModel? address;
   String? addressString;
-  GeoPoint? location;
+  GeoPoint? geopoint;
 
   ShopModel({
     this.id,
@@ -26,7 +26,7 @@ class ShopModel {
     this.managerName,
     this.address,
     this.addressString,
-    this.location,
+    this.geopoint,
   });
 
   ShopModel copyWith({
@@ -39,7 +39,7 @@ class ShopModel {
     String? managerName,
     AddressModel? address,
     String? addressString,
-    GeoPoint? location,
+    GeoPoint? geopoint,
   }) {
     return ShopModel(
       id: id ?? this.id,
@@ -51,7 +51,7 @@ class ShopModel {
       managerName: managerName ?? this.managerName,
       address: address ?? this.address,
       addressString: addressString ?? this.addressString,
-      location: location ?? this.location,
+      geopoint: geopoint ?? this.geopoint,
     );
   }
 
@@ -65,7 +65,7 @@ class ShopModel {
       'managerId': managerId,
       'managerName': managerName,
       'addressString': addressString,
-      'location': location,
+      'geopoint': geopoint,
     };
   }
 
@@ -79,29 +79,29 @@ class ShopModel {
       managerId: map['managerId'] as String?,
       managerName: map['managerName'] as String?,
       addressString: map['addressString'] as String?,
-      location: map['location'] as GeoPoint?,
+      geopoint: map['geopoint'] as GeoPoint?,
     );
   }
 
   String toJson() {
     final map = toMap();
     map['id'] = id;
-    map['location'] = {
-      'latitude': location!.latitude,
-      'longitude': location!.longitude,
+    map['geopoint'] = {
+      'latitude': geopoint!.latitude,
+      'longitude': geopoint!.longitude,
     };
     return json.encode(map);
   }
 
   factory ShopModel.fromJson(String source) {
     final map = json.decode(source) as Map<String, dynamic>;
-    final location = GeoPoint(
-      map['location']['latitude'] as double,
-      map['location']['longitude'] as double,
+    final geopoint = GeoPoint(
+      map['geopoint']['latitude'] as double,
+      map['geopoint']['longitude'] as double,
     );
-    map.remove('location');
+    map.remove('geopoint');
     final shop = ShopModel.fromMap(map);
-    return shop.copyWith(location: location);
+    return shop.copyWith(geopoint: geopoint);
   }
 
   @override
@@ -115,7 +115,7 @@ class ShopModel {
         ' managerName: $managerName,'
         ' address: $address,'
         ' addressString: $addressString,'
-        ' location: $location)';
+        ' geopoint: $geopoint)';
   }
 
   @override
@@ -131,7 +131,7 @@ class ShopModel {
         other.managerName == managerName &&
         other.address == address &&
         other.addressString == addressString &&
-        other.location == location;
+        other.geopoint == geopoint;
   }
 
   @override
@@ -145,6 +145,6 @@ class ShopModel {
         managerName.hashCode ^
         address.hashCode ^
         addressString.hashCode ^
-        location.hashCode;
+        geopoint.hashCode;
   }
 }
