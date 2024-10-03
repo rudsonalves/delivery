@@ -1,5 +1,5 @@
 import 'package:delivery/features/user_admin/user_admin_controller.dart';
-import 'package:delivery/stores/pages/common/store_func.dart';
+import 'package:delivery/stores/common/store_func.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 

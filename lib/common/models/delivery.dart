@@ -175,7 +175,7 @@ class DeliveryModel {
         ' shopAddress: $shopAddress,'
         ' clientLocation: $clientLocation,'
         ' geopoint: $geopoint,'
-        ' geoHash: $geohash,'
+        ' geohash: $geohash,'
         ' createdAt: $createdAt,'
         ' updatedAt: $updatedAt)';
   }

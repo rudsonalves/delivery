@@ -4,7 +4,7 @@ import '../../common/models/delivery.dart';
 import '../../common/settings/app_settings.dart';
 import '../../locator.dart';
 import '../../repository/firebase_store/deliveries_firebase_repository.dart';
-import '../../stores/pages/common/store_func.dart';
+import '../../stores/common/store_func.dart';
 import 'stores/user_admin_store.dart';
 
 class UserAdminController {

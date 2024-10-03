@@ -14,7 +14,10 @@ class ShopModel {
   String? managerName;
   AddressModel? address;
   String? addressString;
-  GeoPoint? geopoint;
+  GeoPoint geopoint;
+  String geohash;
+  DateTime? createdAt;
+  DateTime? updatedAt;
 
   ShopModel({
     this.id,
@@ -26,8 +29,12 @@ class ShopModel {
     this.managerName,
     this.address,
     this.addressString,
-    this.geopoint,
-  });
+    required this.geopoint,
+    required this.geohash,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  })  : createdAt = createdAt ?? DateTime.now(),
+        updatedAt = updatedAt ?? DateTime.now();
 
   ShopModel copyWith({
     String? id,
@@ -40,6 +47,9 @@ class ShopModel {
     AddressModel? address,
     String? addressString,
     GeoPoint? geopoint,
+    String? geohash,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) {
     return ShopModel(
       id: id ?? this.id,
@@ -52,6 +62,9 @@ class ShopModel {
       address: address ?? this.address,
       addressString: addressString ?? this.addressString,
       geopoint: geopoint ?? this.geopoint,
+      geohash: geohash ?? this.geohash,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
@@ -66,6 +79,9 @@ class ShopModel {
       'managerName': managerName,
       'addressString': addressString,
       'geopoint': geopoint,
+      'geohash': geohash,
+      'createdAt': createdAt?.millisecondsSinceEpoch,
+      'updatedAt': updatedAt?.millisecondsSinceEpoch,
     };
   }
 
@@ -79,7 +95,14 @@ class ShopModel {
       managerId: map['managerId'] as String?,
       managerName: map['managerName'] as String?,
       addressString: map['addressString'] as String?,
-      geopoint: map['geopoint'] as GeoPoint?,
+      geopoint: map['geopoint'] as GeoPoint,
+      geohash: map['geohash'] as String,
+      createdAt: map['createdAt'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
+          : null,
+      updatedAt: map['updatedAt'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int)
+          : null,
     );
   }
 
@@ -87,8 +110,8 @@ class ShopModel {
     final map = toMap();
     map['id'] = id;
     map['geopoint'] = {
-      'latitude': geopoint!.latitude,
-      'longitude': geopoint!.longitude,
+      'latitude': geopoint.latitude,
+      'longitude': geopoint.longitude,
     };
     return json.encode(map);
   }
@@ -115,7 +138,10 @@ class ShopModel {
         ' managerName: $managerName,'
         ' address: $address,'
         ' addressString: $addressString,'
-        ' geopoint: $geopoint)';
+        ' geopoint: $geopoint,'
+        ' geohash: $geohash,'
+        ' createdAt: $createdAt,'
+        ' updatedAt: $updatedAt)';
   }
 
   @override
@@ -131,7 +157,10 @@ class ShopModel {
         other.managerName == managerName &&
         other.address == address &&
         other.addressString == addressString &&
-        other.geopoint == geopoint;
+        other.geopoint == geopoint &&
+        other.geohash == geohash &&
+        other.createdAt == createdAt &&
+        other.updatedAt == updatedAt;
   }
 
   @override
@@ -145,6 +174,9 @@ class ShopModel {
         managerName.hashCode ^
         address.hashCode ^
         addressString.hashCode ^
-        geopoint.hashCode;
+        geopoint.hashCode ^
+        geohash.hashCode ^
+        createdAt.hashCode ^
+        updatedAt.hashCode;
   }
 }

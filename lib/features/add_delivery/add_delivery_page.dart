@@ -4,7 +4,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import '/components/widgets/big_bottom.dart';
 import '../../common/theme/app_text_style.dart';
 import 'stores/add_delivery_store.dart';
-import '../../stores/pages/common/store_func.dart';
+import '../../stores/common/store_func.dart';
 import 'add_delivery_controller.dart';
 
 class AddDeliveryPage extends StatefulWidget {

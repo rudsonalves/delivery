@@ -1,8 +1,9 @@
 import 'package:mobx/mobx.dart';
 
+import '../../../common/models/address.dart';
 import '/common/extensions/generic_extensions.dart';
 import '/common/models/shop.dart';
-import '../../../stores/pages/common/store_func.dart';
+import '../../../stores/common/store_func.dart';
 
 part 'add_shop_store.g.dart';
 
@@ -62,22 +63,46 @@ abstract class _AddShopStore with Store {
   String? errorMessage;
 
   @observable
-  bool updateLocation = false;
+  bool resetAddressString = false;
 
   @observable
-  bool mountAddress = false;
+  bool resetZipCode = false;
+
+  @observable
+  String? addressString;
+
+  AddressModel? address;
+
+  // This flag is true if number, complement or zipCode changes
+  bool updateGeoPoint = false;
+
+  void setUpdateGeoPoint() => updateGeoPoint = true;
+
+  void resetUpdateGeoPoint() {
+    updateGeoPoint = false;
+    zipCodeChanged = false;
+  }
+
+  // This flag is true if zipCode changes
+  bool zipCodeChanged = false;
+
+  void setZipCodeChanged() => updateGeoPoint = true;
+
+  void resetZipCodeChanged() => updateGeoPoint = false;
+
+  void setAddress(AddressModel newAddress) {
+    address = newAddress.copyWith();
+  }
 
   @action
-  void setMountAddress() => mountAddress = true;
+  setAddressString(String? value) {
+    addressString = value;
+  }
 
   @action
-  void resetMountAddress() => mountAddress = false;
-
-  @action
-  void setUpdateLocation() => updateLocation = true;
-
-  @action
-  void resetUpdateLocation() => updateLocation = false;
+  toogleAddressString() {
+    resetAddressString = !resetAddressString;
+  }
 
   @action
   void setError(String message) {
@@ -106,7 +131,8 @@ abstract class _AddShopStore with Store {
     complement = shop.address?.complement;
     zipStatus = shop.address != null ? ZipStatus.success : ZipStatus.initial;
     isEdited = false;
-    updateLocation = false;
+    updateGeoPoint = false;
+    address = shop.address?.copyWith();
   }
 
   @action
@@ -132,7 +158,14 @@ abstract class _AddShopStore with Store {
   @action
   void setComplement(String value) {
     _checkIsEdited(complement, value);
-    complement = value;
+    if (complement != value) {
+      if (address != null) {
+        address!.complement = complement;
+        setAddressString(address!.geoAddressString);
+      }
+      complement = value;
+      setUpdateGeoPoint();
+    }
   }
 
   @action
@@ -144,20 +177,20 @@ abstract class _AddShopStore with Store {
   @action
   void setNumber(String value) {
     _checkIsEdited(addressType, value);
-    updateLocation = updateLocation || (number != value);
     number = value;
     _validNumber();
+    setUpdateGeoPoint();
   }
 
   @action
   // setZipCode return true if zip code is ok.
   void setZipCode(String value) {
     _checkIsEdited(zipCode, value);
-    updateLocation = updateLocation || (zipCode != value);
     zipCode = value;
     _validZipCode();
     if (errorZipCode == null) {
-      setMountAddress();
+      toogleAddressString();
+      setUpdateGeoPoint();
     }
   }
 
