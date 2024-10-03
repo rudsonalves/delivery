@@ -1,12 +1,15 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 
+import '/common/utils/address_functions.dart';
 import '../../common/models/address.dart';
 import '../../common/models/client.dart';
 import '../../common/models/via_cep_address.dart';
 import '../../common/utils/data_result.dart';
 import '../../repository/firebase_store/client_firebase_repository.dart';
-import '../../stores/pages/common/store_func.dart';
+import '../../stores/common/store_func.dart';
 import '/components/custons_text_controllers/masked_text_controller.dart';
 import 'stores/add_client_store.dart';
 
@@ -24,7 +27,6 @@ class AddClientController {
 
   ClientModel? client;
   AddressModel? address;
-  ReactionDisposer? _disposer;
 
   void init(AddClientStore newStore, ClientModel? editClient) {
     store = newStore;
@@ -33,16 +35,6 @@ class AddClientController {
       client = editClient.copyWith();
       _setClientValues();
     }
-
-    _disposer = reaction<bool>(
-      (_) => store.mountAddress,
-      (valor) {
-        if (valor) {
-          _mountAddress();
-          store.resetMountAddress();
-        }
-      },
-    );
   }
 
   void _setClientValues() {
@@ -65,7 +57,6 @@ class AddClientController {
     cepController.dispose();
     numberController.dispose();
     complementController.dispose();
-    _disposer?.call();
   }
 
   Future<ClientModel?> getClientFromForm() async {
@@ -76,14 +67,11 @@ class AddClientController {
     }
 
     if (address == null) {
-      await _mountAddress();
+      await mountAddress();
+    } else if (store.zipCodeChanged) {
+      address = await AddressFunctions.updateAddressGeoLocation(address!);
+      store.resetZipCodeChanged();
     }
-    if (store.updateLocation) {
-      address!.complement = store.complement;
-      address!.number = store.number!;
-      await _setCoordinates();
-    }
-    address!.type = store.addressType!;
 
     store.setState(PageState.success);
     return ClientModel(
@@ -91,18 +79,14 @@ class AddClientController {
       name: store.name!,
       email: store.email,
       phone: store.phone!,
-      address: address?.copyWith(),
-      addressString: address?.geoAddressString,
-      geopoint: address?.geopoint,
+      address: address!.copyWith(),
+      addressString: address!.geoAddressString,
+      geopoint: address!.geopoint!,
+      geohash: address!.geohash!,
     );
   }
 
-  Future<void> _setCoordinates() async {
-    address = await address!.updateLocation();
-    store.resetUpdateLocation();
-  }
-
-  Future<void> _mountAddress() async {
+  Future<void> mountAddress() async {
     store.setZipStatus(ZipStatus.loading);
 
     ZipStatus status;
@@ -113,23 +97,25 @@ class AddClientController {
     store.setZipStatus(status);
     store.setErrorZipCode(err);
 
-    if (via == null) return;
-
-    if (store.updateLocation) {
-      address = AddressModel(
-        id: address?.id,
-        type: store.addressType ?? 'Residencial',
-        zipCode: via.zipCode,
-        street: via.street,
-        number: store.number ?? 'S/N',
-        complement: store.complement,
-        neighborhood: via.neighborhood,
-        state: via.state,
-        city: via.city,
-        geopoint: null,
-        updatedAt: DateTime.now(),
-      );
+    if (via == null) {
+      log('Address invalid!');
+      return;
     }
+
+    address = AddressModel(
+      id: address?.id,
+      type: store.addressType ?? 'Residencial',
+      zipCode: via.zipCode,
+      street: via.street,
+      number: store.number ?? 'S/N',
+      complement: store.complement,
+      neighborhood: via.neighborhood,
+      state: via.state,
+      city: via.city,
+      updatedAt: DateTime.now(),
+    );
+    store.resetUpdateGeoPoint();
+
     store.setZipStatus(ZipStatus.success);
   }
 

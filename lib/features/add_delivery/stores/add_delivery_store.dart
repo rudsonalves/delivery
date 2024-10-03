@@ -4,7 +4,7 @@ import 'package:mobx/mobx.dart';
 
 import '../../../common/models/client.dart';
 import '../../../common/models/shop.dart';
-import '../../../stores/pages/common/store_func.dart';
+import '../../../stores/common/store_func.dart';
 
 part 'add_delivery_store.g.dart';
 

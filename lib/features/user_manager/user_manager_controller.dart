@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import '/stores/pages/common/store_func.dart';
+import '../../stores/common/store_func.dart';
 import '../../common/models/delivery.dart';
 import '../../common/models/user.dart';
 import '../../common/settings/app_settings.dart';

@@ -6,7 +6,7 @@ import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import 'stores/account_store.dart';
-import '../../stores/pages/common/store_func.dart';
+import '../../stores/common/store_func.dart';
 import 'account_controller.dart';
 
 class AccountPage extends StatefulWidget {

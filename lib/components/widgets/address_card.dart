@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '../../common/models/address.dart';
-import '../../stores/pages/common/store_func.dart';
+import '../../stores/common/store_func.dart';
 
 class AddressCard extends StatelessWidget {
   final ZipStatus zipStatus;
-  final AddressModel? address;
+  final String? addressString;
 
   const AddressCard({
     super.key,
     required this.zipStatus,
-    this.address,
+    this.addressString,
   });
 
   @override
@@ -39,9 +38,7 @@ class AddressCard extends StatelessWidget {
           color: colorScheme.tertiaryContainer,
           child: Padding(
             padding: const EdgeInsets.all(12),
-            child: Text((address != null)
-                ? address!.addressRepresentationString()
-                : '- * -'),
+            child: Text(addressString ?? '- * -'),
           ),
         ),
       );

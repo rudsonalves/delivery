@@ -18,6 +18,55 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/03 - version: 0.6.12+34
+
+Refactoring models and geolocation functions
+
+**Summary**: This commit implements a refactor for the address and client models, optimizing the geolocation functions and making code cleaner by removing redundant services and controllers.
+
+**Details**:
+1. **`lib/common/models/address.dart`**
+   - Removed `geolocation_service.dart` import.
+   - Added `geohash` field and updated constructor accordingly.
+   - Adjusted `createdAt` and `updatedAt` fields to be optional.
+   - Removed `updateLocation()` method, as it's now handled externally.
+
+2. **`lib/common/models/client.dart`**
+   - Changed `geopoint` to a non-nullable field.
+   - Added `geohash` field and updated all necessary methods to include it.
+   - Updated constructor to assign default values to `createdAt` and `updatedAt`.
+
+3. **`lib/common/models/delivery.dart`**
+   - Fixed typo in the `geohash` field name.
+
+4. **`lib/common/models/shop.dart`**
+   - Modified `geopoint` to a required field.
+   - Added `geohash`, `createdAt`, and `updatedAt` fields.
+
+5. **`lib/common/utils/address_functions.dart`**
+   - New utility class `AddressFunctions` created for geolocation-related methods, including:
+     - `createAddress()`: Creates a new `AddressModel` and updates its location.
+     - `updateAddressGeoLocation()`: Updates geolocation and timestamps.
+     - `createGeoPointHash()`: Generates a geohash for a given `GeoPoint`.
+     - `getGeoPointFromAddressString()`: Fetches `GeoPoint` based on the address string using `geocoding` package.
+
+6. **`lib/components/widgets/address_card.dart`**
+   - Replaced `AddressModel` parameter with `addressString` for better compatibility.
+
+7. **Controllers and Stores**
+   - Modified address and shop controllers to use the new `AddressFunctions` methods.
+   - Removed outdated `reaction` mechanisms and added flag management (`zipCodeChanged`, `updateGeoPoint`) for reactivity.
+   - Refactored `init()` and `mountAddress()` methods in `add_client` and `add_shop` controllers.
+
+8. **Other changes:**
+   - Renamed and moved `store_func.dart` for better modularization.
+   - Deleted `geo_point_funcs.dart` as it is now part of `AddressFunctions`.
+   - Deleted `nearby_deliveries` feature files, replaced by `user_delivery` functionalities.
+   - Adjusted all imports and dependencies to reflect these changes.
+
+This refactor improves the maintainability and organization of the project by consolidating similar functionality and removing redundancy. The changes ensure that geolocation handling is more robust and integrated directly into model creation and update methods.
+
+
 ## 2024/10/03 - version: 0.6.11+33
 
 Refactored Geo-Location Attributes and Standardized Geohash Key Naming

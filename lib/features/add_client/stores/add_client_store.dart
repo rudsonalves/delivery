@@ -2,7 +2,7 @@ import 'package:mobx/mobx.dart';
 
 import '../../../common/models/address.dart';
 import '../../../common/models/client.dart';
-import '../../../stores/pages/common/store_func.dart';
+import '../../../stores/common/store_func.dart';
 import '/common/extensions/generic_extensions.dart';
 
 part 'add_client_store.g.dart';
@@ -65,26 +65,27 @@ abstract class _AddClientStore with Store {
   @observable
   bool isEdited = false;
 
-  @observable
-  bool updateLocation = false;
+  // reactivity to geoPoint changes - this is true if number, complement and
+  // zipCode changes
+  bool updateGeoPoint = false;
 
-  @observable
-  bool mountAddress = false;
+  // reactivity to zipcode changes - this is true only if zipCode Change
+  bool zipCodeChanged = false;
 
   @observable
   String? errorMessage;
 
   @action
-  void setMountAddress() => mountAddress = true;
+  void setZipCodeChanged() => zipCodeChanged = true;
 
   @action
-  void resetMountAddress() => mountAddress = false;
+  void resetZipCodeChanged() => zipCodeChanged = false;
 
   @action
-  void setUpdateLocation() => updateLocation = true;
+  void setUpdateGeoPoint() => updateGeoPoint = true;
 
   @action
-  void resetUpdateLocation() => updateLocation = false;
+  void resetUpdateGeoPoint() => updateGeoPoint = false;
 
   @action
   void setError(String message) {
@@ -103,13 +104,7 @@ abstract class _AddClientStore with Store {
     complement = client.address?.complement;
     zipStatus = address != null ? ZipStatus.success : ZipStatus.initial;
     isEdited = false;
-    updateLocation = false;
-  }
-
-  @action
-  void setComplement(String value) {
-    _checkIsEdited(complement, value);
-    complement = value;
+    updateGeoPoint = false;
   }
 
   @action
@@ -170,40 +165,29 @@ abstract class _AddClientStore with Store {
   }
 
   @action
-  void _validPhone() {
-    final numebers = phone?.onlyNumbers() ?? '';
-    if (numebers.length != 11) {
-      errorPhone = 'Telephone inválido';
-    } else {
-      errorPhone = null;
-    }
+  void setComplement(String value) {
+    _checkIsEdited(complement, value);
+    complement = value;
+    setUpdateGeoPoint();
   }
 
   @action
   void setNumber(String value) {
     _checkIsEdited(addressType, value);
-    updateLocation = updateLocation || (number != value);
+    updateGeoPoint = updateGeoPoint || (number != value);
     number = value;
     _validNumber();
-  }
-
-  @action
-  void _validNumber() {
-    if (number == null || number!.isEmpty) {
-      errorNumber = 'Número é obrigatório';
-      return;
-    }
-    errorNumber = null;
+    setUpdateGeoPoint();
   }
 
   @action
   void setZipCode(String value) {
     _checkIsEdited(zipCode, value);
-    updateLocation = updateLocation || (zipCode != value);
     zipCode = value;
     _validZipCode();
     if (errorZipCode == null) {
-      setMountAddress();
+      setZipCodeChanged();
+      setUpdateGeoPoint();
     }
   }
 
@@ -218,6 +202,37 @@ abstract class _AddClientStore with Store {
   }
 
   @action
+  void setCpf(String value) {
+    _checkIsEdited(cpf, value);
+    cpf = value.onlyNumbers();
+    _validCpf();
+  }
+
+  @action
+  void setState(PageState status) {
+    state = status;
+  }
+
+  @action
+  void _validPhone() {
+    final numebers = phone?.onlyNumbers() ?? '';
+    if (numebers.length != 11) {
+      errorPhone = 'Telephone inválido';
+    } else {
+      errorPhone = null;
+    }
+  }
+
+  @action
+  void _validNumber() {
+    if (number == null || number!.isEmpty) {
+      errorNumber = 'Número é obrigatório';
+      return;
+    }
+    errorNumber = null;
+  }
+
+  @action
   void _validZipCode() {
     final numbers = zipCode?.onlyNumbers() ?? '';
 
@@ -229,20 +244,8 @@ abstract class _AddClientStore with Store {
   }
 
   @action
-  void setCpf(String value) {
-    _checkIsEdited(cpf, value);
-    cpf = value.onlyNumbers();
-    _validCpf();
-  }
-
-  @action
   void _validCpf() {
     errorCpfMsg = StoreFunc.validCpf(cpf);
-  }
-
-  @action
-  void setState(PageState status) {
-    state = status;
   }
 
   @action

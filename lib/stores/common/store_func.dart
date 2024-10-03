@@ -1,5 +1,5 @@
-import '../../../common/models/via_cep_address.dart';
-import '../../../repository/viacep/via_cep_repository.dart';
+import '../../common/models/via_cep_address.dart';
+import '../../repository/viacep/via_cep_repository.dart';
 
 enum PageState { initial, loading, success, error }
 

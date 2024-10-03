@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import '../../common/models/delivery.dart';
 import '../../common/models/user.dart';
 import '../../common/utils/data_result.dart';
-import '../../common/utils/geo_point_funcs.dart';
 import '../../locator.dart';
 import '../../repository/firebase_store/client_firebase_repository.dart';
 import '../../repository/firebase_store/deliveries_firebase_repository.dart';
@@ -13,7 +12,7 @@ import '../../repository/firebase_store/shop_firebase_repository.dart';
 import '../../services/local_storage_service.dart';
 import '../../stores/user/user_store.dart';
 import '/components/custons_text_controllers/masked_text_controller.dart';
-import '/stores/pages/common/store_func.dart';
+import '../../stores/common/store_func.dart';
 import '../../common/models/client.dart';
 import '../../common/models/shop.dart';
 import 'stores/add_delivery_store.dart';
@@ -125,8 +124,6 @@ class AddDeliveryController {
       final managerId =
           (user!.role != UserRole.manager) ? shop.managerId : user.id!;
 
-      final geoPonitHash = createGeoPointHash(shop.geopoint!);
-
       final delivery = DeliveryModel(
         ownerId: shop.ownerId,
         shopId: shop.id!,
@@ -141,9 +138,9 @@ class AddDeliveryController {
         status: DeliveryStatus.orderRegisteredForPickup,
         clientAddress: client.addressString!,
         shopAddress: shop.addressString!,
-        clientLocation: client.geopoint!,
-        geopoint: shop.geopoint!,
-        geohash: geoPonitHash,
+        clientLocation: client.geopoint,
+        geopoint: shop.geopoint,
+        geohash: shop.geohash,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
