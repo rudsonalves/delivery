@@ -11,7 +11,8 @@ class ClientModel {
   String phone;
   AddressModel? address;
   String? addressString;
-  GeoPoint? geopoint;
+  GeoPoint geopoint;
+  String geohash;
   DateTime? createdAt;
   DateTime? updatedAt;
 
@@ -22,10 +23,12 @@ class ClientModel {
     required this.phone,
     this.address,
     this.addressString,
-    this.geopoint,
-    this.createdAt,
-    this.updatedAt,
-  });
+    required this.geopoint,
+    required this.geohash,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  })  : createdAt = createdAt ?? DateTime.now(),
+        updatedAt = updatedAt ?? DateTime.now();
 
   ClientModel copyWith({
     String? id,
@@ -35,6 +38,7 @@ class ClientModel {
     AddressModel? address,
     String? addressString,
     GeoPoint? geopoint,
+    String? geohash,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -46,6 +50,7 @@ class ClientModel {
       address: address?.copyWith() ?? this.address?.copyWith(),
       addressString: addressString ?? this.addressString,
       geopoint: geopoint ?? this.geopoint,
+      geohash: geohash ?? this.geohash,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -58,6 +63,9 @@ class ClientModel {
       'phone': phone,
       'addressString': addressString,
       'geopoint': geopoint,
+      'geohash': geohash,
+      'createdAt': createdAt?.millisecondsSinceEpoch,
+      'updatedAt': updatedAt?.millisecondsSinceEpoch,
     };
   }
 
@@ -68,7 +76,14 @@ class ClientModel {
       email: map['email'] as String?,
       phone: map['phone'] as String,
       addressString: map['addressString'] as String?,
-      geopoint: map['geopoint'] as GeoPoint?,
+      geopoint: map['geopoint'] as GeoPoint,
+      geohash: map['geohash'] as String,
+      createdAt: map['createdAt'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
+          : null,
+      updatedAt: map['updatedAt'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int)
+          : null,
     );
   }
 
@@ -85,6 +100,7 @@ class ClientModel {
         ' address: $address,'
         ' addressString: $addressString,'
         ' geopoint: $geopoint,'
+        ' geohash: $geohash,'
         ' createdAt: $createdAt,'
         ' updatedAt: $updatedAt)';
   }
@@ -100,6 +116,7 @@ class ClientModel {
         other.address == address &&
         other.addressString == addressString &&
         other.geopoint == geopoint &&
+        other.geohash == geohash &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt;
   }
@@ -113,6 +130,7 @@ class ClientModel {
         address.hashCode ^
         addressString.hashCode ^
         geopoint.hashCode ^
+        geohash.hashCode ^
         createdAt.hashCode ^
         updatedAt.hashCode;
   }

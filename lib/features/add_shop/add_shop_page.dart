@@ -13,7 +13,7 @@ import '/features/add_shop/add_shop_controller.dart';
 import '../../common/theme/app_text_style.dart';
 import '../../components/widgets/big_bottom.dart';
 import '../../components/widgets/custom_text_field.dart';
-import '../../stores/pages/common/store_func.dart';
+import '../../stores/common/store_func.dart';
 
 class AddShopPage extends StatefulWidget {
   final ShopModel? shop;
@@ -191,7 +191,7 @@ class _AddShopPageState extends State<AddShopPage> {
                     ),
                     AddressCard(
                       zipStatus: store.zipStatus,
-                      address: ctrl.address,
+                      addressString: store.addressString,
                     ),
                     CustomTextField(
                       controller: ctrl.numberController,
