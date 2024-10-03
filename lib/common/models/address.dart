@@ -14,7 +14,7 @@ class AddressModel {
   String neighborhood;
   String state;
   String city;
-  GeoPoint? location;
+  GeoPoint? geopoint;
   DateTime createdAt;
   DateTime updatedAt;
 
@@ -28,7 +28,7 @@ class AddressModel {
     required this.neighborhood,
     required this.state,
     required this.city,
-    this.location,
+    this.geopoint,
     DateTime? createdAt,
     DateTime? updatedAt,
   })  : createdAt = createdAt ?? DateTime.now(),
@@ -44,7 +44,7 @@ class AddressModel {
       'neighborhood': neighborhood,
       'state': state,
       'city': city,
-      'location': location,
+      'geopoint': geopoint,
     };
   }
 
@@ -69,8 +69,8 @@ class AddressModel {
   }
 
   Future<AddressModel> updateLocation() async {
-    GeoPoint? location = await getGeoPointFromAddress(geoAddressString);
-    return copyWith(location: location);
+    GeoPoint? geopoint = await getGeoPointFromAddress(geoAddressString);
+    return copyWith(geopoint: geopoint);
   }
 
   bool get isValidAddress =>
@@ -91,7 +91,7 @@ class AddressModel {
     String? neighborhood,
     String? state,
     String? city,
-    GeoPoint? location,
+    GeoPoint? geopoint,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -105,7 +105,7 @@ class AddressModel {
       neighborhood: neighborhood ?? this.neighborhood,
       state: state ?? this.state,
       city: city ?? this.city,
-      location: location ?? this.location,
+      geopoint: geopoint ?? this.geopoint,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -122,7 +122,7 @@ class AddressModel {
       neighborhood: map['neighborhood'] as String,
       state: map['state'] as String,
       city: map['city'] as String,
-      location: map['location'] as GeoPoint?,
+      geopoint: map['geopoint'] as GeoPoint?,
     );
   }
 
@@ -144,7 +144,7 @@ class AddressModel {
         other.neighborhood == neighborhood &&
         other.state == state &&
         other.city == city &&
-        other.location == location &&
+        other.geopoint == geopoint &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt;
   }
@@ -160,7 +160,7 @@ class AddressModel {
         neighborhood.hashCode ^
         state.hashCode ^
         city.hashCode ^
-        location.hashCode ^
+        geopoint.hashCode ^
         createdAt.hashCode ^
         updatedAt.hashCode;
   }
@@ -176,7 +176,7 @@ class AddressModel {
         ' neighborhood: $neighborhood,'
         ' state: $state,'
         ' city: $city,'
-        ' location: $location,'
+        ' geopoint: $geopoint,'
         ' createdAt: $createdAt,'
         ' updatedAt: $updatedAt)';
   }

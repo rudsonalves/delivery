@@ -18,6 +18,45 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/03 - version: 0.6.11+33
+
+Refactored Geo-Location Attributes and Standardized Geohash Key Naming
+
+1. **Address Model Update:**
+   - Renamed `location` attribute to `geopoint` for better semantic clarity.
+   - Updated all references to `location` in `AddressModel` to `geopoint`.
+
+2. **Client Model Update:**
+   - Renamed `location` attribute to `geopoint` to maintain consistency with the Address model.
+   - Updated all `location` references to `geopoint` across the ClientModel.
+
+3. **Delivery Model Update:**
+   - Renamed `location` attribute to `geopoint` and `geoHash` to `geohash`.
+   - Updated references in DeliveryModel to reflect these changes.
+
+4. **Shop Model Update:**
+   - Renamed `location` attribute to `geopoint` for consistency with other models.
+   - Updated all relevant references.
+
+5. **Controller and Page Updates:**
+   - Refactored controllers (`add_client_controller.dart`, `add_delivery_controller.dart`, `add_shop_controller.dart`) to use the new attribute names.
+   - Adjusted `MapPage` and other dependent views to reflect the renamed attributes.
+
+6. **Nearby Deliveries Feature Refactor:**
+   - Renamed `neaby_deliveries` feature to `nearby_deliveries` for correct spelling.
+   - Updated controllers and store references to the new directory and file names.
+
+7. **Repository Updates:**
+   - Refactored geohash key reference in `DeliveriesFirebaseRepository` and `LocationService` from `geoHash` to `geohash`.
+   - Standardized all geospatial query and data handling logic to use `geopoint` and `geohash` consistently.
+
+8. **Other Refactoring:**
+   - Adjusted json serialization methods for `ShopModel` to use `geopoint` instead of `location`.
+   - Enhanced logging messages to improve debugging information during geospatial queries and updates.
+
+This commit refines the geolocation attributes for better clarity and consistency across the models, repositories, and services. Additionally, it corrects naming inconsistencies and updates the project structure to improve maintainability and semantic accuracy.
+
+
 ## 2024/10/02 - version: 0.6.10+32
 
 Refactored Directory Structure for Stores and Controllers in `features` Module

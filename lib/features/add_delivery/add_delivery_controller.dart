@@ -125,7 +125,7 @@ class AddDeliveryController {
       final managerId =
           (user!.role != UserRole.manager) ? shop.managerId : user.id!;
 
-      final geoPonitHash = createGeoPointHash(shop.location!);
+      final geoPonitHash = createGeoPointHash(shop.geopoint!);
 
       final delivery = DeliveryModel(
         ownerId: shop.ownerId,
@@ -141,9 +141,9 @@ class AddDeliveryController {
         status: DeliveryStatus.orderRegisteredForPickup,
         clientAddress: client.addressString!,
         shopAddress: shop.addressString!,
-        clientLocation: client.location!,
-        location: shop.location!,
-        geoHash: geoPonitHash,
+        clientLocation: client.geopoint!,
+        geopoint: shop.geopoint!,
+        geohash: geoPonitHash,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
