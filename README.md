@@ -18,6 +18,44 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/04 - version: 0.6.14+36
+
+This commit refactors the `AddDelivery` feature, improving the controller and state management, introducing a modular structure with reusable components, and enhancing error handling and UI consistency.
+
+## Files Modified
+
+1. **`lib/features/add_delivery/add_delivery_controller.dart`**
+- **Simplified Initialization:**
+  - Removed the redundant `refreshShops()` call during initialization.
+  - Adjusted state handling in `setShopId` based on shop availability.
+  - Set shop state after retrieving shops and updated the list of shops in the store.
+
+2. **`lib/features/add_delivery/add_delivery_page.dart`**
+- **UI Handling Enhancements:**
+  - Improved navigation handling when creating a delivery. The page now only closes upon successful creation.
+  - Refactored loading and error state handling into the new `ErrorCard` widget.
+  - Replaced inline main content rendering logic with a new modular widget `BuildMainContentForm`.
+
+3. **`lib/features/add_delivery/stores/add_delivery_store.dart`**
+- **State Management Improvements:**
+  - Added `reset()` action to clear the store state, ensuring a clean slate on initialization.
+  - Updated `setShops()` to set `noShopsState` based on the shop list content.
+
+### Files Added
+
+4. **`lib/features/add_delivery/widgets/build_main_content_form.dart`**
+- **Modularized Main Content:**
+  - Extracted main content rendering logic from `AddDeliveryPage` into a separate widget for better maintainability and modularity.
+  - Manages the shop selection, client search, and client list display functionalities.
+
+5. **`lib/features/add_delivery/widgets/error_card.dart`**
+- **Reusable Error Card:**
+  - Created a reusable `ErrorCard` widget to standardize error handling and display across the feature.
+  - Supports custom title, message, icon, and color parameters for flexibility.
+
+This commit refactors the `AddDelivery` feature by separating concerns into distinct widgets, enhancing state management, and improving code readability. These changes make the codebase more maintainable and the UI more responsive and user-friendly.
+
+
 ## 2024/10/04 - version: 0.6.13+35
 
 This commit introduces enhancements to the `ClientModel` and `ShopModel` classes for JSON serialization and deserialization. It also improves address handling in the `AddShopController`, refactors the shop repository methods to use streams, and restructures the shop management flows based on the user roles. Additional UI adjustments were made for better consistency and functionality.

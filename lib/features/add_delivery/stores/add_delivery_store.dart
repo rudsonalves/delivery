@@ -38,7 +38,7 @@ abstract class _AddDeliveryStore with Store {
   SearchMode searchBy = SearchMode.phone;
 
   @observable
-  NoShopState noShopsState = NoShopState.ready;
+  NoShopState noShopsState = NoShopState.waiting;
 
   @action
   void setNoShopState(NoShopState newState) {
@@ -64,6 +64,7 @@ abstract class _AddDeliveryStore with Store {
   @action
   void setShops(List<ShopModel> newShops) {
     shops = ObservableList<ShopModel>.of(newShops);
+    noShopsState = shops.isEmpty ? NoShopState.noShops : NoShopState.ready;
   }
 
   @action
@@ -80,5 +81,17 @@ abstract class _AddDeliveryStore with Store {
   void selectClient(ClientModel client) {
     selectedClient = client;
     log(selectedClient!.id ?? '');
+  }
+
+  @action
+  void reset() {
+    state = PageState.initial;
+    noShopsState = NoShopState.waiting;
+    errorMessage = null;
+    shops.clear();
+    clients.clear();
+    shopId = null;
+    selectedClient = null;
+    searchBy = SearchMode.name;
   }
 }
