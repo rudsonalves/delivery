@@ -41,7 +41,6 @@ class AddDeliveryController {
     store = newStore;
 
     getInLocalStore();
-    if (shops.isEmpty) await refreshShops();
   }
 
   void dispose() {
@@ -75,9 +74,9 @@ class AddDeliveryController {
     final shops = result.data!;
     await localStore.setManagerShops(shops);
 
-    store.setNoShopState(NoShopState.ready);
-    store.setShopId(shops.first.id!);
+    store.setShopId(shops.isNotEmpty ? shops.first.id! : 'none');
     store.setState(PageState.success);
+    store.setShops(shops);
   }
 
   Future<void> searchClientsByName(String name) async {
