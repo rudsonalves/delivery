@@ -2,8 +2,6 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../../locator.dart';
-import '../../stores/user/user_store.dart';
 import '/common/models/address.dart';
 import '/common/models/shop.dart';
 import '/common/utils/data_result.dart';
@@ -196,12 +194,12 @@ class ShopFirebaseRepository implements AbstractShopRepository {
   }
 
   @override
-  Future<DataResult<List<ShopModel>>> getShopByName(String name) async {
+  Future<DataResult<List<ShopModel>>> getShopByOwner(String ownerId) async {
     try {
       final List<ShopModel> shops = [];
       final query = await _firebase
           .collection(keyShops)
-          .where(keyName, isEqualTo: name)
+          .where(keyOwnerId, isEqualTo: ownerId)
           .get();
 
       if (query.docs.isEmpty) {
@@ -216,7 +214,7 @@ class ShopFirebaseRepository implements AbstractShopRepository {
       }
       return DataResult.success(shops);
     } catch (err) {
-      final message = 'ShopFirebaseRepository.getClientsByName: $err';
+      final message = 'ShopFirebaseRepository.getShopByManager: $err';
       log(message);
       return DataResult.failure(FireStoreFailure(
         message: message,
@@ -256,67 +254,56 @@ class ShopFirebaseRepository implements AbstractShopRepository {
   }
 
   @override
-  Future<DataResult<List<ShopModel>>> getShopByOwner(String ownerId) async {
+  Stream<List<ShopModel>> streamShopByManager(String managerId) {
     try {
-      final List<ShopModel> shops = [];
-      final query = await _firebase
+      return _firebase
           .collection(keyShops)
-          .where(keyOwnerId, isEqualTo: ownerId)
-          .get();
-
-      if (query.docs.isEmpty) {
-        return DataResult.success([]);
-      }
-
-      for (final doc in query.docs) {
-        final shop = ShopModel.fromMap(doc.data()).copyWith(id: doc.id);
-        // final address = await getAddressesForShop(shopId: shop.id!);
-        // shop.address = address?.first;
-        shops.add(shop);
-      }
-      return DataResult.success(shops);
+          .where(keyManagerId, isEqualTo: managerId)
+          .orderBy(keyName)
+          .snapshots()
+          .map((snapshot) => snapshot.docs
+              .map(
+                (doc) => ShopModel.fromMap(doc.data()).copyWith(id: doc.id),
+              )
+              .toList());
     } catch (err) {
       final message = 'ShopFirebaseRepository.getShopByManager: $err';
       log(message);
-      return DataResult.failure(FireStoreFailure(
-        message: message,
-        code: 514,
-      ));
+      throw Exception(message);
     }
   }
 
   @override
-  Stream<List<ShopModel>> streamShopByName() {
-    final currentUser = locator<UserStore>().currentUser;
-
+  Stream<List<ShopModel>> streamShopByOwner(String ownerId) {
     try {
-      String accountId = currentUser != null ? currentUser.accountId : 'none';
+      return _firebase
+          .collection(keyShops)
+          .where(keyOwnerId, isEqualTo: ownerId)
+          .orderBy(keyName)
+          .snapshots()
+          .map((snapshot) => snapshot.docs
+              .map(
+                (doc) => ShopModel.fromMap(doc.data()).copyWith(id: doc.id),
+              )
+              .toList());
+    } catch (err) {
+      final message = 'ShopFirebaseRepository.getShopByManager: $err';
+      log(message);
+      throw Exception(message);
+    }
+  }
 
-      switch (accountId) {
-        case 'admin':
-          return _firebase
-              .collection(keyShops)
-              .orderBy(keyName)
-              .snapshots()
-              .map((snapshot) => snapshot.docs
-                  .map(
-                    (doc) => ShopModel.fromMap(doc.data()).copyWith(id: doc.id),
-                  )
-                  .toList());
-        case 'none':
-          return const Stream.empty();
-        default:
-          return _firebase
-              .collection(keyShops)
-              .where(keyOwnerId, isEqualTo: accountId)
-              .orderBy(keyName)
-              .snapshots()
-              .map((snapshot) => snapshot.docs
-                  .map(
-                    (doc) => ShopModel.fromMap(doc.data()).copyWith(id: doc.id),
-                  )
-                  .toList());
-      }
+  @override
+  Stream<List<ShopModel>> streamShopAll() {
+    try {
+      return _firebase
+          .collection(keyShops)
+          .snapshots()
+          .map((snapshot) => snapshot.docs
+              .map(
+                (doc) => ShopModel.fromMap(doc.data()).copyWith(id: doc.id),
+              )
+              .toList());
     } catch (err) {
       final message = 'ClientFirebaseRepository.streamClientsByName: $err';
       log(message);

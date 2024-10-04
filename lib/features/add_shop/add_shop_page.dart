@@ -84,8 +84,10 @@ class _AddShopPageState extends State<AddShopPage> {
   }
 
   Future<void> _getManager() async {
-    final manager = await Navigator.pushNamed(context, QRCodeReadPage.routeName)
-        as Map<String, dynamic>?;
+    final manager = await Navigator.pushNamed(
+      context,
+      QRCodeReadPage.routeName,
+    ) as Map<String, dynamic>?;
 
     if (manager != null) store.setManager(manager);
   }
@@ -118,7 +120,7 @@ class _AddShopPageState extends State<AddShopPage> {
                       textInputAction: TextInputAction.next,
                       onChanged: store.setName,
                       errorText: store.errorName,
-                      textCapitalization: TextCapitalization.sentences,
+                      textCapitalization: TextCapitalization.words,
                     ),
                     CustomTextField(
                       labelText: 'Descrição',

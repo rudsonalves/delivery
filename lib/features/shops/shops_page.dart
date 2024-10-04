@@ -43,7 +43,10 @@ class _ShopsPageState extends State<ShopsPage> {
   }
 
   void _addShop() {
-    Navigator.pushNamed(context, AddShopPage.routeName);
+    Navigator.pushNamed(
+      context,
+      AddShopPage.routeName,
+    );
   }
 
   Future<void> _editShop(ShopModel shop) async {
@@ -79,11 +82,17 @@ class _ShopsPageState extends State<ShopsPage> {
             ),
             actions: [
               FilledButton.tonal(
-                onPressed: () => Navigator.pop(context, true),
+                onPressed: () => Navigator.pop(
+                  context,
+                  true,
+                ),
                 child: const Text('Apagar'),
               ),
               FilledButton(
-                onPressed: () => Navigator.pop(context, false),
+                onPressed: () => Navigator.pop(
+                  context,
+                  false,
+                ),
                 child: const Text('Cancelar'),
               ),
             ],
