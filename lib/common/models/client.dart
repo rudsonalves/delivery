@@ -87,10 +87,25 @@ class ClientModel {
     );
   }
 
-  String toJson() => json.encode(toMap());
+  String toJson() {
+    final map = toMap();
+    map['id'] = id;
+    map['geopoint'] = {
+      'latitude': geopoint.latitude,
+      'longitude': geopoint.longitude,
+    };
+    return json.encode(map);
+  }
 
-  factory ClientModel.fromJson(String source) =>
-      ClientModel.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory ClientModel.fromJson(String source) {
+    final map = json.decode(source) as Map<String, dynamic>;
+    final geopoint = GeoPoint(
+      map['geopoint']['latitude'] as double,
+      map['geopoint']['longitude'] as double,
+    );
+    map['geopoint'] = geopoint;
+    return ClientModel.fromMap(map);
+  }
 
   @override
   String toString() {

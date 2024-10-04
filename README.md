@@ -18,6 +18,55 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/04 - version: 0.6.13+35
+
+This commit introduces enhancements to the `ClientModel` and `ShopModel` classes for JSON serialization and deserialization. It also improves address handling in the `AddShopController`, refactors the shop repository methods to use streams, and restructures the shop management flows based on the user roles. Additional UI adjustments were made for better consistency and functionality.
+
+## Files Modified
+
+1. **`lib/common/models/client.dart`**
+- **Enhanced Serialization and Deserialization:**
+  - Added logic to handle `geopoint` serialization and deserialization in the `toJson` and `fromJson` methods.
+  
+2. **`lib/common/models/shop.dart`**
+- **Improved fromJson Logic:**
+  - Adjusted the `fromJson` method to retain the `geopoint` information during deserialization.
+
+3. **`lib/features/add_shop/add_shop_controller.dart`**
+- **Address Handling Refactor:**
+  - Included a check to handle updates on the `GeoPoint` based on flag `updateGeoPoint`.
+  - Added `resetUpdateGeoPoint()` call after updating the address geolocation.
+
+4. **`lib/features/add_shop/add_shop_page.dart`**
+- **UI Adjustments:**
+  - Improved code formatting for better readability and consistency.
+  - Changed `TextCapitalization.sentences` to `TextCapitalization.words` in the description field.
+
+5. **`lib/features/add_shop/stores/add_shop_store.dart`**
+- **State Management Enhancements:**
+  - Added new observable state and actions for handling address type updates and other field changes.
+
+6. **`lib/features/shops/shops_controller.dart`**
+- **Role-Based Data Retrieval:**
+  - Implemented role-based shop retrieval methods (`streamShopAll`, `streamShopByOwner`, `streamShopByManager`).
+  - Enhanced data flow based on the logged-in user role to segregate data access.
+
+7. **`lib/features/shops/shops_page.dart`**
+- **Minor UI Updates:**
+  - Improved modal and navigation actions for better user experience.
+
+8. **`lib/repository/firebase_store/abstract_shop_repository.dart`**
+- **Interface Update:**
+  - Refined the abstract repository to include new streaming methods for `ShopModel` data retrieval.
+
+9. **`lib/repository/firebase_store/shop_firebase_repository.dart`**
+- **Method Implementation:**
+  - Added `streamShopAll`, `streamShopByManager`, and `streamShopByOwner` methods for real-time shop data retrieval.
+  - Removed redundant `getShopByName` method.
+
+This commit streamlines data handling and serialization processes for `ClientModel` and `ShopModel`, enhances UI components for better usability, and implements role-based data access within the shop management features.
+
+
 ## 2024/10/03 - version: 0.6.12+34
 
 Refactoring models and geolocation functions
