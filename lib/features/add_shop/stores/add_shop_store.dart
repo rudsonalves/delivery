@@ -156,30 +156,38 @@ abstract class _AddShopStore with Store {
   }
 
   @action
-  void setComplement(String value) {
-    _checkIsEdited(complement, value);
-    if (complement != value) {
-      if (address != null) {
-        address!.complement = complement;
-        setAddressString(address!.geoAddressString);
-      }
-      complement = value;
-      setUpdateGeoPoint();
-    }
-  }
-
-  @action
   void setAddressType(String value) {
     _checkIsEdited(addressType, value);
     addressType = value;
   }
 
   @action
+  void setComplement(String value) {
+    _checkIsEdited(complement, value);
+    if (complement != value) {
+      complement = value;
+      setUpdateGeoPoint();
+
+      if (address != null) {
+        address!.complement = value;
+        setAddressString(address!.geoAddressString);
+      }
+    }
+  }
+
+  @action
   void setNumber(String value) {
     _checkIsEdited(addressType, value);
-    number = value;
-    _validNumber();
-    setUpdateGeoPoint();
+    if (number != value) {
+      number = value;
+      setUpdateGeoPoint();
+
+      if (address != null) {
+        address!.number = value;
+        _validNumber();
+        setAddressString(address!.geoAddressString);
+      }
+    }
   }
 
   @action

@@ -84,9 +84,12 @@ class AddShopController {
     if (address == null) {
       await mountAddress();
     } else if (store.zipCodeChanged) {
+      throw Exception('Pq Passou por aqui!');
+    } else if (store.updateGeoPoint) {
       final newAddress =
           await AddressFunctions.updateAddressGeoLocation(address!);
       store.setAddress(newAddress);
+      store.resetUpdateGeoPoint();
     }
 
     store.setState(PageState.success);

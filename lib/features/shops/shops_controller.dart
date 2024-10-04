@@ -1,8 +1,11 @@
 import 'dart:async';
 
-import 'package:delivery/stores/common/store_func.dart';
 import 'package:flutter/material.dart';
 
+import '/common/models/user.dart';
+import '/locator.dart';
+import '/stores/common/store_func.dart';
+import '../../stores/user/user_store.dart';
 import '/repository/firebase_store/deliveries_firebase_repository.dart';
 import '../../common/utils/data_result.dart';
 import '../../repository/firebase_store/abstract_deliveries_repository.dart';
@@ -19,6 +22,8 @@ class ShopsController {
 
   StreamSubscription<List<ShopModel>>? _shopsSubscription;
 
+  final user = locator<UserStore>().currentUser;
+
   late final ShopsStore store;
 
   void init(ShopsStore newStore) {
@@ -33,14 +38,43 @@ class ShopsController {
   Future<void> getShops() async {
     store.setState(PageState.loading);
     _shopsSubscription?.cancel(); // Cancel any previous subscriptions
-    _shopsSubscription = shopRepository.streamShopByName().listen(
-        (List<ShopModel> fetchedShops) {
-      store.setShops(fetchedShops);
-      store.setState(PageState.success);
-    }, onError: (err) {
-      store.setError('Erro ao buscar lojas: $err');
-    });
+
+    switch (user?.role) {
+      case UserRole.admin:
+        _shopsSubscription = shopRepository.streamShopAll().listen(
+            (List<ShopModel> fetchedShops) {
+          store.setShops(fetchedShops);
+          store.setState(PageState.success);
+        }, onError: (err) {
+          store.setError('Erro ao buscar lojas: $err');
+        });
+        return;
+      case UserRole.business:
+        _shopsSubscription = shopRepository.streamShopByOwner(user!.id!).listen(
+            (List<ShopModel> fetchedShops) {
+          store.setShops(fetchedShops);
+          store.setState(PageState.success);
+        }, onError: (err) {
+          store.setError('Erro ao buscar lojas: $err');
+        });
+        return;
+      case UserRole.manager:
+        _shopsSubscription = shopRepository
+            .streamShopByManager(user!.id!)
+            .listen((List<ShopModel> fetchedShops) {
+          store.setShops(fetchedShops);
+          store.setState(PageState.success);
+        }, onError: (err) {
+          store.setError('Erro ao buscar lojas: $err');
+        });
+        return;
+      case UserRole.delivery:
+      case null:
+        return;
+    }
   }
+
+  Future<void> addShop() async {}
 
   Future<void> editShop(BuildContext context, ShopModel shop) async {
     final result = await shopRepository.getAddressesForShop(shop.id!);
