@@ -122,9 +122,8 @@ class ShopModel {
       map['geopoint']['latitude'] as double,
       map['geopoint']['longitude'] as double,
     );
-    map.remove('geopoint');
-    final shop = ShopModel.fromMap(map);
-    return shop.copyWith(geopoint: geopoint);
+    map['geopoint'] = geopoint;
+    return ShopModel.fromMap(map);
   }
 
   @override
