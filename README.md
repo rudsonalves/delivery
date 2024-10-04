@@ -18,6 +18,60 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/04 - version: 0.6.15+37
+
+This commit introduces various changes to the `AddClient` and `AddShop` features, refactoring code to improve state management, centralizing common operations, and enhancing the user experience.
+
+**Files Modified:**
+
+1. **`lib/features/add_client/add_cliend_page.dart`**
+- **File Import Refactor:**
+  - Changed all imports to use relative paths (`import '/common/...'`) to ensure consistency across the project.
+- **Improved Routing:**
+  - Updated route name for better readability: `'addclient'` to `'add_client'`.
+- **Navigation Improvement:**
+  - Enhanced back navigation handling, ensuring the page only pops when mounted and passes the updated client model.
+- **Dropdown Handling:**
+  - Added `null` check before updating `addressType` to avoid potential runtime errors.
+
+2. **`lib/features/add_client/add_client_controller.dart`**
+- **Dependency Injection:**
+  - Utilized `AbstractClientRepository` for repository abstraction, enabling better testing and flexibility.
+- **Refactored Address Handling:**
+  - Introduced getter method for `address` to fetch it directly from the store.
+  - Added a reaction to update the address when `resetAddressString` changes, ensuring the UI is always in sync with state changes.
+- **Enhanced Error Handling:**
+  - Provided more descriptive error messages for connectivity issues and invalid ZIP codes.
+- **Memory Management:**
+  - Included a disposer for the reaction to prevent memory leaks.
+
+3. **`lib/features/add_client/stores/add_client_store.dart`**
+- **Store State Refactoring:**
+  - Removed the redundant `address` observable and consolidated its state management in a single place.
+  - Added actions to handle setting and resetting address strings and states (`setAddressString`, `toogleAddressString`).
+  - Improved observability of `resetAddressString` and `resetZipCode` flags to centralize their usage.
+
+4. **`lib/features/add_shop/add_shop_controller.dart`**
+- **Removed Redundant Getters:**
+  - Removed `isEdited`, `isValid`, and `state` getters to simplify code access. These can be directly accessed through the store.
+- **Improved Error Handling:**
+  - Introduced clearer error messages for ZIP code validation failures, differentiating between connectivity and invalid format errors.
+
+5. **`lib/features/add_shop/add_shop_page.dart`**
+- **File Import Refactor:**
+  - Changed all imports to use relative paths (`import '/common/...'`) for consistency.
+- **Simplified Store Access:**
+  - Replaced direct controller state access (`ctrl`) with store references for attributes like `isValid` and `isEdited`.
+- **UI Enhancement:**
+  - Added dynamic titles based on the mode (`Adicionar Loja` vs. `Editar Loja`).
+
+6. **`lib/features/add_shop/stores/add_shop_store.dart`**
+- **State Correction:**
+  - Fixed an incorrect reset action (`resetZipCodeChanged`) to properly update the `zipCodeChanged` state instead of `updateGeoPoint`.
+
+This commit brings structural and state management improvements to the `AddClient` and `AddShop` features, providing better code maintainability, improved state handling, and enhanced error feedback mechanisms.
+
+
 ## 2024/10/04 - version: 0.6.14+36
 
 This commit refactors the `AddDelivery` feature, improving the controller and state management, introducing a modular structure with reusable components, and enhancing error handling and UI consistency.
@@ -60,7 +114,7 @@ This commit refactors the `AddDelivery` feature by separating concerns into dist
 
 This commit introduces enhancements to the `ClientModel` and `ShopModel` classes for JSON serialization and deserialization. It also improves address handling in the `AddShopController`, refactors the shop repository methods to use streams, and restructures the shop management flows based on the user roles. Additional UI adjustments were made for better consistency and functionality.
 
-## Files Modified
+**Files Modified:**
 
 1. **`lib/common/models/client.dart`**
 - **Enhanced Serialization and Deserialization:**
