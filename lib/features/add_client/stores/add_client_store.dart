@@ -39,9 +39,6 @@ abstract class _AddClientStore with Store {
   String? errorZipCode;
 
   @observable
-  AddressModel? address;
-
-  @observable
   String? number;
 
   @observable
@@ -65,27 +62,50 @@ abstract class _AddClientStore with Store {
   @observable
   bool isEdited = false;
 
-  // reactivity to geoPoint changes - this is true if number, complement and
-  // zipCode changes
-  bool updateGeoPoint = false;
-
-  // reactivity to zipcode changes - this is true only if zipCode Change
-  bool zipCodeChanged = false;
-
   @observable
   String? errorMessage;
 
-  @action
-  void setZipCodeChanged() => zipCodeChanged = true;
+  @observable
+  bool resetAddressString = false;
 
-  @action
-  void resetZipCodeChanged() => zipCodeChanged = false;
+  @observable
+  bool resetZipCode = false;
 
-  @action
+  @observable
+  String? addressString;
+
+  AddressModel? address;
+
+  // This flag is true if number, complement or zipCode changes
+  bool updateGeoPoint = false;
+
   void setUpdateGeoPoint() => updateGeoPoint = true;
 
+  void resetUpdateGeoPoint() {
+    updateGeoPoint = false;
+    zipCodeChanged = false;
+  }
+
+  // This flag is true if zipCode changes
+  bool zipCodeChanged = false;
+
+  void setZipCodeChanged() => zipCodeChanged = true;
+
+  void resetZipCodeChanged() => zipCodeChanged = false;
+
+  void setAddress(AddressModel newAddress) {
+    address = newAddress.copyWith();
+  }
+
   @action
-  void resetUpdateGeoPoint() => updateGeoPoint = false;
+  setAddressString(String? value) {
+    addressString = value;
+  }
+
+  @action
+  toogleAddressString() {
+    resetAddressString = !resetAddressString;
+  }
 
   @action
   void setError(String message) {
@@ -102,24 +122,10 @@ abstract class _AddClientStore with Store {
     number = client.address?.number;
     zipCode = client.address?.zipCode;
     complement = client.address?.complement;
-    zipStatus = address != null ? ZipStatus.success : ZipStatus.initial;
+    zipStatus = client.address != null ? ZipStatus.success : ZipStatus.initial;
     isEdited = false;
     updateGeoPoint = false;
-  }
-
-  @action
-  _checkIsEdited(String? value, String newValue) {
-    isEdited = _isChanged(value, newValue) || isEdited;
-  }
-
-  bool _isChanged(String? value, String newValue) {
-    return newValue != value;
-  }
-
-  @action
-  void setAddressType(String value) {
-    _checkIsEdited(addressType, value);
-    addressType = value;
+    address = client.address?.copyWith();
   }
 
   @action
@@ -129,12 +135,10 @@ abstract class _AddClientStore with Store {
     _validName();
   }
 
-  void _validName() {
-    if (name == null || name!.length < 3) {
-      errorName = 'nome deve ser maior que 3 caracteres';
-    } else {
-      errorName = null;
-    }
+  @action
+  void setAddressType(String value) {
+    _checkIsEdited(addressType, value);
+    addressType = value;
   }
 
   @action
@@ -151,13 +155,6 @@ abstract class _AddClientStore with Store {
   }
 
   @action
-  void _validEmail() {
-    errorEmail = StoreFunc.itsNotEmail(email)
-        ? 'Por favor, insira um email válido'
-        : null;
-  }
-
-  @action
   void setPhone(String value) {
     _checkIsEdited(phone, value);
     phone = value;
@@ -167,17 +164,30 @@ abstract class _AddClientStore with Store {
   @action
   void setComplement(String value) {
     _checkIsEdited(complement, value);
-    complement = value;
-    setUpdateGeoPoint();
+    if (complement != value) {
+      complement = value;
+      setUpdateGeoPoint();
+
+      if (address != null) {
+        address!.complement = value;
+        setAddressString(address!.geoAddressString);
+      }
+    }
   }
 
   @action
   void setNumber(String value) {
     _checkIsEdited(addressType, value);
-    updateGeoPoint = updateGeoPoint || (number != value);
-    number = value;
-    _validNumber();
-    setUpdateGeoPoint();
+    if (number != value) {
+      number = value;
+      setUpdateGeoPoint();
+
+      if (address != null) {
+        address!.number = value;
+        _validNumber();
+        setAddressString(address!.geoAddressString);
+      }
+    }
   }
 
   @action
@@ -186,7 +196,7 @@ abstract class _AddClientStore with Store {
     zipCode = value;
     _validZipCode();
     if (errorZipCode == null) {
-      setZipCodeChanged();
+      toogleAddressString();
       setUpdateGeoPoint();
     }
   }
@@ -211,6 +221,31 @@ abstract class _AddClientStore with Store {
   @action
   void setState(PageState status) {
     state = status;
+  }
+
+  @action
+  _checkIsEdited(String? value, String newValue) {
+    isEdited = _isChanged(value, newValue) || isEdited;
+  }
+
+  bool _isChanged(String? value, String newValue) {
+    return newValue != value;
+  }
+
+  @action
+  void _validName() {
+    if (name == null || name!.length < 3) {
+      errorName = 'nome deve ser maior que 3 caracteres';
+    } else {
+      errorName = null;
+    }
+  }
+
+  @action
+  void _validEmail() {
+    errorEmail = StoreFunc.itsNotEmail(email)
+        ? 'Por favor, insira um email válido'
+        : null;
   }
 
   @action
