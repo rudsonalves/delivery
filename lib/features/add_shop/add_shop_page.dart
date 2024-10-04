@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
-import '../../common/models/shop.dart';
-import '../../common/utils/data_result.dart';
-import '../../components/widgets/address_card.dart';
-import '../../components/widgets/message_snack_bar.dart';
-import '../../components/widgets/state_loading.dart';
+import '/common/models/shop.dart';
+import '/common/utils/data_result.dart';
+import '/components/widgets/address_card.dart';
+import '/components/widgets/message_snack_bar.dart';
+import '/components/widgets/state_loading.dart';
 import 'stores/add_shop_store.dart';
-import '../qrcode_read/qrcode_read_page.dart';
+import '/features/qrcode_read/qrcode_read_page.dart';
 import '/features/add_shop/add_shop_controller.dart';
-import '../../common/theme/app_text_style.dart';
-import '../../components/widgets/big_bottom.dart';
-import '../../components/widgets/custom_text_field.dart';
-import '../../stores/common/store_func.dart';
+import '/common/theme/app_text_style.dart';
+import '/components/widgets/big_bottom.dart';
+import '/components/widgets/custom_text_field.dart';
+import '/stores/common/store_func.dart';
 
 class AddShopPage extends StatefulWidget {
   final ShopModel? shop;
@@ -47,8 +47,8 @@ class _AddShopPageState extends State<AddShopPage> {
   }
 
   Future<void> _saveShop() async {
-    if (!ctrl.isValid) return;
-    if (ctrl.isEdited) {
+    if (!store.isValid()) return;
+    if (store.isEdited) {
       DataResult<ShopModel?> result;
       if (isAddMode) {
         result = await ctrl.saveShop();
@@ -80,7 +80,7 @@ class _AddShopPageState extends State<AddShopPage> {
         return;
       }
     }
-    if (mounted) Navigator.of(context).pop(ctrl.shop!.copyWith());
+    if (mounted) Navigator.of(context).pop(ctrl.shop?.copyWith());
   }
 
   Future<void> _getManager() async {
@@ -98,7 +98,7 @@ class _AddShopPageState extends State<AddShopPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Adicionar Loja'),
+        title: Text(isAddMode ? 'Adicionar Loja' : 'Editar Loja'),
         centerTitle: true,
         leading: IconButton(
           onPressed: _backPage,
@@ -217,7 +217,7 @@ class _AddShopPageState extends State<AddShopPage> {
                     ),
                     BigButton(
                       color: Colors.purpleAccent,
-                      label: ctrl.isEdited
+                      label: store.isEdited
                           ? isAddMode
                               ? 'Salvar'
                               : 'Atualizar'
@@ -226,7 +226,7 @@ class _AddShopPageState extends State<AddShopPage> {
                     ),
                   ],
                 ),
-                if (ctrl.state == PageState.loading) const StateLoading(),
+                if (store.state == PageState.loading) const StateLoading(),
               ],
             ),
           ),

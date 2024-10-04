@@ -29,10 +29,6 @@ class AddShopController {
   final numberController = TextEditingController();
   final complementController = TextEditingController();
 
-  bool get isEdited => store.isEdited;
-  bool get isValid => store.isValid();
-  PageState get state => store.state;
-
   ShopModel? shop;
   AddressModel? get address => store.address;
   ReactionDisposer? _disposer;
@@ -120,9 +116,12 @@ class AddShopController {
     store.setErrorZipCode(err);
 
     if (via == null) {
-      const message = '_mountAddress: ZipCode error';
+      String message = (err != null && err.contains('errno = 7'))
+          ? 'Sem conexão com a internet. Tente novamente mais tarde.'
+          : 'CEP inválido. Confira seu números.';
+      store.setErrorZipCode(message);
       log(message);
-      throw Exception(message);
+      return;
     }
 
     AddressModel newAddress;
@@ -148,6 +147,7 @@ class AddShopController {
         neighborhood: via.neighborhood,
         state: via.state,
         city: via.city,
+        updatedAt: DateTime.now(),
       );
     }
 
