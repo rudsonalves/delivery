@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 
+import '../../repository/firebase_store/abstract_client_repository.dart';
 import '/common/utils/address_functions.dart';
 import '../../common/models/address.dart';
 import '../../common/models/client.dart';
@@ -14,7 +15,8 @@ import '/components/custons_text_controllers/masked_text_controller.dart';
 import 'stores/add_client_store.dart';
 
 class AddClientController {
-  final repository = ClientFirebaseRepository();
+  late final AddClientStore store;
+  final AbstractClientRepository repository = ClientFirebaseRepository();
 
   final nameController = TextEditingController();
   final emailController = TextEditingController();
@@ -23,10 +25,9 @@ class AddClientController {
   final numberController = TextEditingController();
   final complementController = TextEditingController();
 
-  late final AddClientStore store;
-
   ClientModel? client;
-  AddressModel? address;
+  AddressModel? get address => store.address;
+  ReactionDisposer? _disposer;
 
   void init(AddClientStore newStore, ClientModel? editClient) {
     store = newStore;
@@ -35,6 +36,12 @@ class AddClientController {
       client = editClient.copyWith();
       _setClientValues();
     }
+
+    // Rebuild address if zipCode change
+    _disposer = reaction(
+      (_) => store.resetAddressString,
+      (_) => mountAddress(),
+    );
   }
 
   void _setClientValues() {
@@ -47,7 +54,6 @@ class AddClientController {
     cepController.text = client!.address?.zipCode ?? '';
     numberController.text = client!.address?.number ?? '';
     complementController.text = client!.address?.complement ?? '';
-    address = client!.address;
   }
 
   void dispose() {
@@ -57,6 +63,7 @@ class AddClientController {
     cepController.dispose();
     numberController.dispose();
     complementController.dispose();
+    _disposer?.call();
   }
 
   Future<ClientModel?> getClientFromForm() async {
@@ -69,8 +76,12 @@ class AddClientController {
     if (address == null) {
       await mountAddress();
     } else if (store.zipCodeChanged) {
-      address = await AddressFunctions.updateAddressGeoLocation(address!);
-      store.resetZipCodeChanged();
+      throw Exception('Pq Passou por aqui!');
+    } else if (store.updateGeoPoint) {
+      final newAddress =
+          await AddressFunctions.updateAddressGeoLocation(address!);
+      store.setAddress(newAddress);
+      store.resetUpdateGeoPoint();
     }
 
     store.setState(PageState.success);
@@ -97,24 +108,47 @@ class AddClientController {
     store.setZipStatus(status);
     store.setErrorZipCode(err);
 
-    if (via == null) {
-      log('Address invalid!');
+    if (err != null || via == null) {
+      String message = (err != null && err.contains('errno = 7'))
+          ? 'Sem conexão com a internet. Tente novamente mais tarde.'
+          : 'CEP inválido. Confira seu números.';
+      store.setErrorZipCode(message);
+      log(message);
       return;
     }
 
-    address = AddressModel(
-      id: address?.id,
-      type: store.addressType ?? 'Residencial',
-      zipCode: via.zipCode,
-      street: via.street,
-      number: store.number ?? 'S/N',
-      complement: store.complement,
-      neighborhood: via.neighborhood,
-      state: via.state,
-      city: via.city,
-      updatedAt: DateTime.now(),
-    );
+    AddressModel newAddress;
+    if (address == null) {
+      newAddress = AddressModel(
+        type: 'Residencial',
+        zipCode: via.zipCode,
+        street: via.street,
+        number: store.number ?? 'S/N',
+        complement: store.complement,
+        neighborhood: via.neighborhood,
+        state: via.state,
+        city: via.city,
+        updatedAt: DateTime.now(),
+      );
+    } else {
+      newAddress = address!.copyWith(
+        id: address!.id,
+        type: address!.type,
+        zipCode: via.zipCode,
+        street: via.street,
+        number: address!.number,
+        complement: address!.complement,
+        neighborhood: via.neighborhood,
+        state: via.state,
+        city: via.city,
+        updatedAt: DateTime.now(),
+      );
+    }
+
+    store.setAddress(newAddress);
     store.resetUpdateGeoPoint();
+
+    store.setAddressString(address?.geoAddressString);
 
     store.setZipStatus(ZipStatus.success);
   }

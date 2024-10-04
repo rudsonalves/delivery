@@ -86,9 +86,9 @@ abstract class _AddShopStore with Store {
   // This flag is true if zipCode changes
   bool zipCodeChanged = false;
 
-  void setZipCodeChanged() => updateGeoPoint = true;
+  void setZipCodeChanged() => zipCodeChanged = true;
 
-  void resetZipCodeChanged() => updateGeoPoint = false;
+  void resetZipCodeChanged() => zipCodeChanged = false;
 
   void setAddress(AddressModel newAddress) {
     address = newAddress.copyWith();
@@ -191,7 +191,6 @@ abstract class _AddShopStore with Store {
   }
 
   @action
-  // setZipCode return true if zip code is ok.
   void setZipCode(String value) {
     _checkIsEdited(zipCode, value);
     zipCode = value;

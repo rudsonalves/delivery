@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
-import '../../common/models/client.dart';
-import '../../common/theme/app_text_style.dart';
-import '../../common/utils/data_result.dart';
-import '../../components/widgets/address_card.dart';
-import '../../components/widgets/big_bottom.dart';
-import '../../components/widgets/custom_text_field.dart';
-import '../../components/widgets/message_snack_bar.dart';
-import '../../components/widgets/state_loading.dart';
+import '/common/models/client.dart';
+import '/common/theme/app_text_style.dart';
+import '/common/utils/data_result.dart';
+import '/components/widgets/address_card.dart';
+import '/components/widgets/big_bottom.dart';
+import '/components/widgets/custom_text_field.dart';
+import '/components/widgets/message_snack_bar.dart';
+import '/components/widgets/state_loading.dart';
 import 'stores/add_client_store.dart';
-import '../../stores/common/store_func.dart';
+import '/stores/common/store_func.dart';
 import 'add_client_controller.dart';
 
 class AddClientPage extends StatefulWidget {
@@ -21,7 +21,7 @@ class AddClientPage extends StatefulWidget {
     super.key,
   });
 
-  static const routeName = '/addclient';
+  static const routeName = '/add_client';
 
   @override
   State<AddClientPage> createState() => _AddClientPageState();
@@ -35,6 +35,7 @@ class _AddClientPageState extends State<AddClientPage> {
   @override
   void initState() {
     super.initState();
+
     isAddMode = (widget.client == null);
     ctrl.init(store, widget.client);
   }
@@ -77,7 +78,7 @@ class _AddClientPageState extends State<AddClientPage> {
         return;
       }
     }
-    _backPage();
+    if (mounted) Navigator.of(context).pop(ctrl.client?.copyWith());
   }
 
   @override
@@ -158,7 +159,9 @@ class _AddClientPageState extends State<AddClientPage> {
                       value: store.addressType,
                       isExpanded: true,
                       onChanged: (value) {
-                        store.setAddressType(value ?? '');
+                        if (value != null) {
+                          store.setAddressType(value);
+                        }
                       },
                     ),
                     CustomTextField(
@@ -172,7 +175,7 @@ class _AddClientPageState extends State<AddClientPage> {
                     ),
                     AddressCard(
                       zipStatus: store.zipStatus,
-                      addressString: ctrl.address?.geoAddressString,
+                      addressString: store.addressString,
                     ),
                     CustomTextField(
                       controller: ctrl.numberController,
