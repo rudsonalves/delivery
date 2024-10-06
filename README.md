@@ -18,6 +18,43 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/06 - version: 0.6.16+38
+
+This commit refactors the `BigButton` widget and introduces enhancements to the `AddDeliveryStore` and `BuildMainContentForm` classes. The changes focus on improving button usability, restructuring form state handling, and centralizing widget behavior.
+
+Files Modified:
+
+1. **`lib/components/widgets/big_bottom.dart`**
+- **Feature Enhancement:**
+  - Added an `enable` parameter to control the button's enabled/disabled state.
+  - Button's color and text style now dynamically adjust based on the `enable` state.
+- **UI Improvements:**
+  - The `onPressed` callback is set to `null` when the button is disabled, preventing user interaction.
+  - Disabled buttons use a different color from the `colorScheme`, improving visual feedback.
+
+2. **`lib/features/add_delivery/stores/add_delivery_store.dart`**
+- **Logging Removal:**
+  - Removed unnecessary `log` statement from the `selectClient` action to reduce console clutter.
+- **Validation Method:**
+  - Added an `isValid()` method to encapsulate the validation logic for the store's current state, ensuring all required fields are populated before allowing certain actions.
+
+3. **`lib/features/add_delivery/widgets/build_main_content_form.dart`**
+- **StatefulWidget Conversion:**
+  - Converted `BuildMainContentForm` from a StatelessWidget to a StatefulWidget to manage focus nodes and reactions more effectively.
+- **Focus Management:**
+  - Introduced focus nodes (`searchByNameFocus`, `searchByPhoneFocus`) to manage input focus and unfocus logic.
+  - Added a MobX reaction to unfocus all input fields when the search mode changes, providing a better user experience.
+- **Validation Binding:**
+  - Integrated `isValid()` from `AddDeliveryStore` with the `BigButton` widget, allowing the button to enable/disable based on the form's state.
+
+4. **`lib/features/add_delivery/stores/add_delivery_store.dart`**
+- **State Management Refactor:**
+  - Removed redundant logging statements and restructured the `isValid` logic for determining when a client and shop are selected.
+  - Introduced a `reset()` method to encapsulate store state resetting, ensuring consistency when clearing the form.
+
+This commit refines the `BigButton` component and enhances form state management for the `AddDeliveryStore`. The overall result is a more responsive UI with clear state-based interaction handling, improved focus management, and a more maintainable code structure.
+
+
 ## 2024/10/04 - version: 0.6.15+37
 
 This commit introduces various changes to the `AddClient` and `AddShop` features, refactoring code to improve state management, centralizing common operations, and enhancing the user experience.
