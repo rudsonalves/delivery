@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:mobx/mobx.dart';
 
 import '../../../common/models/client.dart';
@@ -80,7 +78,6 @@ abstract class _AddDeliveryStore with Store {
   @action
   void selectClient(ClientModel client) {
     selectedClient = client;
-    log(selectedClient!.id ?? '');
   }
 
   @action
@@ -93,5 +90,9 @@ abstract class _AddDeliveryStore with Store {
     shopId = null;
     selectedClient = null;
     searchBy = SearchMode.name;
+  }
+
+  bool isValid() {
+    return selectedClient?.id != null && shopId != null;
   }
 }
