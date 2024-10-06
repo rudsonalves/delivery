@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 
+import '../../../common/models/client.dart';
 import '../../../components/widgets/big_bottom.dart';
 import '../../../stores/common/store_func.dart';
 import '../add_delivery_controller.dart';
 import '../stores/add_delivery_store.dart';
 
-class BuildMainContentForm extends StatelessWidget {
+class BuildMainContentForm extends StatefulWidget {
   final AddDeliveryController ctrl;
   final AddDeliveryStore store;
   final void Function(String) submitName;
@@ -22,95 +25,162 @@ class BuildMainContentForm extends StatelessWidget {
   });
 
   @override
+  State<BuildMainContentForm> createState() => _BuildMainContentFormState();
+}
+
+class _BuildMainContentFormState extends State<BuildMainContentForm> {
+  final searchByPHoneFocus = FocusNode();
+  final searchByNameFocus = FocusNode();
+
+  ReactionDisposer? _reaction;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _reaction = reaction(
+      (_) => widget.store.searchBy,
+      (_) => FocusScope.of(context).unfocus(),
+    );
+  }
+
+  @override
+  void dispose() {
+    searchByNameFocus.dispose();
+    searchByPHoneFocus.dispose();
+    _reaction?.call();
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final selectedClientId = ctrl.selectedClient?.id;
 
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('Origem'),
-          DropdownButton<String>(
-            icon: IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: () {
-                ctrl.refreshShops();
+          const Text('Loja'),
+          Observer(builder: (context) {
+            return DropdownButton<String>(
+              icon: IconButton(
+                icon: const Icon(Icons.refresh),
+                onPressed: () {
+                  widget.ctrl.refreshShops();
+                },
+              ),
+              isExpanded: true,
+              value: widget.ctrl.selectedShopId,
+              items: widget.ctrl.shops
+                  .map(
+                    (item) => DropdownMenuItem<String>(
+                      value: item.id,
+                      child: Text(item.name),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  widget.ctrl.store.setShopId(value);
+                }
               },
+            );
+          }),
+          const Text('Perquisar Cliente por'),
+          Observer(
+            builder: (context) => Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                RadioMenuButton<SearchMode>(
+                  value: SearchMode.name,
+                  groupValue: widget.ctrl.searchBy,
+                  onChanged: (_) => widget.store.toogleSearchBy(),
+                  child: const Text('Nome'),
+                ),
+                RadioMenuButton<SearchMode>(
+                  value: SearchMode.phone,
+                  toggleable: true,
+                  groupValue: widget.ctrl.searchBy,
+                  onChanged: (_) => widget.store.toogleSearchBy(),
+                  child: const Text('Telefone'),
+                ),
+              ],
             ),
-            isExpanded: true,
-            value: ctrl.selectedShopId,
-            items: ctrl.shops
-                .map(
-                  (item) => DropdownMenuItem<String>(
-                    value: item.id,
-                    child: Text(item.name),
-                  ),
-                )
-                .toList(),
-            onChanged: (value) {
-              if (value != null) {
-                ctrl.store.setShopId(value);
+          ),
+          Observer(
+            builder: (context) {
+              if (widget.ctrl.searchBy == SearchMode.name) {
+                return Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: widget.ctrl.nameController,
+                        focusNode: searchByNameFocus,
+                        keyboardType: TextInputType.text,
+                        textInputAction: TextInputAction.search,
+                        onSubmitted: widget.submitName,
+                        textCapitalization: TextCapitalization.sentences,
+                        decoration: const InputDecoration(
+                          icon: Icon(Icons.person),
+                        ),
+                      ),
+                    ),
+                    IconButton.filledTonal(
+                      onPressed: () => widget.submitName(
+                        widget.ctrl.nameController.text,
+                      ),
+                      icon: const Icon(Icons.search),
+                    ),
+                  ],
+                );
+              } else {
+                return Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: widget.ctrl.phoneController,
+                        focusNode: searchByPHoneFocus,
+                        keyboardType: TextInputType.phone,
+                        textInputAction: TextInputAction.search,
+                        onSubmitted: widget.submitPhone,
+                        decoration: const InputDecoration(
+                          icon: Icon(Icons.phone),
+                        ),
+                      ),
+                    ),
+                    IconButton.filledTonal(
+                      onPressed: () => widget.submitName(
+                        widget.ctrl.phoneController.text,
+                      ),
+                      icon: const Icon(Icons.search),
+                    ),
+                  ],
+                );
               }
             },
           ),
-          const Text('Selecione o Destino'),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              RadioMenuButton<SearchMode>(
-                value: SearchMode.name,
-                groupValue: ctrl.searchBy,
-                onChanged: (_) => store.toogleSearchBy(),
-                child: const Text('Nome'),
-              ),
-              RadioMenuButton<SearchMode>(
-                value: SearchMode.phone,
-                toggleable: true,
-                groupValue: ctrl.searchBy,
-                onChanged: (_) => store.toogleSearchBy(),
-                child: const Text('Telefone'),
-              ),
-            ],
-          ),
-          if (ctrl.searchBy == SearchMode.name)
-            TextField(
-              controller: ctrl.nameController,
-              keyboardType: TextInputType.text,
-              onSubmitted: submitName,
-              textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                icon: Icon(Icons.person),
-              ),
-            ),
-          if (ctrl.searchBy == SearchMode.phone)
-            TextField(
-              controller: ctrl.phoneController,
-              keyboardType: TextInputType.phone,
-              onSubmitted: submitPhone,
-              decoration: const InputDecoration(
-                icon: Icon(Icons.phone),
-              ),
-            ),
-          if (ctrl.state == PageState.success)
-            Builder(
-              builder: (_) {
-                if (ctrl.clients.isNotEmpty) {
+          Observer(
+            builder: (_) {
+              ClientModel? selectedClient = widget.ctrl.store.selectedClient;
+
+              if (widget.ctrl.state == PageState.success) {
+                if (widget.ctrl.clients.isNotEmpty) {
                   return ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: ctrl.clients.length,
+                    itemCount: widget.ctrl.clients.length,
                     itemBuilder: (context, index) {
-                      final client = ctrl.clients[index];
+                      final client = widget.ctrl.clients[index];
 
                       return Card(
-                        color: selectedClientId == client.id
+                        color: selectedClient?.id == client.id
                             ? colorScheme.surfaceContainerHigh
                             : null,
                         child: ListTile(
                           title: Text(client.name),
                           subtitle: Text(client.phone),
-                          onTap: () => ctrl.store.selectClient(client),
+                          onTap: () => widget.ctrl.store.selectClient(client),
                         ),
                       );
                     },
@@ -119,17 +189,23 @@ class BuildMainContentForm extends StatelessWidget {
                 return const Card(
                   child: Text('Nenhum cliente encontrado'),
                 );
-              },
-            ),
-          if (ctrl.state == PageState.loading)
+              } else {
+                return const SizedBox.shrink();
+              }
+            },
+          ),
+          if (widget.ctrl.state == PageState.loading)
             const Center(
               child: CircularProgressIndicator(),
             ),
           const Divider(),
-          BigButton(
-            color: Colors.green,
-            label: 'Gerar Entrega',
-            onPressed: createDelivery,
+          Observer(
+            builder: (context) => BigButton(
+              enable: widget.store.isValid(),
+              color: Colors.green,
+              label: 'Gerar Entrega',
+              onPressed: widget.createDelivery,
+            ),
           ),
         ],
       ),
