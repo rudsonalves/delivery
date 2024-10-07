@@ -18,6 +18,48 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/07 - version: 0.6.17+39
+
+This commit refactors and enhances the client and delivery handling functionalities, improving state management, code clarity, and modularization. It introduces new methods for navigating between client-related pages and refines several store interactions to ensure consistency across the application.
+
+Files Modified:
+
+1. **`lib/features/add_client/add_cliend_page.dart`**
+- **Behavioral Update:**
+  - Added a condition to immediately return to the previous screen if no edits were made, enhancing user flow and preventing unnecessary state changes.
+- **Bug Fix:**
+  - Implemented `store.isValid()` check before saving the client, ensuring data integrity.
+
+2. **`lib/features/add_client/add_client_controller.dart`**
+- **Repository Update:**
+  - Renamed the `repository` variable to `clientRepository` for better clarity.
+- **Data Initialization:**
+  - Refactored the `_setClientValues()` method to asynchronously fetch and set address details if not already provided, reducing potential errors and centralizing address initialization logic.
+
+3. **`lib/features/add_delivery/add_delivery_controller.dart`**
+- **Repository Initialization:**
+  - Refactored repository initializations to use `Abstract` types, improving adherence to dependency inversion principles and ensuring the controller can work with different repository implementations if necessary.
+
+4. **`lib/features/add_delivery/add_delivery_page.dart`**
+- **Navigation Logic:**
+  - Added `_addClient` and `_editClient` methods for navigating to the Add Client page. This provides a consistent way to add or edit clients directly from the delivery page.
+
+5. **`lib/features/add_delivery/widgets/build_main_content_form.dart`**
+- **Widget Update:**
+  - Enhanced `BuildMainContentForm` to include `addClient` and `editClient` callbacks, allowing user navigation to client management screens.
+  - Adjusted list rendering logic to include options for adding and editing clients, improving the user experience.
+
+6. **`lib/features/clients/clients_controller.dart`**
+- **Redundant Logic Removal:**
+  - Removed `editClient` method from `ClientsController` since the navigation logic is now handled within the `ClientsPage` widget, centralizing navigation concerns.
+
+7. **`lib/features/clients/clients_page.dart`**
+- **Navigation Logic Update:**
+  - Replaced the call to `ctrl.editClient` with direct navigation logic, ensuring consistency in navigating to the Add Client page and simplifying the controller's responsibilities.
+
+This commit streamlines the process of adding and editing clients within the app. By shifting navigation logic out of controllers and into the pages themselves, it maintains a clean separation of concerns and enhances code maintainability. Additionally, the refactor improves user flow by introducing conditions that prevent unnecessary navigation or state changes based on the form's current state.
+
+
 ## 2024/10/06 - version: 0.6.16+38
 
 This commit refactors the `BigButton` widget and introduces enhancements to the `AddDeliveryStore` and `BuildMainContentForm` classes. The changes focus on improving button usability, restructuring form state handling, and centralizing widget behavior.

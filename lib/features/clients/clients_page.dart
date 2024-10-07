@@ -38,7 +38,11 @@ class _ClientsPageState extends State<ClientsPage> {
   }
 
   Future<void> _editClient(ClientModel client) async {
-    await ctrl.editClient(context, client);
+    await Navigator.pushNamed(
+      context,
+      AddClientPage.routeName,
+      arguments: client,
+    );
   }
 
   void _addClient() => Navigator.pushNamed(context, AddClientPage.routeName);

@@ -6,6 +6,9 @@ import '../../common/models/delivery.dart';
 import '../../common/models/user.dart';
 import '../../common/utils/data_result.dart';
 import '../../locator.dart';
+import '../../repository/firebase_store/abstract_client_repository.dart';
+import '../../repository/firebase_store/abstract_deliveries_repository.dart';
+import '../../repository/firebase_store/abstract_shop_repository.dart';
 import '../../repository/firebase_store/client_firebase_repository.dart';
 import '../../repository/firebase_store/deliveries_firebase_repository.dart';
 import '../../repository/firebase_store/shop_firebase_repository.dart';
@@ -23,9 +26,10 @@ class AddDeliveryController {
 
   final localStore = locator<LocalStorageService>();
   final user = locator<UserStore>();
-  final deliveryRepository = DeliveriesFirebaseRepository();
-  final clientRepository = ClientFirebaseRepository();
-  final shopRepository = ShopFirebaseRepository();
+  final AbstractDeliveriesRepository deliveryRepository =
+      DeliveriesFirebaseRepository();
+  final AbstractClientRepository clientRepository = ClientFirebaseRepository();
+  final AbstractShopRepository shopRepository = ShopFirebaseRepository();
 
   List<ShopModel> get shops => store.shops;
   List<ClientModel> get clients => store.clients;

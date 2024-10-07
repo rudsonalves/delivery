@@ -1,6 +1,8 @@
+import 'package:delivery/features/add_client/add_cliend_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
+import '../../common/models/client.dart';
 import 'widgets/build_main_content_form.dart';
 import '../../common/theme/app_text_style.dart';
 import 'stores/add_delivery_store.dart';
@@ -54,6 +56,15 @@ class _AddDeliveryPageState extends State<AddDeliveryPage> {
     }
   }
 
+  Future<void> _addClient() async {
+    await Navigator.pushNamed(context, AddClientPage.routeName);
+  }
+
+  Future<void> _editClient(ClientModel? client) async {
+    await Navigator.pushNamed(context, AddClientPage.routeName,
+        arguments: client);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,6 +114,8 @@ class _AddDeliveryPageState extends State<AddDeliveryPage> {
                   submitName: _submitName,
                   submitPhone: _submitPhone,
                   createDelivery: _createDelivery,
+                  addClient: _addClient,
+                  editClient: _editClient,
                 );
               case NoShopState.waiting:
                 return const Center(
