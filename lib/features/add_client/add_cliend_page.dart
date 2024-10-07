@@ -45,6 +45,8 @@ class _AddClientPageState extends State<AddClientPage> {
   }
 
   Future<void> _saveClient() async {
+    if (!store.isEdited) Navigator.of(context).pop();
+
     if (!store.isValid()) return;
     if (store.isEdited) {
       DataResult<ClientModel?> result;

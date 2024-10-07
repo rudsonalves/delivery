@@ -14,6 +14,8 @@ class BuildMainContentForm extends StatefulWidget {
   final void Function(String) submitName;
   final void Function(String) submitPhone;
   final Future<void> Function() createDelivery;
+  final Future<void> Function() addClient;
+  final Future<void> Function(ClientModel?) editClient;
 
   const BuildMainContentForm({
     super.key,
@@ -22,6 +24,8 @@ class BuildMainContentForm extends StatefulWidget {
     required this.submitName,
     required this.submitPhone,
     required this.createDelivery,
+    required this.addClient,
+    required this.editClient,
   });
 
   @override
@@ -87,7 +91,10 @@ class _BuildMainContentFormState extends State<BuildMainContentForm> {
               },
             );
           }),
-          const Text('Perquisar Cliente por'),
+          const Text(
+            'Perquisar Cliente por',
+            textAlign: TextAlign.center,
+          ),
           Observer(
             builder: (context) => Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -160,34 +167,72 @@ class _BuildMainContentFormState extends State<BuildMainContentForm> {
               }
             },
           ),
+          const SizedBox(height: 12),
           Observer(
             builder: (_) {
               ClientModel? selectedClient = widget.ctrl.store.selectedClient;
+              final length = widget.ctrl.clients.length < 4
+                  ? widget.ctrl.clients.length
+                  : 3;
 
               if (widget.ctrl.state == PageState.success) {
                 if (widget.ctrl.clients.isNotEmpty) {
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: widget.ctrl.clients.length,
-                    itemBuilder: (context, index) {
-                      final client = widget.ctrl.clients[index];
+                  return Column(
+                    children: [
+                      OverflowBar(
+                        alignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          FilledButton.tonalIcon(
+                            onPressed: widget.addClient,
+                            label: const Icon(Icons.add),
+                          ),
+                          FilledButton.tonalIcon(
+                            onPressed: () => widget
+                                .editClient(widget.ctrl.store.selectedClient),
+                            label: const Icon(Icons.edit),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 112 * length.toDouble(),
+                        child: ListView.builder(
+                          itemCount: widget.ctrl.clients.length,
+                          itemBuilder: (context, index) {
+                            final client = widget.ctrl.clients[index];
+                            bool isSelected = selectedClient?.id == client.id;
 
-                      return Card(
-                        color: selectedClient?.id == client.id
-                            ? colorScheme.surfaceContainerHigh
-                            : null,
-                        child: ListTile(
-                          title: Text(client.name),
-                          subtitle: Text(client.phone),
-                          onTap: () => widget.ctrl.store.selectClient(client),
+                            return Card(
+                              color: isSelected
+                                  ? colorScheme.surfaceContainerHighest
+                                  : null,
+                              child: ListTile(
+                                title: Text(client.name),
+                                subtitle: Text(
+                                  '${client.phone}\n${client.addressString}',
+                                ),
+                                trailing: Icon(
+                                  isSelected
+                                      ? Icons.task_alt_rounded
+                                      : Icons.circle_outlined,
+                                ),
+                                onTap: () =>
+                                    widget.ctrl.store.selectClient(client),
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
+                      ),
+                    ],
                   );
                 }
                 return const Card(
-                  child: Text('Nenhum cliente encontrado'),
+                  margin: EdgeInsets.all(8),
+                  child: Center(
+                    child: Text(
+                      'Entre com Nome/Fone acima para busca cliente.',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                 );
               } else {
                 return const SizedBox.shrink();
