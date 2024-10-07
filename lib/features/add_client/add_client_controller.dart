@@ -16,7 +16,7 @@ import 'stores/add_client_store.dart';
 
 class AddClientController {
   late final AddClientStore store;
-  final AbstractClientRepository repository = ClientFirebaseRepository();
+  final AbstractClientRepository clientRepository = ClientFirebaseRepository();
 
   final nameController = TextEditingController();
   final emailController = TextEditingController();
@@ -44,16 +44,34 @@ class AddClientController {
     );
   }
 
-  void _setClientValues() {
-    store.setClientFromClient(client!);
+  Future<void> _setClientValues() async {
+    try {
+      store.setState(PageState.loading);
 
-    nameController.text = client!.name;
-    emailController.text = client!.email ?? '';
-    phoneController.text = client!.phone;
-    store.addressType = client!.address?.type ?? 'Residencial';
-    cepController.text = client!.address?.zipCode ?? '';
-    numberController.text = client!.address?.number ?? '';
-    complementController.text = client!.address?.complement ?? '';
+      if (client!.address == null) {
+        final address =
+            await clientRepository.getAddressesForClient(client!.id!);
+
+        if (address != null && address.isNotEmpty) {
+          client!.address = address.first;
+        }
+      }
+
+      store.setClientFromClient(client!);
+
+      nameController.text = client!.name;
+      emailController.text = client!.email ?? '';
+      phoneController.text = client!.phone;
+      store.addressType = client!.address?.type ?? 'Residencial';
+      cepController.text = client!.address?.zipCode ?? '';
+      numberController.text = client!.address?.number ?? '';
+      complementController.text = client!.address?.complement ?? '';
+      store.setAddressString(client!.addressString);
+      store.setState(PageState.success);
+    } catch (err) {
+      store.setError('Connection error: $err');
+      store.setState(PageState.error);
+    }
   }
 
   void dispose() {
@@ -171,7 +189,7 @@ class AddClientController {
         code: 350,
       ));
     }
-    final result = await repository.add(newClient);
+    final result = await clientRepository.add(newClient);
     if (result.isFailure) {
       store.setError('Ocorreu um erro ineperado. Tente mais tarde.');
       return DataResult.failure(GenericFailure(
@@ -203,7 +221,7 @@ class AddClientController {
         code: 350,
       ));
     }
-    final result = await repository.update(newClient);
+    final result = await clientRepository.update(newClient);
 
     if (result.isFailure) {
       store.setError('Ocorreu um erro ineperado. Tente mais tarde.');

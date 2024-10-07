@@ -1,13 +1,10 @@
 import 'dart:async';
 
-import 'package:delivery/stores/common/store_func.dart';
-import 'package:flutter/material.dart';
-
+import '/stores/common/store_func.dart';
 import '../../common/models/user.dart';
 import 'stores/clients_store.dart';
 import '/stores/user/user_store.dart';
 import '../../common/utils/data_result.dart';
-import '/features/add_client/add_cliend_page.dart';
 import '../../common/models/client.dart';
 import '../../locator.dart';
 import '../../repository/firebase_store/abstract_client_repository.dart';
@@ -43,22 +40,6 @@ class ClientsController {
     }, onError: (err) {
       store.setError('Erro ao buscar clientes: $err');
     });
-  }
-
-  Future<void> editClient(BuildContext context, ClientModel client) async {
-    final address = await clientRepository.getAddressesForClient(client.id!);
-
-    if (address != null && address.isNotEmpty) {
-      client.address = address.first;
-    }
-
-    if (context.mounted) {
-      await Navigator.pushNamed(
-        context,
-        AddClientPage.routeName,
-        arguments: client,
-      );
-    }
   }
 
   Future<DataResult<void>> deleteClient(ClientModel client) async {
