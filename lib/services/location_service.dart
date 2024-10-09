@@ -2,16 +2,13 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery/common/models/delivery_men.dart';
-import 'package:geoflutterfire2/geoflutterfire2.dart';
+import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../common/utils/data_result.dart';
 
-const geoHashLength = 5;
-
 class LocationService {
   final FirebaseFirestore _firebase = FirebaseFirestore.instance;
-  final GeoFlutterFire _geo = GeoFlutterFire();
 
   static const keyDeliverymen = 'deliverymen';
   static const keyGeoPoint = 'geopoint';
@@ -69,12 +66,7 @@ class LocationService {
     try {
       final newDelivermen = deliverymen.copyWith();
 
-      GeoPoint geopoint;
-      String geohash;
-      (geopoint, geohash) = await _getCurrentGeoFirePoint();
-
-      newDelivermen.geopoint = geopoint;
-      newDelivermen.geohash = geohash;
+      newDelivermen.location = await _getCurrentGeoFirePoint();
 
       final map = newDelivermen.toMap();
       map[keyUpdatedAt] = FieldValue.serverTimestamp();
@@ -98,12 +90,7 @@ class LocationService {
   Future<DataResult<DeliverymenModel>> createLocation(
       DeliverymenModel deliverymen) async {
     try {
-      GeoPoint geopoint;
-      String geohash;
-      (geopoint, geohash) = await _getCurrentGeoFirePoint();
-
-      deliverymen.geopoint = geopoint;
-      deliverymen.geohash = geohash;
+      deliverymen.location = await _getCurrentGeoFirePoint();
 
       final deliveryMap = deliverymen.toMap();
       deliveryMap[keyCreatedAt] = FieldValue.serverTimestamp();
@@ -124,7 +111,7 @@ class LocationService {
     }
   }
 
-  Future<(GeoPoint, String)> _getCurrentGeoFirePoint() async {
+  Future<GeoFirePoint> _getCurrentGeoFirePoint() async {
     try {
       Position? position = await getCurrentLocation();
       if (position == null) {
@@ -132,15 +119,14 @@ class LocationService {
             'LocationService._getCurrentGeoFirePoint: Can not generate geolocation!');
       }
 
-      GeoFirePoint geoFirePojnt = _geo.point(
-        latitude: position.latitude,
-        longitude: position.longitude,
+      GeoFirePoint geoFirePojnt = GeoFirePoint(
+        GeoPoint(
+          position.latitude,
+          position.longitude,
+        ),
       );
 
-      return (
-        geoFirePojnt.geoPoint,
-        geoFirePojnt.hash.substring(0, geoHashLength)
-      );
+      return geoFirePojnt;
     } catch (err) {
       throw Exception(
           'LocationService._getCurrentGeoFirePoint: Can not generate geolocation!');

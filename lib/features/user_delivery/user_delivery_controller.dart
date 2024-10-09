@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 
 import '../../common/utils/data_result.dart';
 import '../../locator.dart';
@@ -44,8 +45,7 @@ class UserDeliveryController {
       if (user.deliverymen == null) {
         final deliverymen = DeliverymenModel(
           id: userId,
-          geopoint: const GeoPoint(0, 0),
-          geohash: '',
+          location: const GeoFirePoint(GeoPoint(0, 0)),
         );
 
         result = await locationService.createLocation(deliverymen);
@@ -72,7 +72,7 @@ class UserDeliveryController {
       _deliveriesSubscription?.cancel(); // Cancel any previous subscriptions
       _deliveriesSubscription = deliveriesRepository
           .getNearby(
-        geopoint: user.deliverymen!.geopoint,
+        geopoint: user.deliverymen!.location.geopoint,
         radiusInKm: radiusInKm,
       )
           .listen(
@@ -109,7 +109,7 @@ class UserDeliveryController {
       _deliveriesSubscription?.cancel(); // Cancel any previous subscriptions
       _deliveriesSubscription = deliveriesRepository
           .getNearby(
-        geopoint: user.deliverymen!.geopoint,
+        geopoint: user.deliverymen!.location.geopoint,
         radiusInKm: radiusInKm,
       )
           .listen((List<DeliveryModel> fetchedDeliveries) {
