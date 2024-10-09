@@ -1,17 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:geoflutterfire2/geoflutterfire2.dart';
+import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 
 GeoFirePoint mapToGeoFirePoint(Map<String, dynamic> map) {
   final location = map['geopoint'];
   if (location is GeoPoint) {
-    return GeoFirePoint(
-      location.latitude,
-      location.longitude,
-    );
+    return GeoFirePoint(location);
   } else {
     return GeoFirePoint(
-      location['latitude'] as double,
-      location['longitude'] as double,
+      GeoPoint(
+        location['latitude'] as double,
+        location['longitude'] as double,
+      ),
     );
   }
 }

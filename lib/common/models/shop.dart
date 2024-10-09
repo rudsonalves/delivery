@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:delivery/common/models/functions/models_finctions.dart';
-import 'package:geoflutterfire2/geoflutterfire2.dart';
+import 'package:delivery/common/models/functions/model_finctions.dart';
+import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 
 import 'address.dart';
 

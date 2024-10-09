@@ -1,9 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-import 'package:geoflutterfire2/geoflutterfire2.dart';
+import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 
-import 'functions/models_finctions.dart';
+import 'functions/model_finctions.dart';
 
 enum DeliveryStatus {
   orderRegisteredForPickup,
