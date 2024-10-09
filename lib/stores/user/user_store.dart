@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:mobx/mobx.dart';
 
+import '../../common/models/delivery_men.dart';
 import '../../common/models/shop.dart';
 import '../../common/models/user.dart';
 import '../../common/utils/data_result.dart';
@@ -38,6 +39,12 @@ abstract class _UserStore with Store {
 
   @observable
   UserState state = UserState.stateInitial;
+
+  DeliverymenModel? deliverymen;
+
+  setDeliverymen(DeliverymenModel newDeliverymen) {
+    deliverymen = newDeliverymen;
+  }
 
   void dispose() {
     // For possible dispose

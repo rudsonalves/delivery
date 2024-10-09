@@ -1,6 +1,8 @@
 import 'dart:convert';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geoflutterfire2/geoflutterfire2.dart';
+
+import 'functions/models_finctions.dart';
 
 class AddressModel {
   String? id;
@@ -12,8 +14,7 @@ class AddressModel {
   String neighborhood;
   String state;
   String city;
-  GeoPoint? geopoint;
-  String? geohash;
+  GeoFirePoint? location;
   DateTime? createdAt;
   DateTime? updatedAt;
 
@@ -27,8 +28,7 @@ class AddressModel {
     required this.neighborhood,
     required this.state,
     required this.city,
-    this.geopoint,
-    this.geohash,
+    this.location,
     DateTime? createdAt,
     DateTime? updatedAt,
   })  : createdAt = createdAt ?? DateTime.now(),
@@ -44,8 +44,7 @@ class AddressModel {
       'neighborhood': neighborhood,
       'state': state,
       'city': city,
-      'geopoint': geopoint,
-      'geohash': geohash,
+      'location': location?.data,
       'createdAt': createdAt?.millisecondsSinceEpoch,
       'updatedAt': updatedAt?.millisecondsSinceEpoch,
     };
@@ -89,8 +88,7 @@ class AddressModel {
     String? neighborhood,
     String? state,
     String? city,
-    GeoPoint? geopoint,
-    String? geohash,
+    GeoFirePoint? location,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -104,8 +102,7 @@ class AddressModel {
       neighborhood: neighborhood ?? this.neighborhood,
       state: state ?? this.state,
       city: city ?? this.city,
-      geopoint: geopoint ?? this.geopoint,
-      geohash: geohash ?? this.geohash,
+      location: location ?? this.location,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -122,8 +119,8 @@ class AddressModel {
       neighborhood: map['neighborhood'] as String,
       state: map['state'] as String,
       city: map['city'] as String,
-      geopoint: map['geopoint'] as GeoPoint?,
-      geohash: map['geohash'] as String?,
+      location:
+          map['location'] != null ? mapToGeoFirePoint(map['location']) : null,
       createdAt: map['createdAt'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
           : null,
@@ -151,8 +148,7 @@ class AddressModel {
         other.neighborhood == neighborhood &&
         other.state == state &&
         other.city == city &&
-        other.geopoint == geopoint &&
-        other.geohash == geohash &&
+        other.location == location &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt;
   }
@@ -168,8 +164,7 @@ class AddressModel {
         neighborhood.hashCode ^
         state.hashCode ^
         city.hashCode ^
-        geopoint.hashCode ^
-        geohash.hashCode ^
+        location.hashCode ^
         createdAt.hashCode ^
         updatedAt.hashCode;
   }
@@ -185,8 +180,7 @@ class AddressModel {
         ' neighborhood: $neighborhood,'
         ' state: $state,'
         ' city: $city,'
-        ' geopoint: $geopoint,'
-        ' geohash: $geohash,'
+        ' location: $location,'
         ' createdAt: $createdAt,'
         ' updatedAt: $updatedAt)';
   }

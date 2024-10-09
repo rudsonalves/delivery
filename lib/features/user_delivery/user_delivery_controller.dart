@@ -1,11 +1,13 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:geolocator/geolocator.dart';
 
-import 'package:delivery/stores/common/store_func.dart';
-
+import '../../common/utils/data_result.dart';
+import '../../locator.dart';
+import '../../stores/user/user_store.dart';
+import '/stores/common/store_func.dart';
+import '../../common/models/delivery_men.dart';
 import '../../repository/firebase_store/abstract_deliveries_repository.dart';
 import '/common/models/delivery.dart';
 import '/repository/firebase_store/deliveries_firebase_repository.dart';
@@ -13,9 +15,8 @@ import '/services/location_service.dart';
 import 'stores/user_delivery_store.dart';
 
 class UserDeliveryController {
-  UserDeliveryController();
-
   StreamSubscription<List<DeliveryModel>>? _deliveriesSubscription;
+  final user = locator<UserStore>();
 
   final locationService = LocationService();
   final AbstractDeliveriesRepository deliveriesRepository =
@@ -39,24 +40,39 @@ class UserDeliveryController {
     this.store = store;
 
     try {
-      // Get and update location in Firebase
-      final Position? position = await locationService.updateLocation(userId);
-      if (position == null) {
-        store.setError('Não foi possível obter sua localização.');
-        return;
+      DataResult<DeliverymenModel> result;
+      if (user.deliverymen == null) {
+        final deliverymen = DeliverymenModel(
+          id: userId,
+          geopoint: const GeoPoint(0, 0),
+          geohash: '',
+        );
+
+        result = await locationService.createLocation(deliverymen);
+        if (result.isFailure) {
+          const message = 'Sua localização não pode ser determinada!';
+          log(message);
+          store.setError(message);
+          return;
+        }
+      } else {
+        // Get and update location in Firebase
+        result = await locationService.updateLocation(user.deliverymen!);
+        if (result.isFailure) {
+          const message = 'Não foi possível obter sua localização.';
+          log(message);
+          store.setError(message);
+          return;
+        }
       }
 
-      // Criate a GeoPoint to location
-      final GeoPoint currentLocation = GeoPoint(
-        position.latitude,
-        position.longitude,
-      );
+      user.deliverymen = result.data!;
 
       // Start the stream to get nearby deliveries
       _deliveriesSubscription?.cancel(); // Cancel any previous subscriptions
       _deliveriesSubscription = deliveriesRepository
           .getNearby(
-        location: currentLocation,
+        geopoint: user.deliverymen!.geopoint,
         radiusInKm: radiusInKm,
       )
           .listen(
@@ -65,11 +81,15 @@ class UserDeliveryController {
           store.setState(PageState.success);
         },
         onError: (error) {
-          store.setError('Erro ao buscar entregas próximas: $error');
+          final message = 'Erro ao buscar entregas próximas: $error';
+          log(message);
+          store.setError(message);
         },
       );
     } catch (err) {
-      store.setError('Error ao inicializar: $err');
+      final message = 'Error ao inicializar: $err';
+      log(message);
+      store.setError(message);
     }
   }
 
@@ -78,23 +98,18 @@ class UserDeliveryController {
     store.setState(PageState.loading);
     try {
       // Get and Update location in Firebase
-      final Position? position = await locationService.updateLocation(userId);
-      if (position == null) {
+      final result = await locationService.updateLocation(user.deliverymen!);
+      if (result.isFailure) {
         store.setError('Não foi possível obter sua localização.');
         return;
       }
-
-      // Criate GeoPoint to location
-      GeoPoint currentLocation = GeoPoint(
-        position.latitude,
-        position.longitude,
-      );
+      user.deliverymen = result.data!;
 
       // Start the stream to get nearby deliveries
       _deliveriesSubscription?.cancel(); // Cancel any previous subscriptions
       _deliveriesSubscription = deliveriesRepository
           .getNearby(
-        location: currentLocation,
+        geopoint: user.deliverymen!.geopoint,
         radiusInKm: radiusInKm,
       )
           .listen((List<DeliveryModel> fetchedDeliveries) {

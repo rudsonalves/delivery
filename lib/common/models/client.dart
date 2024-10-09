@@ -1,8 +1,7 @@
-import 'dart:convert';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geoflutterfire2/geoflutterfire2.dart';
 
 import 'address.dart';
+import 'functions/models_finctions.dart';
 
 class ClientModel {
   String? id;
@@ -11,8 +10,7 @@ class ClientModel {
   String phone;
   AddressModel? address;
   String? addressString;
-  GeoPoint geopoint;
-  String geohash;
+  GeoFirePoint location;
   DateTime? createdAt;
   DateTime? updatedAt;
 
@@ -23,8 +21,7 @@ class ClientModel {
     required this.phone,
     this.address,
     this.addressString,
-    required this.geopoint,
-    required this.geohash,
+    required this.location,
     DateTime? createdAt,
     DateTime? updatedAt,
   })  : createdAt = createdAt ?? DateTime.now(),
@@ -37,8 +34,7 @@ class ClientModel {
     String? phone,
     AddressModel? address,
     String? addressString,
-    GeoPoint? geopoint,
-    String? geohash,
+    GeoFirePoint? location,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -49,8 +45,7 @@ class ClientModel {
       phone: phone ?? this.phone,
       address: address?.copyWith() ?? this.address?.copyWith(),
       addressString: addressString ?? this.addressString,
-      geopoint: geopoint ?? this.geopoint,
-      geohash: geohash ?? this.geohash,
+      location: location ?? this.location,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -62,8 +57,7 @@ class ClientModel {
       'email': email,
       'phone': phone,
       'addressString': addressString,
-      'geopoint': geopoint,
-      'geohash': geohash,
+      'location': location.data,
       'createdAt': createdAt?.millisecondsSinceEpoch,
       'updatedAt': updatedAt?.millisecondsSinceEpoch,
     };
@@ -76,8 +70,7 @@ class ClientModel {
       email: map['email'] as String?,
       phone: map['phone'] as String,
       addressString: map['addressString'] as String?,
-      geopoint: map['geopoint'] as GeoPoint,
-      geohash: map['geohash'] as String,
+      location: mapToGeoFirePoint(map['location']),
       createdAt: map['createdAt'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
           : null,
@@ -87,26 +80,6 @@ class ClientModel {
     );
   }
 
-  String toJson() {
-    final map = toMap();
-    map['id'] = id;
-    map['geopoint'] = {
-      'latitude': geopoint.latitude,
-      'longitude': geopoint.longitude,
-    };
-    return json.encode(map);
-  }
-
-  factory ClientModel.fromJson(String source) {
-    final map = json.decode(source) as Map<String, dynamic>;
-    final geopoint = GeoPoint(
-      map['geopoint']['latitude'] as double,
-      map['geopoint']['longitude'] as double,
-    );
-    map['geopoint'] = geopoint;
-    return ClientModel.fromMap(map);
-  }
-
   @override
   String toString() {
     return 'ClientModel(id: $id, name: $name,'
@@ -114,8 +87,7 @@ class ClientModel {
         ' phone: $phone,'
         ' address: $address,'
         ' addressString: $addressString,'
-        ' geopoint: $geopoint,'
-        ' geohash: $geohash,'
+        ' location: $location,'
         ' createdAt: $createdAt,'
         ' updatedAt: $updatedAt)';
   }
@@ -130,8 +102,7 @@ class ClientModel {
         other.phone == phone &&
         other.address == address &&
         other.addressString == addressString &&
-        other.geopoint == geopoint &&
-        other.geohash == geohash &&
+        other.location == location &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt;
   }
@@ -144,8 +115,7 @@ class ClientModel {
         phone.hashCode ^
         address.hashCode ^
         addressString.hashCode ^
-        geopoint.hashCode ^
-        geohash.hashCode ^
+        location.hashCode ^
         createdAt.hashCode ^
         updatedAt.hashCode;
   }

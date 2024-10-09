@@ -110,8 +110,7 @@ class AddClientController {
       phone: store.phone!,
       address: address!.copyWith(),
       addressString: address!.geoAddressString,
-      geopoint: address!.geopoint!,
-      geohash: address!.geohash!,
+      location: address!.location!,
     );
   }
 

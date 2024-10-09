@@ -251,7 +251,7 @@ class ClientFirebaseRepository implements AbstractClientRepository {
   }
 
   @override
-  Stream<List<ClientModel>> streamClientByName() {
+  Stream<List<ClientModel>> streamAllClients() {
     try {
       return _firebase
           .collection(keyClients)

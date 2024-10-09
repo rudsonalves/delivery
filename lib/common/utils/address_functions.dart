@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geoflutterfire2/geoflutterfire2.dart';
 import 'package:geocoding/geocoding.dart';
 
@@ -49,12 +48,9 @@ class AddressFunctions {
       // Create a exception if any error
       throw Exception('Address geoPoint return null');
     }
-    // Create a new GeoHash
-    final geohash = createGeoPointHash(geoPoint);
 
     // Update geopoint and geohash at address
-    newAddress.geopoint = geoPoint;
-    newAddress.geohash = geohash;
+    newAddress.location = geoPoint;
 
     // Update createdAt and updatedAt
     final now = DateTime.now();
@@ -64,14 +60,7 @@ class AddressFunctions {
     return newAddress;
   }
 
-  static String createGeoPointHash(GeoPoint geo) {
-    return GeoFlutterFire()
-        .point(latitude: geo.latitude, longitude: geo.longitude)
-        .hash
-        .substring(0, geoHashLength);
-  }
-
-  static Future<GeoPoint?> getGeoPointFromAddressString(
+  static Future<GeoFirePoint?> getGeoPointFromAddressString(
     String addressString,
   ) async {
     try {
@@ -82,7 +71,7 @@ class AddressFunctions {
       }
 
       final location = locations.first;
-      return GeoPoint(location.latitude, location.longitude);
+      return GeoFirePoint(location.latitude, location.longitude);
     } catch (err) {
       final message =
           'GeolocationServiceGoogle.getCoordinatesFromAddress: $err';

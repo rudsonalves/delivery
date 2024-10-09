@@ -1,6 +1,7 @@
 import 'dart:convert';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivery/common/models/functions/models_finctions.dart';
+import 'package:geoflutterfire2/geoflutterfire2.dart';
 
 import 'address.dart';
 
@@ -14,8 +15,7 @@ class ShopModel {
   String? managerName;
   AddressModel? address;
   String? addressString;
-  GeoPoint geopoint;
-  String geohash;
+  GeoFirePoint location;
   DateTime? createdAt;
   DateTime? updatedAt;
 
@@ -29,8 +29,7 @@ class ShopModel {
     this.managerName,
     this.address,
     this.addressString,
-    required this.geopoint,
-    required this.geohash,
+    required this.location,
     DateTime? createdAt,
     DateTime? updatedAt,
   })  : createdAt = createdAt ?? DateTime.now(),
@@ -46,7 +45,7 @@ class ShopModel {
     String? managerName,
     AddressModel? address,
     String? addressString,
-    GeoPoint? geopoint,
+    GeoFirePoint? location,
     String? geohash,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -61,8 +60,7 @@ class ShopModel {
       managerName: managerName ?? this.managerName,
       address: address ?? this.address,
       addressString: addressString ?? this.addressString,
-      geopoint: geopoint ?? this.geopoint,
-      geohash: geohash ?? this.geohash,
+      location: location ?? this.location,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -78,8 +76,7 @@ class ShopModel {
       'managerId': managerId,
       'managerName': managerName,
       'addressString': addressString,
-      'geopoint': geopoint,
-      'geohash': geohash,
+      'location': location.data,
       'createdAt': createdAt?.millisecondsSinceEpoch,
       'updatedAt': updatedAt?.millisecondsSinceEpoch,
     };
@@ -95,8 +92,7 @@ class ShopModel {
       managerId: map['managerId'] as String?,
       managerName: map['managerName'] as String?,
       addressString: map['addressString'] as String?,
-      geopoint: map['geopoint'] as GeoPoint,
-      geohash: map['geohash'] as String,
+      location: mapToGeoFirePoint(map['location']),
       createdAt: map['createdAt'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
           : null,
@@ -109,22 +105,15 @@ class ShopModel {
   String toJson() {
     final map = toMap();
     map['id'] = id;
-    map['geopoint'] = {
-      'latitude': geopoint.latitude,
-      'longitude': geopoint.longitude,
+    map['location']['geopoint'] = {
+      'latitude': location.latitude,
+      'longitude': location.longitude,
     };
     return json.encode(map);
   }
 
-  factory ShopModel.fromJson(String source) {
-    final map = json.decode(source) as Map<String, dynamic>;
-    final geopoint = GeoPoint(
-      map['geopoint']['latitude'] as double,
-      map['geopoint']['longitude'] as double,
-    );
-    map['geopoint'] = geopoint;
-    return ShopModel.fromMap(map);
-  }
+  factory ShopModel.fromJson(String source) =>
+      ShopModel.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
@@ -137,8 +126,7 @@ class ShopModel {
         ' managerName: $managerName,'
         ' address: $address,'
         ' addressString: $addressString,'
-        ' geopoint: $geopoint,'
-        ' geohash: $geohash,'
+        ' location: $location,'
         ' createdAt: $createdAt,'
         ' updatedAt: $updatedAt)';
   }
@@ -156,8 +144,7 @@ class ShopModel {
         other.managerName == managerName &&
         other.address == address &&
         other.addressString == addressString &&
-        other.geopoint == geopoint &&
-        other.geohash == geohash &&
+        other.location == location &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt;
   }
@@ -173,8 +160,7 @@ class ShopModel {
         managerName.hashCode ^
         address.hashCode ^
         addressString.hashCode ^
-        geopoint.hashCode ^
-        geohash.hashCode ^
+        location.hashCode ^
         createdAt.hashCode ^
         updatedAt.hashCode;
   }

@@ -141,9 +141,8 @@ class AddDeliveryController {
         status: DeliveryStatus.orderRegisteredForPickup,
         clientAddress: client.addressString!,
         shopAddress: shop.addressString!,
-        clientLocation: client.geopoint,
-        geopoint: shop.geopoint,
-        geohash: shop.geohash,
+        clientLocation: client.location,
+        shopLocation: shop.location,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );

@@ -9,6 +9,6 @@ abstract class AbstractClientRepository {
   Future<DataResult<ClientModel?>> get(String clientId);
   Future<List<AddressModel>?> getAddressesForClient(String clientId);
   Future<DataResult<List<ClientModel>>> getClientsByName(String name);
-  Stream<List<ClientModel>> streamClientByName();
+  Stream<List<ClientModel>> streamAllClients();
   Future<DataResult<List<ClientModel>>> getClientsByPhone(String phone);
 }

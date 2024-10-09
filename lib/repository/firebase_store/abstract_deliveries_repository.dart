@@ -12,7 +12,7 @@ abstract class AbstractDeliveriesRepository {
   Stream<List<DeliveryModel>> getByShopId(String shopId);
   Stream<List<DeliveryModel>> streamShopByName();
   Stream<List<DeliveryModel>> getNearby({
-    required GeoPoint location,
+    required GeoPoint geopoint,
     required double radiusInKm,
   });
   Stream<List<DeliveryModel>> getByOwnerId(String ownerId);

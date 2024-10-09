@@ -99,8 +99,7 @@ class AddShopController {
       managerName: store.managerName,
       address: address!.copyWith(),
       addressString: address!.geoAddressString,
-      geopoint: address!.geopoint!,
-      geohash: address!.geohash!,
+      location: address!.location!,
     );
   }
 

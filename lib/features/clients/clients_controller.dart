@@ -33,7 +33,7 @@ class ClientsController {
   Future<void> getClients() async {
     store.setState(PageState.loading);
     _clientsSubscription?.cancel();
-    _clientsSubscription = clientRepository.streamClientByName().listen(
+    _clientsSubscription = clientRepository.streamAllClients().listen(
         (List<ClientModel> fetchedClients) {
       store.setClients(fetchedClients);
       store.setState(PageState.success);
