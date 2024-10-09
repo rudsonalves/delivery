@@ -1,12 +1,12 @@
-import 'package:delivery/stores/common/store_func.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
+import '../../components/widgets/delivery_card.dart';
+import '/stores/common/store_func.dart';
 import '../../common/theme/app_text_style.dart';
 import '../../locator.dart';
 import 'stores/user_business_store.dart';
 import '../../stores/user/user_store.dart';
-import '/components/widgets/delivery_card.dart';
 import '/features/user_business/user_business_controller.dart';
 import '../../common/models/delivery.dart';
 import '../add_delivery/add_delivery_page.dart';
@@ -85,7 +85,7 @@ class _UserBusinessPageState extends State<UserBusinessPage> {
 
                         return DeliveryCard(
                           delivery: delivery,
-                          showInMap: _showInMap,
+                          action: _showInMap,
                         );
                       },
                     );

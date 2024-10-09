@@ -8,6 +8,8 @@ extension DeliveryStatusExtension on DeliveryStatus {
     switch (this) {
       case DeliveryStatus.orderRegisteredForPickup:
         return 'Pedido Registrado para Retirada';
+      case DeliveryStatus.orderReservedForPickup:
+        return 'Pedido Reservado para Retirada';
       case DeliveryStatus.orderPickedUpForDelivery:
         return 'Pedido Retirado para Entrega';
       case DeliveryStatus.orderInTransit:
@@ -21,20 +23,43 @@ extension DeliveryStatusExtension on DeliveryStatus {
     }
   }
 
-  IconData get icon {
+  Icon get icon {
     switch (this) {
       case DeliveryStatus.orderRegisteredForPickup:
-        return Symbols.concierge_rounded;
+        return const Icon(
+          Symbols.deployed_code_update_rounded,
+          color: Colors.purple,
+        );
+      case DeliveryStatus.orderReservedForPickup:
+        return const Icon(
+          Symbols.deployed_code_history_rounded,
+          color: Colors.cyan,
+        );
       case DeliveryStatus.orderPickedUpForDelivery:
-        return Icons.delivery_dining_rounded;
+        return const Icon(
+          Symbols.deployed_code_rounded,
+          color: Colors.yellow,
+        );
       case DeliveryStatus.orderInTransit:
-        return Symbols.local_shipping_rounded;
+        return const Icon(
+          Symbols.local_shipping,
+          color: Colors.blue,
+        );
       case DeliveryStatus.orderDelivered:
-        return Symbols.task_alt_rounded;
+        return const Icon(
+          Symbols.house_rounded,
+          color: Colors.orangeAccent,
+        );
       case DeliveryStatus.orderClosed:
-        return Symbols.flaky_rounded;
+        return const Icon(
+          Symbols.task_alt_rounded,
+          color: Colors.green,
+        );
       case DeliveryStatus.orderReject:
-        return Symbols.report_rounded;
+        return const Icon(
+          Symbols.cancel,
+          color: Colors.red,
+        );
     }
   }
 
