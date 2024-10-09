@@ -1,7 +1,7 @@
-import 'package:geoflutterfire2/geoflutterfire2.dart';
+import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 
 import 'address.dart';
-import 'functions/models_finctions.dart';
+import 'functions/model_finctions.dart';
 
 class ClientModel {
   String? id;

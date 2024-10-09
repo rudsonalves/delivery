@@ -1,6 +1,7 @@
 import 'dart:developer';
 
-import 'package:geoflutterfire2/geoflutterfire2.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:geocoding/geocoding.dart';
 
 import '/common/models/address.dart';
@@ -71,7 +72,7 @@ class AddressFunctions {
       }
 
       final location = locations.first;
-      return GeoFirePoint(location.latitude, location.longitude);
+      return GeoFirePoint(GeoPoint(location.latitude, location.longitude));
     } catch (err) {
       final message =
           'GeolocationServiceGoogle.getCoordinatesFromAddress: $err';
