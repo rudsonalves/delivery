@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:geoflutterfire2/geoflutterfire2.dart';
+import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 
 import '/common/utils/data_result.dart';
 import '/common/models/delivery.dart';
@@ -9,7 +9,6 @@ import 'abstract_deliveries_repository.dart';
 
 class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
   final _firebase = FirebaseFirestore.instance;
-  final GeoFlutterFire geo = GeoFlutterFire();
 
   static const keyDeliveries = 'deliveries';
   static const keyShopId = 'shopId';
@@ -288,26 +287,29 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
     int limit = 50,
   }) {
     // Create a GeoFirePoint for the center point (delivery user location)
-    GeoFirePoint center = geo.point(
-      latitude: geopoint.latitude,
-      longitude: geopoint.longitude,
-    );
+    final GeoFirePoint center =
+        GeoFirePoint(GeoPoint(geopoint.latitude, geopoint.longitude));
 
-    // Sets the reference to the 'deliveries' collection
-    final collectionRef = _firebase.collection(keyDeliveries);
+    // Set the reference to the 'deliveries' collection
+    final collectionReference = _firebase.collection(keyDeliveries);
 
-    // Execute the geospatial query
-    return geo
-        .collection(collectionRef: collectionRef)
-        .within(
-          center: center,
-          radius: radiusInKm,
-          field: keyShopLocation,
-          strictMode: false,
-        )
+    // Function to get GeoPoint instance from Firestore document data
+    GeoPoint geopointFrom(Map<String, dynamic> data) =>
+        (data[keyShopLocation] as Map<String, dynamic>)['geopoint'] as GeoPoint;
+
+    // Execute the geospatial query using geoflutterfire_plus
+    return GeoCollectionReference<Map<String, dynamic>>(collectionReference)
+        .subscribeWithin(
+      center: center,
+      radiusInKm: radiusInKm,
+      field: keyShopLocation,
+      geopointFrom: geopointFrom,
+    )
         .asyncMap((snapshot) async {
-      // Map documents to DeliveryModel
+      // Log the number of documents returned
       log('Número de documentos retornados: ${snapshot.length}');
+
+      // Map documents to DeliveryModel
       List<DeliveryModel> deliveries = snapshot
           .map((doc) {
             final data = doc.data() as Map<String, dynamic>;
@@ -331,6 +333,7 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
           .take(limit)
           .toList();
 
+      // Log the number of deliveries processed
       log('Número de deliveries processadas: ${deliveries.length}');
       return deliveries;
     });

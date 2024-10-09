@@ -1,12 +1,13 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivery/common/models/functions/model_finctions.dart';
+import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 
 class DeliverymenModel {
   final String id;
-  GeoPoint geopoint;
-  String geohash;
+  GeoFirePoint location;
+
   DateTime updatedAt;
   DateTime createdAt;
 
@@ -14,22 +15,19 @@ class DeliverymenModel {
     DateTime? updatedAt,
     DateTime? createdAt,
     required this.id,
-    required this.geopoint,
-    required this.geohash,
+    required this.location,
   })  : createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now();
 
   DeliverymenModel copyWith({
     String? id,
-    GeoPoint? geopoint,
-    String? geohash,
+    GeoFirePoint? location,
     DateTime? updatedAt,
     DateTime? createdAt,
   }) {
     return DeliverymenModel(
       id: id ?? this.id,
-      geopoint: geopoint ?? this.geopoint,
-      geohash: geohash ?? this.geohash,
+      location: location ?? this.location,
       updatedAt: updatedAt ?? this.updatedAt,
       createdAt: createdAt ?? this.createdAt,
     );
@@ -38,8 +36,7 @@ class DeliverymenModel {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
-      'geopoint': geopoint,
-      'geohash': geohash,
+      'location': location.data,
       'updatedAt': updatedAt.millisecondsSinceEpoch,
       'createdAt': createdAt.millisecondsSinceEpoch,
     };
@@ -48,8 +45,7 @@ class DeliverymenModel {
   factory DeliverymenModel.fromMap(Map<String, dynamic> map) {
     return DeliverymenModel(
       id: map['id'] as String,
-      geopoint: map['geopoint'] as GeoPoint,
-      geohash: map['geohash'] as String,
+      location: mapToGeoFirePoint(map['location']),
       updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int),
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int),
     );
@@ -63,8 +59,7 @@ class DeliverymenModel {
   @override
   String toString() {
     return 'DeliveryMenModel(id: $id,'
-        ' geopoint: $geopoint,'
-        ' geohash: $geohash,'
+        ' location: $location,'
         ' updatedAt: $updatedAt,'
         ' createdAt: $createdAt)';
   }
@@ -74,8 +69,7 @@ class DeliverymenModel {
     if (identical(this, other)) return true;
 
     return other.id == id &&
-        other.geopoint == geopoint &&
-        other.geohash == geohash &&
+        other.location == location &&
         other.updatedAt == updatedAt &&
         other.createdAt == createdAt;
   }
@@ -83,8 +77,7 @@ class DeliverymenModel {
   @override
   int get hashCode {
     return id.hashCode ^
-        geopoint.hashCode ^
-        geohash.hashCode ^
+        location.hashCode ^
         updatedAt.hashCode ^
         createdAt.hashCode;
   }

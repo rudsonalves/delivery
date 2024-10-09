@@ -18,6 +18,80 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/09 - version: 0.6.19+41
+
+This commit includes the following major changes and refactoring:
+
+1. **Package Update**:
+
+   - Replaced the deprecated `geoflutterfire2` package with the newer `geoflutterfire_plus` package across all files, ensuring compatibility and enhanced functionality for handling geospatial data.
+   - Updated the `pubspec.yaml` file to include `geoflutterfire_plus` version `^0.0.31` and removed references to the deprecated `geoflutterfire2` package.
+
+2. **Model Updates**:
+
+   - Replaced references to `GeoPoint` and `geohash` with `GeoFirePoint` attributes in models and refactored all related methods to use the new `GeoFirePoint` data type.
+   - Updated the `DeliverymenModel`, `ClientModel`, and `AddressModel` to utilize `GeoFirePoint` for location data.
+
+3. **Functionality Adjustments**:
+
+   - Modified the `getNearby` method in `DeliveriesFirebaseRepository` to use `geoflutterfire_plus`'s `GeoCollectionReference` for optimized querying of nearby deliveries.
+   - Refactored the `LocationService` to handle location updates using `GeoFirePoint` instead of individual `GeoPoint` attributes, streamlining the process of updating and retrieving geographical data.
+
+### Detailed Changes
+
+1. **`lib/common/models/address.dart`**
+
+- Changed `geoflutterfire2` imports to `geoflutterfire_plus`.
+- Updated the `location` attribute to use `GeoFirePoint` from the new package.
+- Adjusted all related methods and constructors to reflect this change.
+
+2. **`lib/common/models/client.dart`**
+
+- Replaced the import from `geoflutterfire2` to `geoflutterfire_plus`.
+- Updated the `location` attribute and constructors to work with the new `GeoFirePoint` data type.
+
+3. **`lib/common/models/delivery.dart`**
+
+- Similar changes as above: replaced the `GeoPoint` attributes with `GeoFirePoint`.
+- Updated all methods, constructors, and utility functions to use `GeoFirePoint`.
+
+4. **`lib/common/models/delivery_men.dart`**
+
+- Replaced `GeoPoint` and `geohash` attributes with a single `GeoFirePoint location`.
+- Updated methods such as `toMap`, `fromMap`, and `copyWith` to handle the new `GeoFirePoint` data type.
+
+5. **`lib/common/models/functions/models_finctions.dart`** → **`lib/common/models/functions/model_finctions.dart`**
+
+- Renamed to match naming conventions.
+- Adjusted the `mapToGeoFirePoint` function to work with the new `GeoFirePoint` structure from `geoflutterfire_plus`.
+
+6. **`lib/common/utils/address_functions.dart`**
+
+- Updated `getGeoPointFromAddressString` to return `GeoFirePoint` instead of `GeoPoint`.
+
+7. **`lib/features/user_delivery/user_delivery_controller.dart`**
+
+- Updated the location management for deliverymen to use `GeoFirePoint` instead of `GeoPoint`.
+- Refactored the methods for creating and updating location data using the `geoflutterfire_plus` package.
+
+8. **`lib/repository/firebase_store/deliveries_firebase_repository.dart`**
+
+- Refactored the `getNearby` method to use `GeoCollectionReference` from `geoflutterfire_plus`, providing better geospatial querying capabilities.
+
+9. **`lib/services/location_service.dart`**
+
+- Updated the methods for location updates to use `GeoFirePoint`.
+- Simplified the `_getCurrentGeoFirePoint` function to return a `GeoFirePoint` instead of separate latitude and longitude values.
+
+10. **`pubspec.yaml`**
+
+- Updated dependencies:
+  - Added `geoflutterfire_plus: ^0.0.31`.
+  - Removed `geoflutterfire2` references.
+
+This commit primarily focuses on replacing the deprecated `geoflutterfire2` package with `geoflutterfire_plus`, updating all relevant models, services, and repositories to work with the new geospatial data structures.
+
+
 ## 2024/10/09 - version: 0.6.18+40
 
 This commit primarily involves refactoring and updating models, controllers, and services to leverage `GeoFirePoint` from the `GeoFlutterFire2` package instead of using `GeoPoint` directly. It improves the geographical data handling in models and ensures consistency in how coordinates are managed across different parts of the application.
@@ -697,7 +771,7 @@ Updated Firebase packages and implemented geolocation-based delivery features.
 
 1. **General Package Updates**
    - Updated all Firebase-related packages to the latest versions to address compatibility issues.
-   - Updated the `geoflutterfire2` package locally and began testing it to ensure it functions correctly.
+   - Updated the `geoflutterfire_plus` package locally and began testing it to ensure it functions correctly.
 
 2. **Android Manifest**
    - Added `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`, and `ACCESS_BACKGROUND_LOCATION` permissions in the `AndroidManifest.xml` to support geolocation services in the app.
@@ -1362,7 +1436,7 @@ This commit upgrades the Flutter SDK, updates Firebase dependencies, replaces th
 28. **pubspec.yaml**
     - Updated dependencies:
       - Upgraded `get_it` to `^8.0.0`.
-      - Removed `qr_code_scanner` and added `mobile_scanner`, `geocoding`, and `geoflutterfire2`.
+      - Removed `qr_code_scanner` and added `mobile_scanner`, `geocoding`, and `geoflutterfire_plus`.
       - Updated `firebase_core` to `^2.32.0`, `cloud_firestore` to `^4.17.5`, and other Firebase packages to their latest versions.
 
 These updates enhance the project's compatibility with the latest Flutter and Firebase versions, improve security with refined Firestore rules, and ensure the app uses maintained and optimized packages for QR code scanning and geolocation. The refactoring also promotes cleaner code practices by leveraging Dart extensions and removing deprecated dependencies.
