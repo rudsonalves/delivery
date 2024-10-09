@@ -18,6 +18,56 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/09 - version: 0.6.20+42
+
+This commit focuses on refactoring the way deliverymen's geolocation data is managed. The core goal is to replace the `LocationService` class with a new repository structure that offers a more modular and repository-oriented approach to handling deliverymen's data and location services.
+
+### Major Changes and Refactoring
+
+1. **Introduction of `DeliverymenFirebaseRepository`**:
+   - Created a new repository class, `DeliverymenFirebaseRepository`, that directly manages CRUD operations for deliverymen data within Firebase.
+   - Implemented functions to handle the addition (`add`) and update (`updateLocation`) of deliverymen data in Firestore, simplifying location management.
+
+2. **Abstracted Location Management**:
+   - Introduced an abstract class, `AbstractDeliverymenRepository`, which provides an interface for deliverymen operations such as obtaining the current location and updating deliverymen details.
+   - Removed the `LocationService` class entirely, as its responsibilities have now been distributed and refactored into the repository pattern.
+
+3. **User Delivery Controller Refactoring**:
+   - Updated the `UserDeliveryController` to use `DeliverymenFirebaseRepository` instead of the previous `LocationService`.
+   - Refactored methods for creating and updating deliverymen location to utilize the new repository methods, improving separation of concerns.
+
+### Detailed Changes
+
+1. **`lib/features/user_delivery/user_delivery_controller.dart`**
+
+- Removed the import for `LocationService` and added imports for `AbstractDeliverymenRepository` and `DeliverymenFirebaseRepository`.
+- Replaced all instances where `locationService` was used with appropriate methods from `deliverymenRepository`.
+- Removed direct calls to location services and used the repository to handle location updates and creation.
+
+2. **New File: `lib/repository/firebase_store/abstract_deliverymen_repository.dart`**
+
+- Created an abstract class `AbstractDeliverymenRepository` to define the contract for operations involving deliverymen, including getting the current location, adding, and updating deliverymen in Firestore.
+- This abstraction allows for better flexibility and testability, adhering to dependency inversion principles.
+
+3. **New File: `lib/repository/firebase_store/deliverymen_firebase_repository.dart`**
+
+- Implemented the `DeliverymenFirebaseRepository` class, which extends `AbstractDeliverymenRepository`.
+- Handles all Firebase-related operations for deliverymen, including:
+  - **Getting Current Location**: Implements permissions handling and uses the `Geolocator` package to get the user's current position.
+  - **Adding Deliverymen**: Adds new deliverymen entries with geolocation data to Firebase.
+  - **Updating Deliverymen Location**: Updates existing deliverymen's geolocation data in Firebase.
+- This class serves as the new centralized point for managing deliverymen data in Firestore, providing a more maintainable and structured approach.
+
+4. **Removed File: `lib/services/location_service.dart`**
+
+- Deleted the `LocationService` class as its responsibilities were moved into `DeliverymenFirebaseRepository`.
+- This removal simplifies the codebase by centralizing the deliverymen-related logic within the repository layer.
+
+### Conclusion
+
+This refactoring improves code maintainability, testability, and follows best practices for modular design by adopting the repository pattern for managing deliverymen's geolocation data. The new structure aligns well with scalable software architecture, making future changes and extensions easier to manage.
+
+
 ## 2024/10/09 - version: 0.6.19+41
 
 This commit includes the following major changes and refactoring:
