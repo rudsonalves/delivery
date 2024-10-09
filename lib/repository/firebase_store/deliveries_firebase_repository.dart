@@ -16,8 +16,8 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
   static const keyOwnerId = 'ownerId';
   static const keyClientId = 'clientId';
   static const keyStatus = 'status';
-  static const keyGeohash = 'geohash';
-  // static const KeyGeoPoint = 'geopoint';
+  // static const keyGeohash = 'geohash';
+  static const keyShopLocation = 'shopLocation';
   static const keyManagerId = 'managerId';
   static const keyUpdatedAt = 'updatedAt';
 
@@ -283,14 +283,14 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
 
   @override
   Stream<List<DeliveryModel>> getNearby({
-    required GeoPoint location,
+    required GeoPoint geopoint,
     required double radiusInKm,
     int limit = 50,
   }) {
     // Create a GeoFirePoint for the center point (delivery user location)
     GeoFirePoint center = geo.point(
-      latitude: location.latitude,
-      longitude: location.longitude,
+      latitude: geopoint.latitude,
+      longitude: geopoint.longitude,
     );
 
     // Sets the reference to the 'deliveries' collection
@@ -302,7 +302,7 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
         .within(
           center: center,
           radius: radiusInKm,
-          field: keyGeohash,
+          field: keyShopLocation,
           strictMode: false,
         )
         .asyncMap((snapshot) async {

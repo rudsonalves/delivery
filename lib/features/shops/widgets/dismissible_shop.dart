@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../common/models/shop.dart';
+import '../../../common/utils/markdown_to_rich_text.dart';
 import '../../../components/widgets/base_dismissible_container.dart';
 
 class DismissibleShop extends StatelessWidget {
@@ -42,7 +43,16 @@ class DismissibleShop extends StatelessWidget {
           color: colorScheme.surfaceContainerHigh,
           child: ListTile(
             title: Text(shop.name),
-            subtitle: Text(shop.description ?? ''),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                MarkdowntoRichText(
+                  text:
+                      '*${shop.description ?? ''}*\n${shop.addressString ?? ''}',
+                ),
+              ],
+            ),
+            // Text(shop.description ?? ''),
           ),
         ),
       ),

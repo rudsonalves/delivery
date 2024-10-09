@@ -1,7 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geoflutterfire2/geoflutterfire2.dart';
+
+import 'functions/models_finctions.dart';
 
 enum DeliveryStatus {
   orderRegisteredForPickup,
@@ -27,9 +29,8 @@ class DeliveryModel {
   DeliveryStatus status;
   String clientAddress;
   String shopAddress;
-  GeoPoint clientLocation;
-  GeoPoint geopoint;
-  String geohash;
+  GeoFirePoint clientLocation;
+  GeoFirePoint shopLocation;
   DateTime? createdAt;
   DateTime? updatedAt;
 
@@ -49,8 +50,7 @@ class DeliveryModel {
     required this.clientAddress,
     required this.shopAddress,
     required this.clientLocation,
-    required this.geopoint,
-    required this.geohash,
+    required this.shopLocation,
     DateTime? createdAt,
     DateTime? updatedAt,
   })  : createdAt = createdAt ?? DateTime.now(),
@@ -71,9 +71,8 @@ class DeliveryModel {
     DeliveryStatus? status,
     String? clientAddress,
     String? shopAddress,
-    GeoPoint? clientLocation,
-    GeoPoint? geopoint,
-    String? geohash,
+    GeoFirePoint? clientLocation,
+    GeoFirePoint? shopLocation,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -93,8 +92,7 @@ class DeliveryModel {
       clientAddress: clientAddress ?? this.clientAddress,
       shopAddress: shopAddress ?? this.shopAddress,
       clientLocation: clientLocation ?? this.clientLocation,
-      geopoint: geopoint ?? this.geopoint,
-      geohash: geohash ?? this.geohash,
+      shopLocation: shopLocation ?? this.shopLocation,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -116,9 +114,8 @@ class DeliveryModel {
       'status': status.index,
       'clientAddress': clientAddress,
       'shopAddress': shopAddress,
-      'clientLocation': clientLocation,
-      'geopoint': geopoint,
-      'geohash': geohash,
+      'clientLocation': clientLocation.data,
+      'shopLocation': shopLocation.data,
       'createdAt': createdAt?.millisecondsSinceEpoch,
       'updatedAt': updatedAt?.millisecondsSinceEpoch,
     };
@@ -140,9 +137,10 @@ class DeliveryModel {
       status: DeliveryStatus.values[map['status'] as int],
       clientAddress: map['clientAddress'] as String,
       shopAddress: map['shopAddress'] as String,
-      clientLocation: map['clientLocation'] as GeoPoint,
-      geopoint: map['geopoint'] as GeoPoint,
-      geohash: map['geohash'] as String,
+      clientLocation:
+          mapToGeoFirePoint(map['clientLocation'] as Map<String, dynamic>),
+      shopLocation:
+          mapToGeoFirePoint(map['shopLocation'] as Map<String, dynamic>),
       createdAt: map['createdAt'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
           : null,
@@ -174,8 +172,7 @@ class DeliveryModel {
         ' clientAddress: $clientAddress,'
         ' shopAddress: $shopAddress,'
         ' clientLocation: $clientLocation,'
-        ' geopoint: $geopoint,'
-        ' geohash: $geohash,'
+        ' shopLocation: $shopLocation,'
         ' createdAt: $createdAt,'
         ' updatedAt: $updatedAt)';
   }
@@ -199,8 +196,7 @@ class DeliveryModel {
         other.clientAddress == clientAddress &&
         other.shopAddress == shopAddress &&
         other.clientLocation == clientLocation &&
-        other.geopoint == geopoint &&
-        other.geohash == geohash &&
+        other.shopLocation == shopLocation &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt;
   }
@@ -222,8 +218,7 @@ class DeliveryModel {
         clientAddress.hashCode ^
         shopAddress.hashCode ^
         clientLocation.hashCode ^
-        geopoint.hashCode ^
-        geohash.hashCode ^
+        shopLocation.hashCode ^
         createdAt.hashCode ^
         updatedAt.hashCode;
   }

@@ -18,6 +18,85 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/09 - version: 0.6.18+40
+
+This commit primarily involves refactoring and updating models, controllers, and services to leverage `GeoFirePoint` from the `GeoFlutterFire2` package instead of using `GeoPoint` directly. It improves the geographical data handling in models and ensures consistency in how coordinates are managed across different parts of the application.
+
+Files Added:
+
+1. **`lib/common/models/functions/models_finctions.dart`**
+- **Purpose:**
+  - Provides a utility function `mapToGeoFirePoint` to convert a map of coordinates into a `GeoFirePoint` object, centralizing this logic for reuse across models.
+
+Files Modified:
+
+1. **`lib/common/models/address.dart`**
+- **Geographical Data Update:**
+  - Replaced `GeoPoint` and `geohash` attributes with `GeoFirePoint location`, simplifying location handling.
+  - Updated all related methods and constructors to accommodate the change, including `fromMap`, `toMap`, and `copyWith`.
+
+2. **`lib/common/models/client.dart`**
+- **Geographical Data Refactor:**
+  - Replaced `geopoint` and `geohash` attributes with `GeoFirePoint location`.
+  - Refactored constructors and utility methods like `toMap` and `fromMap` to work with `GeoFirePoint`.
+  - Removed deprecated JSON handling methods that relied on `GeoPoint`.
+
+3. **`lib/common/models/delivery.dart`**
+- **Model Update:**
+  - Replaced `geopoint` and `geohash` with `GeoFirePoint` attributes `clientLocation` and `shopLocation` to handle geographical data.
+  - Adjusted all constructors and methods to use `GeoFirePoint` objects instead of individual latitude and longitude values.
+
+4. **`lib/common/models/shop.dart`**
+- **Geographical Refactor:**
+  - Similar to other models, replaced `GeoPoint` and `geohash` with a single `GeoFirePoint location` attribute.
+  - Updated methods and constructors accordingly, ensuring consistency in the way geographical data is managed.
+
+5. **`lib/common/utils/address_functions.dart`**
+- **Geographical Function Update:**
+  - Removed the `createGeoPointHash` method, as `GeoFirePoint` now handles the geohash generation.
+  - Refactored `getGeoPointFromAddressString` to return `GeoFirePoint` instead of `GeoPoint`.
+
+6. **`lib/features/add_client/add_client_controller.dart`**
+- **Model Update:**
+  - Replaced references to `geopoint` and `geohash` in the client creation process with the `location` attribute, reflecting the change in `AddressModel`.
+
+7. **`lib/features/add_delivery/add_delivery_controller.dart`**
+- **Delivery Model Update:**
+  - Updated the creation of the `DeliveryModel` to use the new `GeoFirePoint` attributes for `clientLocation` and `shopLocation`.
+
+8. **`lib/features/add_shop/add_shop_controller.dart`**
+- **Shop Model Update:**
+  - Modified the shop creation process to use `GeoFirePoint location` instead of `GeoPoint`.
+
+9. **`lib/features/user_delivery/user_delivery_controller.dart`**
+- **Location Management Refactor:**
+  - Refactored location handling to use `GeoFirePoint` for delivery personnel locations, ensuring consistent usage of the geographical library across the application.
+  - Implemented new methods `createLocation` and `updateLocation` to streamline location updates for delivery personnel.
+
+10. **`lib/repository/firebase_store/abstract_client_repository.dart`**
+- **Method Update:**
+  - Renamed `streamClientByName` to `streamAllClients` to reflect its purpose more clearly.
+
+11. **`lib/repository/firebase_store/abstract_deliveries_repository.dart`**
+- **Parameter Update:**
+  - Changed the parameter name `location` to `geopoint` to better reflect its usage and ensure compatibility with the `GeoFirePoint` refactor.
+
+12. **`lib/services/location_service.dart`**
+- **Location Service Refactor:**
+  - Introduced the `createLocation` and `updateLocation` methods to handle delivery personnel locations more robustly.
+  - Added `_getCurrentGeoFirePoint` to centralize the logic of obtaining the current geographical point and geohash.
+
+13. **`lib/features/map/map_page.dart`**
+- **Map Update:**
+  - Adjusted the map page to use `GeoFirePoint` attributes when determining positions, aligning with the rest of the app’s refactored location handling.
+
+14. **`lib/stores/user/user_store.dart`**
+- **State Management Update:**
+  - Added `deliverymen` as a new observable attribute to track the delivery personnel’s information, including their current location.
+
+This commit refactors geographical data handling across the application, replacing `GeoPoint` and `geohash` with the more streamlined `GeoFirePoint` class. These changes improve the consistency and efficiency of geographical operations while also aligning the codebase with the `GeoFlutterFire2` package’s best practices.
+
+
 ## 2024/10/07 - version: 0.6.17+39
 
 This commit refactors and enhances the client and delivery handling functionalities, improving state management, code clarity, and modularization. It introduces new methods for navigating between client-related pages and refines several store interactions to ensure consistency across the application.

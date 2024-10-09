@@ -79,6 +79,8 @@ class _UserDeliveryPageState extends State<UserDeliveryPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -140,9 +142,28 @@ class _UserDeliveryPageState extends State<UserDeliveryPage> {
                         final delivery = deliveries[index];
 
                         return Card(
+                          color: colorScheme.surfaceContainer,
                           child: ListTile(
                             title: Text(delivery.clientName),
-                            subtitle: Text(delivery.clientAddress),
+                            subtitle: RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: 'Retirada ${delivery.shopName}: ',
+                                    style: AppTextStyle.font14Bold(),
+                                  ),
+                                  TextSpan(
+                                    text: '${delivery.shopAddress}\n',
+                                  ),
+                                  TextSpan(
+                                    text: 'Entrega: ',
+                                    style: AppTextStyle.font14Bold(),
+                                  ),
+                                  TextSpan(text: delivery.clientAddress),
+                                ],
+                              ),
+                            ),
+                            // Text(delivery.clientAddress),
                             trailing: Icon(delivery.status.icon),
                             onTap: () {
                               _showDeliveryDetails(delivery);
