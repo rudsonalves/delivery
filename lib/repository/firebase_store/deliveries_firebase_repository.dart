@@ -280,6 +280,16 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
     });
   }
 
+  // Function to get GeoPoint instance from Firestore document data
+  GeoPoint geopointFrom(Map<String, dynamic> data) =>
+      (data[keyShopLocation] as Map<String, dynamic>)['geopoint'] as GeoPoint;
+
+// Custom query to filter deliveries by status
+  Query<Map<String, dynamic>> queryBuilder(Query<Map<String, dynamic>> query) {
+    return query.where(keyStatus,
+        isEqualTo: DeliveryStatus.orderRegisteredForPickup.index);
+  }
+
   @override
   Stream<List<DeliveryModel>> getNearby({
     required GeoPoint geopoint,
@@ -293,21 +303,18 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
     // Set the reference to the 'deliveries' collection
     final collectionReference = _firebase.collection(keyDeliveries);
 
-    // Function to get GeoPoint instance from Firestore document data
-    GeoPoint geopointFrom(Map<String, dynamic> data) =>
-        (data[keyShopLocation] as Map<String, dynamic>)['geopoint'] as GeoPoint;
-
-    // Execute the geospatial query using geoflutterfire_plus
+    // Execute the geospatial query using geoflutterfire_plus with a custom query builder
     return GeoCollectionReference<Map<String, dynamic>>(collectionReference)
         .subscribeWithin(
       center: center,
       radiusInKm: radiusInKm,
       field: keyShopLocation,
       geopointFrom: geopointFrom,
+      queryBuilder: queryBuilder,
     )
         .asyncMap((snapshot) async {
       // Log the number of documents returned
-      log('Número de documentos retornados: ${snapshot.length}');
+      log('Number of documents returned: ${snapshot.length}');
 
       // Map documents to DeliveryModel
       List<DeliveryModel> deliveries = snapshot
@@ -334,7 +341,7 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
           .toList();
 
       // Log the number of deliveries processed
-      log('Número de deliveries processadas: ${deliveries.length}');
+      log('Number of deliveries processed: ${deliveries.length}');
       return deliveries;
     });
   }

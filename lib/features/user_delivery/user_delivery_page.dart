@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
+import '../../components/widgets/delivery_card.dart';
 import '/common/extensions/delivery_status_extensions.dart';
 import '/common/models/delivery.dart';
 import '/common/theme/app_text_style.dart';
@@ -79,8 +80,6 @@ class _UserDeliveryPageState extends State<UserDeliveryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -141,34 +140,9 @@ class _UserDeliveryPageState extends State<UserDeliveryPage> {
                       itemBuilder: (_, index) {
                         final delivery = deliveries[index];
 
-                        return Card(
-                          color: colorScheme.surfaceContainer,
-                          child: ListTile(
-                            title: Text(delivery.clientName),
-                            subtitle: RichText(
-                              text: TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: 'Retirada ${delivery.shopName}: ',
-                                    style: AppTextStyle.font14Bold(),
-                                  ),
-                                  TextSpan(
-                                    text: '${delivery.shopAddress}\n',
-                                  ),
-                                  TextSpan(
-                                    text: 'Entrega: ',
-                                    style: AppTextStyle.font14Bold(),
-                                  ),
-                                  TextSpan(text: delivery.clientAddress),
-                                ],
-                              ),
-                            ),
-                            // Text(delivery.clientAddress),
-                            trailing: Icon(delivery.status.icon),
-                            onTap: () {
-                              _showDeliveryDetails(delivery);
-                            },
-                          ),
+                        return DeliveryCard(
+                          delivery: delivery,
+                          action: _showDeliveryDetails,
                         );
                       },
                     );

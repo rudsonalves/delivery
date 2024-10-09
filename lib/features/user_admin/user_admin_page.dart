@@ -1,13 +1,13 @@
-import 'package:delivery/features/user_admin/user_admin_controller.dart';
-import 'package:delivery/stores/common/store_func.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
+import '/features/user_admin/user_admin_controller.dart';
+import '/stores/common/store_func.dart';
 import '../../common/models/delivery.dart';
 import '../../common/theme/app_text_style.dart';
+import '../../components/widgets/delivery_card.dart';
 import 'stores/user_admin_store.dart';
 import '../add_delivery/add_delivery_page.dart';
-import '../../components/widgets/delivery_card.dart';
 import '../map/map_page.dart';
 
 class UserAdminPage extends StatefulWidget {
@@ -75,7 +75,7 @@ class _UserAdminPageState extends State<UserAdminPage> {
 
                         return DeliveryCard(
                           delivery: delivery,
-                          showInMap: _showInMap,
+                          action: _showInMap,
                         );
                       },
                     );

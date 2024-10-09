@@ -18,6 +18,62 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/09 - version: 0.6.21+43
+
+This commit introduces a set of improvements focused on enhancing code readability, maintainability, and extending functionality for delivery cards and status management.
+
+1. **Delivery Status Enum Update**:
+   - Added a new delivery status: `orderReservedForPickup`.
+   - Updated the `DeliveryStatusExtension` to include this new status, along with its string representation and corresponding icon.
+
+2. **Icon Handling Improvement**:
+   - Refactored the `icon` getter for `DeliveryStatus` to return an `Icon` widget directly instead of just an `IconData`, which allows for custom styling such as colors for each delivery status.
+
+3. **Markdown Parsing Enhancement**:
+   - Improved the `MarkdowntoRichText` widget to utilize a combined regular expression for parsing bold and italic text, resulting in more efficient text processing.
+   - This ensures that all markdown-like strings are correctly converted into rich text within the app, providing a better user experience.
+
+4. **Delivery Card Widget Refactoring**:
+   - Updated the `DeliveryCard` widget to use the `MarkdowntoRichText` for rendering delivery information, improving consistency across the app.
+   - Removed the explicit use of `showInMap` and replaced it with a more generic `action` callback, allowing for more flexible reuse of the `DeliveryCard`.
+
+5. **UI Component Consolidation**:
+   - Replaced individual widget tree components used in several ListTiles with the new `DeliveryCard` widget to unify the delivery UI representation across different parts of the app.
+   - This change was applied in multiple pages (`user_admin_page.dart`, `user_business_page.dart`, `user_delivery_page.dart`, etc.) to ensure consistency in the delivery-related UI.
+
+6. **Query Enhancement for Deliveries**:
+   - Added a custom query filter in `DeliveriesFirebaseRepository` to allow fetching deliveries by specific statuses, starting with `orderRegisteredForPickup`.
+   - Refined the existing geospatial query to use a custom `queryBuilder`, providing more flexibility in delivery data retrieval.
+
+### Detailed Changes
+
+1. **`lib/common/extensions/delivery_status_extensions.dart`**
+- Added new case `orderReservedForPickup` to `statusText` and `icon` getters.
+- Updated `icon` getter to return a fully styled `Icon` widget with different colors per status.
+
+2. **`lib/common/models/delivery.dart`**
+- Introduced a new `DeliveryStatus`: `orderReservedForPickup`.
+
+3. **`lib/common/utils/markdown_to_rich_text.dart`**
+- Combined bold and italic regex into a single regular expression for better performance and simplified text parsing logic.
+
+4. **`lib/components/widgets/delivery_card.dart`**
+- Replaced `showInMap` callback with a generic `action` callback to allow for more diverse actions upon card interaction.
+- Utilized `MarkdowntoRichText` to display delivery details more effectively.
+
+5. **UI Pages Update** (`user_admin_page.dart`, `user_business_page.dart`, `user_delivery_page.dart`)
+- Replaced individual implementations of delivery list items with the new `DeliveryCard` widget for consistency.
+
+6. **`lib/repository/firebase_store/deliveries_firebase_repository.dart`**
+- Added `geopointFrom` method to extract geospatial data from Firestore documents.
+- Introduced a `queryBuilder` function to filter deliveries by specific statuses.
+- Updated the `getNearby` method to use the new `queryBuilder` for refined delivery data retrieval.
+
+### Conclusion
+
+These changes bring consistency to the UI components used across different pages, enhance the delivery status management, and improve the maintainability of the code by consolidating functionality into reusable components. Furthermore, the new query capabilities in the repository facilitate more efficient and targeted data fetching, optimizing the app's performance.
+
+
 ## 2024/10/09 - version: 0.6.20+42
 
 This commit focuses on refactoring the way deliverymen's geolocation data is managed. The core goal is to replace the `LocationService` class with a new repository structure that offers a more modular and repository-oriented approach to handling deliverymen's data and location services.

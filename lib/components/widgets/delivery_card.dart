@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
+import '../../common/utils/markdown_to_rich_text.dart';
 import '/common/extensions/delivery_status_extensions.dart';
 import '../../common/models/delivery.dart';
-import '../../common/theme/app_text_style.dart';
 
 class DeliveryCard extends StatelessWidget {
   final DeliveryModel delivery;
-  final void Function(DeliveryModel) showInMap;
+  final void Function(DeliveryModel)? action;
 
   const DeliveryCard({
     super.key,
     required this.delivery,
-    required this.showInMap,
+    this.action,
   });
 
   @override
@@ -20,42 +19,21 @@ class DeliveryCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
-      color: colorScheme.surfaceContainerHighest,
+      color: colorScheme.surfaceContainer,
       child: ListTile(
-        leading: Icon(delivery.status.icon),
         title: Text(delivery.clientName),
-        onTap: () => showInMap(delivery),
-        subtitle: RichText(
-          text: TextSpan(
-            children: [
-              TextSpan(
-                text: 'Telefone: ',
-                style: AppTextStyle.font14Bold(),
-              ),
-              TextSpan(
-                text: '${delivery.shopPhone}\n',
-                style: AppTextStyle.font14(),
-              ),
-              TextSpan(
-                text: 'Endereço: ',
-                style: AppTextStyle.font14Bold(),
-              ),
-              TextSpan(
-                text: delivery.clientAddress,
-                style: AppTextStyle.font14(),
-              ),
-              TextSpan(
-                text: '\nHorário: ',
-                style: AppTextStyle.font14Bold(),
-              ),
-              TextSpan(
-                text: DateFormat("HH:mm 'do dia' dd/MM/yyyy")
-                    .format(delivery.createdAt!),
-                style: AppTextStyle.font14(),
-              ),
-            ],
-          ),
+        subtitle: MarkdowntoRichText(
+          text: '**Retirada: ${delivery.shopName}** -'
+              ' ${delivery.shopAddress}\n'
+              '**Entrega:**'
+              ' ${delivery.clientAddress}',
         ),
+        leading: delivery.status.icon,
+        onTap: () {
+          if (action != null) {
+            action!(delivery);
+          }
+        },
       ),
     );
   }
