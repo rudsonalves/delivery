@@ -76,7 +76,7 @@ class _UserManagerPageState extends State<UserManagerPage> {
 
                         return DeliveryCard(
                           delivery: delivery,
-                          showInMap: _showInMap,
+                          action: _showInMap,
                         );
                       },
                     );

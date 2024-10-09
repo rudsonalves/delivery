@@ -7,6 +7,7 @@ import 'functions/model_finctions.dart';
 
 enum DeliveryStatus {
   orderRegisteredForPickup,
+  orderReservedForPickup,
   orderPickedUpForDelivery,
   orderInTransit,
   orderDelivered,
