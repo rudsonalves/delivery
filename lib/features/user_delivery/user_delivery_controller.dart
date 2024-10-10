@@ -50,7 +50,7 @@ class UserDeliveryController {
           location: const GeoFirePoint(GeoPoint(0, 0)),
         );
 
-        result = await deliverymenRepository.add(deliverymen);
+        result = await deliverymenRepository.set(deliverymen);
         if (result.isFailure) {
           const message = 'Sua localização não pode ser determinada!';
           log(message);
