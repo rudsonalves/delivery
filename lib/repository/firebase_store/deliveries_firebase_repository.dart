@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:math' as math;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
@@ -18,6 +19,7 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
   // static const keyGeohash = 'geohash';
   static const keyShopLocation = 'shopLocation';
   static const keyManagerId = 'managerId';
+  static const keyCreatedAt = 'createdAt';
   static const keyUpdatedAt = 'updatedAt';
 
   @override
@@ -78,7 +80,8 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
       // Removes unnecessary data
       final deliveryMap = delivery.toMap();
       deliveryMap.remove('id');
-      deliveryMap.remove('createdAt'); // Don't overwrite createdAt
+      // Don't overwrite createdAt
+      deliveryMap.remove('createdAt');
 
       // Set the updated timestamp
       deliveryMap['updatedAt'] = FieldValue.serverTimestamp();
@@ -164,11 +167,11 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
           .withConverter<DeliveryModel>(
             fromFirestore: (snapshot, _) {
               final data = snapshot.data()!;
-              final Timestamp createdAtTs = data['createdAt'] as Timestamp;
-              final Timestamp updatedAtTs = data['updatedAt'] as Timestamp;
+              final Timestamp createdAtTs = data[keyCreatedAt] as Timestamp;
+              final Timestamp updatedAtTs = data[keyUpdatedAt] as Timestamp;
 
-              data.remove('createdAt');
-              data.remove('updatedAt');
+              data.remove(keyCreatedAt);
+              data.remove(keyUpdatedAt);
 
               return DeliveryModel.fromMap(data).copyWith(
                 id: snapshot.id,
@@ -185,7 +188,7 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
       // Check if document exists
       if (!deliveryDoc.exists) {
         final message =
-            'ShopFirebaseRepository.get: delivery not found in $deliveryId';
+            'DeliveryFirebaseRepository.get: delivery not found in $deliveryId';
         log(message);
         return DataResult.failure(GenericFailure(
           message: message,
@@ -197,7 +200,7 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
 
       return DataResult.success(delivery);
     } catch (err, stackTrace) {
-      final message = 'ShopFirebaseRepository.get: $err';
+      final message = 'DeliveryFirebaseRepository.get: $err';
       log(message, stackTrace: stackTrace);
       return DataResult.failure(FireStoreFailure(
         message: message,
@@ -294,11 +297,15 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
   Stream<List<DeliveryModel>> getNearby({
     required GeoPoint geopoint,
     required double radiusInKm,
-    int limit = 50,
+    int limit = 30,
   }) {
     // Create a GeoFirePoint for the center point (delivery user location)
-    final GeoFirePoint center =
-        GeoFirePoint(GeoPoint(geopoint.latitude, geopoint.longitude));
+    final GeoFirePoint center = GeoFirePoint(
+      GeoPoint(
+        geopoint.latitude,
+        geopoint.longitude,
+      ),
+    );
 
     // Set the reference to the 'deliveries' collection
     final collectionReference = _firebase.collection(keyDeliveries);
@@ -313,35 +320,32 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
       queryBuilder: queryBuilder,
     )
         .asyncMap((snapshot) async {
-      // Log the number of documents returned
-      log('Number of documents returned: ${snapshot.length}');
+      final List<DeliveryModel> deliveries = [];
+      final start = center.geopoint;
+      for (final doc in snapshot) {
+        final data = doc.data() as Map<String, dynamic>;
 
-      // Map documents to DeliveryModel
-      List<DeliveryModel> deliveries = snapshot
-          .map((doc) {
-            final data = doc.data() as Map<String, dynamic>;
+        // Extract timestamps
+        final createdAtTimestamp = data['createdAt'] as Timestamp?;
+        final updatedAtTimestamp = data['updatedAt'] as Timestamp?;
 
-            // Extract timestamps
-            final createdAtTimestamp = data['createdAt'] as Timestamp?;
-            final updatedAtTimestamp = data['updatedAt'] as Timestamp?;
+        // Remove fields
+        data.remove('createdAt');
+        data.remove('updatedAt');
 
-            // Remove fields
-            data.remove('createdAt');
-            data.remove('updatedAt');
+        // Create DeliveryModel
+        final delivery = DeliveryModel.fromMap(data).copyWith(
+          createdAt: createdAtTimestamp?.toDate(),
+          updatedAt: updatedAtTimestamp?.toDate(),
+        );
 
-            // Create DeliveryModel
-            final delivery = DeliveryModel.fromMap(data).copyWith(
-              createdAt: createdAtTimestamp?.toDate(),
-              updatedAt: updatedAtTimestamp?.toDate(),
-            );
+        // Check if distance is < radiusInKm
+        final end = delivery.shopLocation.geopoint;
+        if (_calculateDistanceSimple(start, end) < radiusInKm) {
+          deliveries.add(delivery);
+        }
+      }
 
-            return delivery;
-          })
-          .take(limit)
-          .toList();
-
-      // Log the number of deliveries processed
-      log('Number of deliveries processed: ${deliveries.length}');
       return deliveries;
     });
   }
@@ -415,21 +419,26 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
           }
         },
       ));
-      log('Número de entregas retornadas após processamento: ${deliveries.length}');
       return deliveries;
     });
   }
 
-  @override
-  Stream<List<DeliveryModel>> streamShopByName() {
-    // TODO: implement streamShopByName
-    throw UnimplementedError();
+  double _calculateDistanceSimple(GeoPoint start, GeoPoint end) {
+    const double kmPerDegreeLat =
+        111.32; // Approximately the number of km per degree of latitude
+    const double kmPerDegreeLonAtEquator =
+        111.32; // Approximately the number of km per degree of longitude at the equator
+
+    // Latitude and longitude difference
+    double deltaLat = (end.latitude - start.latitude) * kmPerDegreeLat;
+    double deltaLon = (end.longitude - start.longitude) *
+        (kmPerDegreeLonAtEquator * math.cos(_toRadians(start.latitude)));
+
+    // Apply Pythagoras to calculate distance
+    return math.sqrt(deltaLat * deltaLat + deltaLon * deltaLon);
   }
 
-  @override
-  Future<DataResult<DeliveryModel>> updateStatus(
-      DeliveryStatus deliveryStatus) {
-    // TODO: implement updateStatus
-    throw UnimplementedError();
+  double _toRadians(double degrees) {
+    return degrees * math.pi / 180;
   }
 }

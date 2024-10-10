@@ -7,5 +7,7 @@ abstract class AbstractDeliverymenRepository {
   Future<Position?> getCurrentLocation();
   Future<DataResult<DeliverymenModel>> updateLocation(
       DeliverymenModel deliverymen);
-  Future<DataResult<DeliverymenModel>> add(DeliverymenModel deliverymen);
+  Future<DataResult<DeliverymenModel>> set(DeliverymenModel deliverymen);
+  Future<DataResult<DeliverymenModel?>> get(String id);
+  Future<DataResult<void>> delete(String id);
 }

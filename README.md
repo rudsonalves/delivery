@@ -18,6 +18,49 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/10 - version: 0.6.22+44
+
+This commit involves several improvements to the delivery management system, focusing on enhancing CRUD operations for the `DeliverymenModel` and ensuring better compatibility with Firestore.
+
+### Detailed Changes
+
+1. **`lib/common/models/delivery_men.dart`**
+
+- Fixed the import path of `model_finctions.dart` to make it consistent and relative.
+
+2. **`lib/features/user_delivery/user_delivery_controller.dart`**
+
+- Changed the method used to add a new deliveryman from `add()` to `set()`. This change reflects a more descriptive naming convention, providing a clearer understanding of the operation being performed.
+
+3. **`lib/repository/firebase_store/abstract_deliveries_repository.dart`**
+
+- Commented out unimplemented methods, `updateStatus()` and `streamShopByName()`, to avoid confusion and streamline the code.
+
+4. **`lib/repository/firebase_store/abstract_deliverymen_repository.dart`**
+
+- Changed the method `add()` to `set()` to make it consistent with its actual operation.
+- Added new methods for retrieving (`get()`) and deleting (`delete()`) a deliveryman.
+
+5. **`lib/repository/firebase_store/deliveries_firebase_repository.dart`**
+
+- Added the `dart:math` library import for additional mathematical operations.
+- Defined constants for key fields to ensure consistency across the codebase, such as `keyCreatedAt` and `keyUpdatedAt`.
+- Improved logging messages for more accurate representation of delivery operations.
+- Modified the `getNearby()` method to limit the number of deliveries returned to 30 for better performance.
+- Added a helper function `_calculateDistanceSimple()` to compute the distance between two `GeoPoint` objects in a simple way.
+
+6. **`lib/repository/firebase_store/deliverymen_firebase_repository.dart`**
+
+- Implemented the `get()` method to retrieve a deliveryman from Firestore, including error handling and logging.
+- Implemented the `delete()` method to remove a deliveryman from Firestore, ensuring proper error management.
+- Refactored the `updateLocation()` and `set()` methods to simplify their functionality and make use of the new helper function `_updateLocation()`.
+- Added `_deliverymenReference()` helper method to provide a reusable document reference for `DeliverymenModel` using `withConverter()` for Firestore integration.
+
+### Conclusion
+
+These changes enhance the delivery management workflow by standardizing CRUD operations, improving code readability, and optimizing the integration with Firestore. This refactoring also includes the introduction of helper functions to simplify repetitive tasks, ensuring that the deliverymen data is managed more effectively and consistently.
+
+
 ## 2024/10/09 - version: 0.6.21+43
 
 This commit introduces a set of improvements focused on enhancing code readability, maintainability, and extending functionality for delivery cards and status management.
