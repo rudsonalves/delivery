@@ -17,6 +17,30 @@ class DeliverymenFirebaseRepository implements AbstractDeliverymenRepository {
   static const keyCreatedAt = 'createdAt';
   static const keyUpdatedAt = 'updatedAt';
 
+  /// Function to add a new deliveryman location in Firestore.
+  ///
+  /// Takes a [DeliverymenModel] and adds it to Firestore.
+  /// Returns a [DataResult] indicating success or failure.
+  @override
+  Future<DataResult<DeliverymenModel>> set(DeliverymenModel deliverymen) async {
+    try {
+      // Get the current location and update the model with it
+      final updatedDeliverymen = await _updateLocation(deliverymen);
+
+      // Get the DocumentReference with the updated model ID
+      final deliverymenRef = _deliverymenReference(updatedDeliverymen.id);
+
+      // Create a new document in Firestore
+      await deliverymenRef.set(updatedDeliverymen);
+
+      return DataResult.success(updatedDeliverymen);
+    } catch (err) {
+      final message = 'LocationService.createLocation: $err';
+      log(message);
+      return DataResult.failure(GenericFailure(message: message));
+    }
+  }
+
   /// Retrieves a deliveryman document from Firestore by its [id].
   ///
   /// Returns a [DataResult] containing a [DeliverymenModel] if successful, otherwise an error.
@@ -76,55 +100,6 @@ class DeliverymenFirebaseRepository implements AbstractDeliverymenRepository {
     }
   }
 
-  /// Function to check and request location permissions.
-  ///
-  /// Returns `true` if the permissions are granted, otherwise `false`.
-  Future<bool> _handleLocationPermission() async {
-    try {
-      // Check if location services are enabled
-      final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        return false;
-      }
-
-      // Check and request location permissions
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          return false;
-        }
-      }
-
-      // If permission is denied forever, location access is not possible
-      if (permission == LocationPermission.deniedForever) {
-        return false;
-      }
-
-      return true;
-    } catch (err) {
-      log('_handleLocationPermission: $err');
-      return false;
-    }
-  }
-
-  /// Function to get the current location of the user.
-  ///
-  /// Returns the current [Position] if permission is granted, otherwise `null`.
-  @override
-  Future<Position?> getCurrentLocation() async {
-    // Handle location permissions
-    bool hasPermission = await _handleLocationPermission();
-    if (!hasPermission) return null;
-
-    // Get the current position with high accuracy
-    return await Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.high,
-      ),
-    );
-  }
-
   /// Function to update the location of a deliveryman in Firestore.
   ///
   /// Takes a [DeliverymenModel] and updates its location in Firestore.
@@ -157,27 +132,35 @@ class DeliverymenFirebaseRepository implements AbstractDeliverymenRepository {
     }
   }
 
-  /// Function to add a new deliveryman location in Firestore.
+  /// Function to check and request location permissions.
   ///
-  /// Takes a [DeliverymenModel] and adds it to Firestore.
-  /// Returns a [DataResult] indicating success or failure.
-  @override
-  Future<DataResult<DeliverymenModel>> set(DeliverymenModel deliverymen) async {
+  /// Returns `true` if the permissions are granted, otherwise `false`.
+  Future<bool> _handleLocationPermission() async {
     try {
-      // Get the current location and update the model with it
-      final updatedDeliverymen = await _updateLocation(deliverymen);
+      // Check if location services are enabled
+      final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        return false;
+      }
 
-      // Get the DocumentReference with the updated model ID
-      final deliverymenRef = _deliverymenReference(updatedDeliverymen.id);
+      // Check and request location permissions
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          return false;
+        }
+      }
 
-      // Create a new document in Firestore
-      await deliverymenRef.set(updatedDeliverymen);
+      // If permission is denied forever, location access is not possible
+      if (permission == LocationPermission.deniedForever) {
+        return false;
+      }
 
-      return DataResult.success(updatedDeliverymen);
+      return true;
     } catch (err) {
-      final message = 'LocationService.createLocation: $err';
-      log(message);
-      return DataResult.failure(GenericFailure(message: message));
+      log('_handleLocationPermission: $err');
+      return false;
     }
   }
 
@@ -185,14 +168,22 @@ class DeliverymenFirebaseRepository implements AbstractDeliverymenRepository {
   ///
   /// Returns a [GeoFirePoint] representing the current location.
   /// Throws an exception if the location cannot be generated.
-  Future<GeoFirePoint> _getCurrentGeoFirePoint() async {
+  @override
+  Future<GeoFirePoint> getCurrentGeoFirePoint() async {
     try {
-      // Get the current location using [getCurrentLocation]
-      Position? position = await getCurrentLocation();
-      if (position == null) {
+      // Handle location permissions
+      bool hasPermission = await _handleLocationPermission();
+      if (!hasPermission) {
         throw Exception(
             'LocationService._getCurrentGeoFirePoint: Unable to get geolocation!');
       }
+
+      // Get the current position with high accuracy
+      Position? position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
 
       // Create and return a GeoFirePoint with the current location coordinates
       return GeoFirePoint(GeoPoint(position.latitude, position.longitude));
@@ -207,7 +198,7 @@ class DeliverymenFirebaseRepository implements AbstractDeliverymenRepository {
   /// Takes a [DeliverymenModel], gets the current location, and returns an updated model.
   Future<DeliverymenModel> _updateLocation(DeliverymenModel deliverymen) async {
     // Get the current location as a GeoFirePoint
-    final GeoFirePoint location = await _getCurrentGeoFirePoint();
+    final GeoFirePoint location = await getCurrentGeoFirePoint();
 
     // Create a copy of the DeliverymenModel object with the new location
     return deliverymen.copyWith(
