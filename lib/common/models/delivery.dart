@@ -26,6 +26,7 @@ class DeliveryModel {
   String clientPhone;
   String? deliveryId;
   String? deliveryName;
+  String? deliveryPhone;
   String? managerId;
   DeliveryStatus status;
   String clientAddress;
@@ -46,6 +47,7 @@ class DeliveryModel {
     required this.clientPhone,
     this.deliveryId,
     this.deliveryName,
+    this.deliveryPhone,
     this.managerId,
     required this.status,
     required this.clientAddress,
@@ -68,6 +70,7 @@ class DeliveryModel {
     String? clientPhone,
     String? deliveryId,
     String? deliveryName,
+    String? deliveryPhone,
     String? managerId,
     DeliveryStatus? status,
     String? clientAddress,
@@ -88,6 +91,7 @@ class DeliveryModel {
       clientPhone: clientPhone ?? this.clientPhone,
       deliveryId: deliveryId ?? this.deliveryId,
       deliveryName: deliveryName ?? this.deliveryName,
+      deliveryPhone: deliveryPhone ?? this.deliveryPhone,
       managerId: managerId ?? this.managerId,
       status: status ?? this.status,
       clientAddress: clientAddress ?? this.clientAddress,
@@ -111,6 +115,7 @@ class DeliveryModel {
       'clientPhone': clientPhone,
       'deliveryId': deliveryId,
       'deliveryName': deliveryName,
+      'deliveryPhone': deliveryPhone,
       'managerId': managerId,
       'status': status.index,
       'clientAddress': clientAddress,
@@ -134,6 +139,7 @@ class DeliveryModel {
       clientPhone: map['clientPhone'] as String,
       deliveryId: map['deliveryId'] as String?,
       deliveryName: map['deliveryName'] as String?,
+      deliveryPhone: map['deliveryPhone'] as String?,
       managerId: map['managerId'] as String?,
       status: DeliveryStatus.values[map['status'] as int],
       clientAddress: map['clientAddress'] as String,
@@ -168,6 +174,7 @@ class DeliveryModel {
         ' clientPhone: $clientPhone,'
         ' deliveryId: $deliveryId,'
         ' deliveryName: $deliveryName,'
+        ' deliveryPhone: $deliveryPhone,'
         ' managerId: $managerId,'
         ' status: $status,'
         ' clientAddress: $clientAddress,'
@@ -192,6 +199,7 @@ class DeliveryModel {
         other.clientPhone == clientPhone &&
         other.deliveryId == deliveryId &&
         other.deliveryName == deliveryName &&
+        other.deliveryPhone == deliveryPhone &&
         other.managerId == managerId &&
         other.status == status &&
         other.clientAddress == clientAddress &&
@@ -214,6 +222,7 @@ class DeliveryModel {
         clientPhone.hashCode ^
         deliveryId.hashCode ^
         deliveryName.hashCode ^
+        deliveryPhone.hashCode ^
         managerId.hashCode ^
         status.hashCode ^
         clientAddress.hashCode ^

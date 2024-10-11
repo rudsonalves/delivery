@@ -9,43 +9,40 @@ import '/common/models/delivery.dart';
 import 'abstract_deliveries_repository.dart';
 
 class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
-  final _firebase = FirebaseFirestore.instance;
+  final FirebaseFirestore _firebase = FirebaseFirestore.instance;
+  final CollectionReference<Map<String, dynamic>> deliveriesCollectionRef =
+      FirebaseFirestore.instance.collection(keyDeliveries);
 
   static const keyDeliveries = 'deliveries';
   static const keyShopId = 'shopId';
   static const keyOwnerId = 'ownerId';
+  static const keyDeliveryId = 'deliveryId';
+  static const keyDeliveryName = 'deliveryName';
+  static const keyDeliveryPhone = 'deliveryPhone';
   static const keyClientId = 'clientId';
   static const keyStatus = 'status';
-  // static const keyGeohash = 'geohash';
   static const keyShopLocation = 'shopLocation';
   static const keyManagerId = 'managerId';
   static const keyCreatedAt = 'createdAt';
   static const keyUpdatedAt = 'updatedAt';
 
+  /// Adds a new delivery to Firestore
   @override
   Future<DataResult<DeliveryModel>> add(DeliveryModel delivery) async {
     WriteBatch batch = _firebase.batch();
 
     try {
-      // Get delivery reference
-      final deliveryRef = _firebase.collection(keyDeliveries).doc();
-
-      // Update the delivery object id to the return value
+      // Get a new document reference for the delivery
+      final deliveryRef = deliveriesCollectionRef.doc();
       delivery.id = deliveryRef.id;
 
-      // Adjust delivery map
-      final deliveryMap = delivery.toMap();
-      // Removes unnecessary data
-      deliveryMap.remove('id');
+      // Prepare the delivery data to be added
+      final deliveryMap = _prepareDeliveryMap(delivery);
+      deliveryMap[keyCreatedAt] = FieldValue.serverTimestamp();
+      deliveryMap[keyUpdatedAt] = FieldValue.serverTimestamp();
 
-      // Set the server timestamps for createdAt and updatedAt
-      deliveryMap['createdAt'] = FieldValue.serverTimestamp();
-      deliveryMap['updatedAt'] = FieldValue.serverTimestamp();
-
-      // Add data to batch
+      // Add the delivery to the batch
       batch.set(deliveryRef, deliveryMap);
-
-      // Commit batch
       await batch.commit();
 
       return DataResult.success(delivery);
@@ -59,37 +56,31 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
     }
   }
 
+  /// Updates an existing delivery in Firestore
   @override
   Future<DataResult<DeliveryModel>> update(DeliveryModel delivery) async {
+    if (delivery.id == null) {
+      const message =
+          'DeliveriesFirebaseRepository.update: delivery ID cannot be null for update operation';
+      log(message);
+      return DataResult.failure(const GenericFailure(
+        message: message,
+        code: 601,
+      ));
+    }
+
+    WriteBatch batch = _firebase.batch();
+
     try {
-      if (delivery.id == null) {
-        const message =
-            'DeliveriesFirebaseRepository.update: delivery ID cannot be null for update operation';
-        log(message);
-        return DataResult.failure(const GenericFailure(
-          message: message,
-          code: 601,
-        ));
-      }
+      // Get the document reference for the delivery
+      final deliveryRef = deliveriesCollectionRef.doc(delivery.id);
+      // Prepare the delivery data to be updated
+      final deliveryMap = _prepareDeliveryMap(delivery);
+      deliveryMap.remove(keyCreatedAt);
+      deliveryMap[keyUpdatedAt] = FieldValue.serverTimestamp();
 
-      WriteBatch batch = _firebase.batch();
-
-      // get delivey reference
-      final deliveryRef = _firebase.collection(keyDeliveries).doc(delivery.id);
-
-      // Removes unnecessary data
-      final deliveryMap = delivery.toMap();
-      deliveryMap.remove('id');
-      // Don't overwrite createdAt
-      deliveryMap.remove('createdAt');
-
-      // Set the updated timestamp
-      deliveryMap['updatedAt'] = FieldValue.serverTimestamp();
-
-      // Update shop data in the main document
-      batch.set(deliveryRef, deliveryMap);
-
-      // Commit batch
+      // Add the update to the batch
+      batch.update(deliveryRef, deliveryMap);
       await batch.commit();
 
       return DataResult.success(delivery);
@@ -103,33 +94,29 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
     }
   }
 
+  /// Updates the managerId for all deliveries of a given shop
   @override
   Future<DataResult<void>> updateManagerId(
       String shopId, String managerId) async {
     try {
-      // get delivey reference
-      final deliveryRef = _firebase.collection(keyDeliveries);
+      // Get all deliveries for the given shop
+      final deliverySnapshot = await deliveriesCollectionRef
+          .where(keyShopId, isEqualTo: shopId)
+          .get();
 
-      // filter deliveries by shopId
-      final deliverySnapshot =
-          await deliveryRef.where(keyShopId, isEqualTo: shopId).get();
-
-      // update managerId
       WriteBatch batch = _firebase.batch();
       for (final doc in deliverySnapshot.docs) {
+        // Update managerId for each delivery
         batch.update(doc.reference, {
           keyManagerId: managerId,
           keyUpdatedAt: FieldValue.serverTimestamp(),
         });
       }
 
-      // Commit batch
       await batch.commit();
-
       return DataResult.success(null);
     } catch (err) {
-      final message =
-          'DeliveriesFirebaseRepository.updateDeliveriesManagerId: $err';
+      final message = 'DeliveriesFirebaseRepository.updateManagerId: $err';
       log(message);
       return DataResult.failure(GenericFailure(
         message: message,
@@ -138,14 +125,41 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
     }
   }
 
+  /// Updates the status and other details of a delivery
+  @override
+  Future<DataResult<void>> updateStatus(DeliveryModel delivery) async {
+    try {
+      // Get the document reference for the delivery
+      final deliveryDoc = deliveriesCollectionRef.doc(delivery.id);
+
+      WriteBatch batch = _firebase.batch();
+      // Update delivery details
+      batch.update(deliveryDoc, {
+        keyDeliveryId: delivery.deliveryId,
+        keyDeliveryName: delivery.deliveryName,
+        keyDeliveryPhone: delivery.deliveryPhone,
+        keyStatus: delivery.status.index,
+        keyUpdatedAt: FieldValue.serverTimestamp(),
+      });
+
+      await batch.commit();
+      return DataResult.success(null);
+    } catch (err) {
+      final message = 'DeliveriesFirebaseRepository.updateStatus: $err';
+      log(message);
+      return DataResult.failure(GenericFailure(
+        message: message,
+        code: 615,
+      ));
+    }
+  }
+
+  /// Deletes a delivery from Firestore
   @override
   Future<DataResult<void>> delete(String deliveryId) async {
     try {
-      final deliveryDoc = _firebase.collection(keyDeliveries).doc(deliveryId);
-
-      // Delete the delivery document
+      final deliveryDoc = deliveriesCollectionRef.doc(deliveryId);
       await deliveryDoc.delete();
-
       return DataResult.success(null);
     } catch (err) {
       final message = 'DeliveriesFirebaseRepository.delete: $err';
@@ -157,38 +171,20 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
     }
   }
 
+  /// Retrieves a delivery by its ID from Firestore
   @override
   Future<DataResult<DeliveryModel?>> get(String deliveryId) async {
     try {
-      // Create DocumentReference with converter (withConverter)
-      final deliveryRef = _firebase
-          .collection(keyDeliveries)
-          .doc(deliveryId)
-          .withConverter<DeliveryModel>(
-            fromFirestore: (snapshot, _) {
-              final data = snapshot.data()!;
-              final Timestamp createdAtTs = data[keyCreatedAt] as Timestamp;
-              final Timestamp updatedAtTs = data[keyUpdatedAt] as Timestamp;
-
-              data.remove(keyCreatedAt);
-              data.remove(keyUpdatedAt);
-
-              return DeliveryModel.fromMap(data).copyWith(
-                id: snapshot.id,
-                createdAt: createdAtTs.toDate(),
-                updatedAt: updatedAtTs.toDate(),
+      final deliveryRef =
+          deliveriesCollectionRef.doc(deliveryId).withConverter<DeliveryModel>(
+                fromFirestore: _fromFirestore,
+                toFirestore: (delivery, _) => delivery.toMap(),
               );
-            },
-            toFirestore: (delivery, _) => delivery.toMap(),
-          );
 
-      // Recover the converted document
       final deliveryDoc = await deliveryRef.get();
-
-      // Check if document exists
       if (!deliveryDoc.exists) {
         final message =
-            'DeliveryFirebaseRepository.get: delivery not found in $deliveryId';
+            'DeliveriesFirebaseRepository.get: delivery not found in $deliveryId';
         log(message);
         return DataResult.failure(GenericFailure(
           message: message,
@@ -196,11 +192,9 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
         ));
       }
 
-      final DeliveryModel? delivery = deliveryDoc.data();
-
-      return DataResult.success(delivery);
+      return DataResult.success(deliveryDoc.data());
     } catch (err, stackTrace) {
-      final message = 'DeliveryFirebaseRepository.get: $err';
+      final message = 'DeliveriesFirebaseRepository.get: $err';
       log(message, stackTrace: stackTrace);
       return DataResult.failure(FireStoreFailure(
         message: message,
@@ -209,97 +203,43 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
     }
   }
 
+  /// Streams deliveries by shop ID
   @override
   Stream<List<DeliveryModel>> getByShopId(String shopId) {
-    return _firebase
-        .collection(keyDeliveries)
-        .where(keyShopId, isEqualTo: shopId)
-        .snapshots()
-        .asyncMap((snapshot) async {
-      List<DeliveryModel> deliveries = await Future.wait(snapshot.docs.map(
-        (doc) async {
-          try {
-            final data = Map<String, dynamic>.from(doc.data());
-
-            final createdAtTimestamp = data['createdAt'] as Timestamp?;
-            final updatedAtTimestamp = data['updatedAt'] as Timestamp?;
-
-            data.remove('createdAt');
-            data.remove('updatedAt');
-
-            final delivery = DeliveryModel.fromMap(data).copyWith(
-              id: doc.id,
-              createdAt: createdAtTimestamp?.toDate(),
-              updatedAt: updatedAtTimestamp?.toDate(),
-            );
-
-            return delivery.copyWith(id: doc.id);
-          } catch (err) {
-            final message =
-                'DeliveriesFirebaseRepository.getDeliveryByShopId :$err';
-            log(message);
-            throw Exception(message);
-          }
-        },
-      ));
-      return deliveries;
-    });
+    return _getDeliveriesStream(
+      deliveriesCollectionRef.where(keyShopId, isEqualTo: shopId),
+    );
   }
 
+  /// Streams deliveries by manager ID
   @override
   Stream<List<DeliveryModel>> getByManagerId(String managerId) {
-    return _firebase
-        .collection(keyDeliveries)
-        .where(keyManagerId, isEqualTo: managerId)
-        .snapshots()
-        .asyncMap((snapshot) async {
-      List<DeliveryModel> deliveries = await Future.wait(snapshot.docs.map(
-        (doc) async {
-          try {
-            final data = Map<String, dynamic>.from(doc.data());
-
-            final createdAtTimestamp = data['createdAt'] as Timestamp?;
-            final updatedAtTimestamp = data['updatedAt'] as Timestamp?;
-
-            data.remove('createdAt');
-            data.remove('updatedAt');
-
-            final delivery = DeliveryModel.fromMap(data).copyWith(
-              id: doc.id,
-              createdAt: createdAtTimestamp?.toDate(),
-              updatedAt: updatedAtTimestamp?.toDate(),
-            );
-
-            return delivery.copyWith(id: doc.id);
-          } catch (err) {
-            final message =
-                'DeliveriesFirebaseRepository.getDeliveryByManagerId :$err';
-            log(message);
-            throw Exception(message);
-          }
-        },
-      ));
-      return deliveries;
-    });
+    return _getDeliveriesStream(
+      deliveriesCollectionRef.where(keyManagerId, isEqualTo: managerId),
+    );
   }
 
-  // Function to get GeoPoint instance from Firestore document data
-  GeoPoint geopointFrom(Map<String, dynamic> data) =>
-      (data[keyShopLocation] as Map<String, dynamic>)['geopoint'] as GeoPoint;
-
-// Custom query to filter deliveries by status
-  Query<Map<String, dynamic>> queryBuilder(Query<Map<String, dynamic>> query) {
-    return query.where(keyStatus,
-        isEqualTo: DeliveryStatus.orderRegisteredForPickup.index);
+  /// Streams deliveries by owner ID
+  @override
+  Stream<List<DeliveryModel>> getByOwnerId(String ownerId) {
+    return _getDeliveriesStream(
+      deliveriesCollectionRef.where(keyOwnerId, isEqualTo: ownerId),
+    );
   }
 
+  /// Streams all deliveries
+  @override
+  Stream<List<DeliveryModel>> getAll() {
+    return _getDeliveriesStream(deliveriesCollectionRef);
+  }
+
+  /// Streams nearby deliveries within a given radius
   @override
   Stream<List<DeliveryModel>> getNearby({
     required GeoPoint geopoint,
     required double radiusInKm,
     int limit = 30,
   }) {
-    // Create a GeoFirePoint for the center point (delivery user location)
     final GeoFirePoint center = GeoFirePoint(
       GeoPoint(
         geopoint.latitude,
@@ -307,138 +247,109 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
       ),
     );
 
-    // Set the reference to the 'deliveries' collection
-    final collectionReference = _firebase.collection(keyDeliveries);
-
-    // Execute the geospatial query using geoflutterfire_plus with a custom query builder
-    return GeoCollectionReference<Map<String, dynamic>>(collectionReference)
+    return GeoCollectionReference<Map<String, dynamic>>(deliveriesCollectionRef)
         .subscribeWithin(
       center: center,
       radiusInKm: radiusInKm,
       field: keyShopLocation,
       geopointFrom: geopointFrom,
-      queryBuilder: queryBuilder,
+      queryBuilder: _nearbyQueryBuilder,
     )
         .asyncMap((snapshot) async {
       final List<DeliveryModel> deliveries = [];
       final start = center.geopoint;
       for (final doc in snapshot) {
         final data = doc.data() as Map<String, dynamic>;
+        final delivery = _deliveryModelFromFirestoreData(doc.id, data);
 
-        // Extract timestamps
-        final createdAtTimestamp = data['createdAt'] as Timestamp?;
-        final updatedAtTimestamp = data['updatedAt'] as Timestamp?;
-
-        // Remove fields
-        data.remove('createdAt');
-        data.remove('updatedAt');
-
-        // Create DeliveryModel
-        final delivery = DeliveryModel.fromMap(data).copyWith(
-          createdAt: createdAtTimestamp?.toDate(),
-          updatedAt: updatedAtTimestamp?.toDate(),
-        );
-
-        // Check if distance is < radiusInKm
         final end = delivery.shopLocation.geopoint;
         if (_calculateDistanceSimple(start, end) < radiusInKm) {
           deliveries.add(delivery);
         }
       }
-
       return deliveries;
     });
   }
 
-  @override
-  Stream<List<DeliveryModel>> getByOwnerId(String ownerId) {
-    return _firebase
-        .collection(keyDeliveries)
-        .where(keyOwnerId, isEqualTo: ownerId)
-        .snapshots()
-        .asyncMap((snapshot) async {
-      List<DeliveryModel> deliveries = await Future.wait(snapshot.docs.map(
-        (doc) async {
-          try {
-            final data = Map<String, dynamic>.from(doc.data());
+  /// Converts Firestore data to DeliveryModel
+  DeliveryModel _deliveryModelFromFirestoreData(
+      String id, Map<String, dynamic> data) {
+    final createdAtTimestamp = data[keyCreatedAt] as Timestamp?;
+    final updatedAtTimestamp = data[keyUpdatedAt] as Timestamp?;
 
-            final createdAtTimestamp = data['createdAt'] as Timestamp?;
-            final updatedAtTimestamp = data['updatedAt'] as Timestamp?;
+    data.remove(keyCreatedAt);
+    data.remove(keyUpdatedAt);
 
-            data.remove('createdAt');
-            data.remove('updatedAt');
+    return DeliveryModel.fromMap(data).copyWith(
+      id: id,
+      createdAt: createdAtTimestamp?.toDate(),
+      updatedAt: updatedAtTimestamp?.toDate(),
+    );
+  }
 
-            final delivery = DeliveryModel.fromMap(data).copyWith(
-              id: doc.id,
-              createdAt: createdAtTimestamp?.toDate(),
-              updatedAt: updatedAtTimestamp?.toDate(),
-            );
+  /// Prepares delivery data map for Firestore
+  Map<String, dynamic> _prepareDeliveryMap(DeliveryModel delivery) {
+    final deliveryMap = delivery.toMap();
+    deliveryMap.remove('id');
+    return deliveryMap;
+  }
 
-            return delivery.copyWith(id: doc.id);
-          } catch (err) {
-            final message =
-                'DeliveriesFirebaseRepository.getDeliveryByOwnerId :$err';
-            log(message);
-            throw Exception(message);
-          }
-        },
-      ));
-      return deliveries;
+  /// Converts Firestore snapshot to DeliveryModel
+  DeliveryModel _fromFirestore(
+      DocumentSnapshot<Map<String, dynamic>> snapshot, _) {
+    final data = snapshot.data()!;
+    return _deliveryModelFromFirestoreData(snapshot.id, data);
+  }
+
+  /// Streams deliveries based on a given Firestore query
+  Stream<List<DeliveryModel>> _getDeliveriesStream(
+      Query<Map<String, dynamic>> query) {
+    return query.snapshots().asyncMap((snapshot) async {
+      return Future.wait(snapshot.docs.map((doc) async {
+        try {
+          return _deliveryModelFromFirestoreData(doc.id, doc.data());
+        } catch (err) {
+          final message =
+              'DeliveriesFirebaseRepository._getDeliveriesStream :$err';
+          log(message);
+          throw Exception(message);
+        }
+      }));
     });
   }
 
-  @override
-  Stream<List<DeliveryModel>> getAll() {
-    return _firebase
-        .collection(keyDeliveries)
-        .snapshots()
-        .asyncMap((snapshot) async {
-      List<DeliveryModel> deliveries = await Future.wait(snapshot.docs.map(
-        (doc) async {
-          try {
-            final data = Map<String, dynamic>.from(doc.data());
-
-            final createdAtTimestamp = data['createdAt'] as Timestamp?;
-            final updatedAtTimestamp = data['updatedAt'] as Timestamp?;
-
-            data.remove('createdAt');
-            data.remove('updatedAt');
-
-            final delivery = DeliveryModel.fromMap(data).copyWith(
-              id: doc.id,
-              createdAt: createdAtTimestamp?.toDate(),
-              updatedAt: updatedAtTimestamp?.toDate(),
-            );
-
-            return delivery.copyWith(id: doc.id);
-          } catch (err) {
-            final message =
-                'DeliveriesFirebaseRepository.getDeliveryByOwnerId :$err';
-            log(message);
-            throw Exception(message);
-          }
-        },
-      ));
-      return deliveries;
-    });
+  /// Builds a query to filter nearby deliveries
+  Query<Map<String, dynamic>> _nearbyQueryBuilder(
+      Query<Map<String, dynamic>> query) {
+    return query.where(
+      keyStatus,
+      whereIn: <int>[
+        DeliveryStatus.orderRegisteredForPickup.index,
+        DeliveryStatus.orderReservedForPickup.index,
+      ],
+    );
   }
 
+  /// Calculates the approximate distance between two GeoPoints
   double _calculateDistanceSimple(GeoPoint start, GeoPoint end) {
     const double kmPerDegreeLat =
         111.32; // Approximately the number of km per degree of latitude
     const double kmPerDegreeLonAtEquator =
         111.32; // Approximately the number of km per degree of longitude at the equator
 
-    // Latitude and longitude difference
     double deltaLat = (end.latitude - start.latitude) * kmPerDegreeLat;
     double deltaLon = (end.longitude - start.longitude) *
         (kmPerDegreeLonAtEquator * math.cos(_toRadians(start.latitude)));
 
-    // Apply Pythagoras to calculate distance
     return math.sqrt(deltaLat * deltaLat + deltaLon * deltaLon);
   }
 
+  /// Converts degrees to radians
   double _toRadians(double degrees) {
     return degrees * math.pi / 180;
   }
+
+  /// Extracts GeoPoint from Firestore data
+  GeoPoint geopointFrom(Map<String, dynamic> data) =>
+      (data[keyShopLocation] as Map<String, dynamic>)['geopoint'] as GeoPoint;
 }
