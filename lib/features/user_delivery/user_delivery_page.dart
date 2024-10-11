@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 import '../../components/widgets/delivery_card.dart';
-import '/common/extensions/delivery_status_extensions.dart';
-import '/common/models/delivery.dart';
 import '/common/theme/app_text_style.dart';
 import '/locator.dart';
 import '../../stores/common/store_func.dart';
@@ -52,45 +50,19 @@ class _UserDeliveryPageState extends State<UserDeliveryPage> {
     super.dispose();
   }
 
-  // Function to display delivery details
-  void _showDeliveryDetails(DeliveryModel delivery) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(delivery.clientName),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Endereço: ${delivery.clientAddress}'),
-            const SizedBox(height: 10),
-            Text('Status: ${delivery.status.displayName}'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('Fechar'),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          IconButton(
-            onPressed: () {
-              ctrl.refresh(store.radiusInKm);
-            },
-            icon: const Icon(Icons.refresh),
-          ),
-        ],
-      ),
+      // appBar: AppBar(
+      //   actions: [
+      //     IconButton(
+      //       onPressed: () {
+      //         ctrl.refresh(store.radiusInKm);
+      //       },
+      //       icon: const Icon(Icons.refresh),
+      //     ),
+      //   ],
+      // ),
       body: Column(
         children: [
           Padding(
@@ -142,7 +114,7 @@ class _UserDeliveryPageState extends State<UserDeliveryPage> {
 
                         return DeliveryCard(
                           delivery: delivery,
-                          action: _showDeliveryDetails,
+                          action: ctrl.changeStatus,
                         );
                       },
                     );

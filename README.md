@@ -18,6 +18,52 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/11 - version: 0.6.23+45
+
+This commit introduces several updates to the `DeliveryModel` class, controller, repository, and relevant UI components to improve functionality and provide more complete information for delivery entities. The changes encompass additions to data models, modifications in business logic, and UI updates for enhanced user interaction.
+
+### Key Changes
+
+1. **Delivery Model Update**
+
+- **New Field Added**: `deliveryPhone` was added to `DeliveryModel` to store the delivery person's phone number.
+- **Class Modifications**:
+  - Added `deliveryPhone` field to the constructor, `copyWith` method, `toMap` method, and `fromMap` method.
+  - Updated `toString`, `==` operator, and `hashCode` to incorporate the new `deliveryPhone` field.
+
+2. **Delivery Card Widget Update**
+
+- Updated the `DeliveryCard` widget to provide more detailed information about both the shop and client.
+  - The card now shows the shop name and address, and the client's phone number, with improved formatting for phone numbers.
+  - Added a private method `_cleanPhone` to clean phone numbers for display.
+
+3. **User Delivery Controller Update**
+
+- **UserStore Update**: Changed the reference from `user` to `_user` for consistency, while maintaining the original `user` as a separate reference for current use.
+- **Status Update Method**: Added `changeStatus` method in `UserDeliveryController` to allow the delivery person to change the status of a delivery.
+  - The method toggles the delivery status between `orderRegisteredForPickup` and `orderReservedForPickup`.
+  - It also updates the `deliveryId`, `deliveryName`, and `deliveryPhone` fields in the `DeliveryModel`.
+
+4. **User Delivery Page Update**
+
+- Removed unnecessary dialog and button actions for displaying delivery details.
+- Updated the `DeliveryCard` widget to use the `changeStatus` method from the controller instead of showing details.
+
+5. **Abstract Deliveries Repository Interface Update**
+
+- Added a new `updateStatus` method to update the status of a delivery.
+
+6. **Deliveries Firebase Repository Update**
+
+- Updated the implementation of the `updateStatus` method to modify the status and related delivery information in Firestore.
+  - Adjusted Firestore references and `WriteBatch` operations for efficient data handling.
+- Refactored the retrieval and update of delivery models with enhanced error handling and consistency in method names.
+
+### Conclusion
+
+This commit primarily focuses on adding new functionality to manage the phone number of delivery personnel, along with significant improvements in updating and managing delivery statuses, user interactions, and overall data consistency across the app.
+
+
 ## 2024/10/10 - version: 0.6.22+44
 
 This commit involves several improvements to the delivery management system, focusing on enhancing CRUD operations for the `DeliverymenModel` and ensuring better compatibility with Firestore.
