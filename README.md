@@ -18,6 +18,39 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/11 - version: 0.7.00+48
+
+This commit introduces key updates to enhance the organization and handling of delivery information across the application. The changes include modifications to model classes, addition of new UI widgets, and adjustments to store and controller components to better reflect shop-level data and improve user interaction with the delivery system.
+
+1. **lib/common/models/shop\_delivery\_info.dart**
+   - Added new getters `phone` and `address` to provide access to the shop's phone number and address from the first delivery in the list.
+   - These changes enable better encapsulation and easier access to shop-related data within the model.
+
+2. **lib/components/widgets/shop\_card.dart** (new file)
+   - Introduced `ShopCard` widget to display information about a shop, including its deliveries.
+   - Added parameters for `shopInfo`, `action`, `isExpanded`, and `onExpansionChanged` to manage the UI state and user interactions effectively.
+   - Implemented an `ExpansionTile` to show detailed shop information, including the number of deliveries and shop contact details.
+
+3. **lib/features/user\_delivery/stores/user\_delivery\_store.dart**
+   - Updated `deliveries` to use `ObservableList<ShopDeliveryInfo>` instead of `DeliveryExtended`, reflecting the new focus on shop-level data.
+   - Modified `setDeliveries` method to accommodate the updated `ShopDeliveryInfo` model, ensuring consistency in data handling.
+
+4. **lib/features/user\_delivery/user\_delivery\_controller.dart**
+   - Renamed `changeStatus` reference to `changeDeliveryStatus` for better clarity and consistency in the codebase.
+
+5. **lib/features/user\_delivery/user\_delivery\_page.dart**
+   - Replaced `DeliveryCard` usage with `ShopCard` to display shop-level data, reflecting the updated model.
+   - Introduced `_expandedState` map to manage the expanded state of each `ShopCard`, providing a better user experience when interacting with multiple shops.
+
+6. **lib/managers/deliveries\_manager.dart**
+   - Updated `_processeNearbyDeliveries` to use `ShopDeliveryInfo` instead of `DeliveryExtended`, enhancing the organization of data at the shop level.
+   - Modified the `_mapShopDeliveryInfoStream` method to group deliveries by shop, allowing for more efficient data handling and improved structure.
+   - Added a new transformer `_deliveryToShopInfoTransformer` to convert `DeliveryModel` streams into `ShopDeliveryInfo` streams, encapsulating multiple deliveries under a single shop entry.
+   - Updated the subscription logic to `_subscribeToShopDeliveries`, ensuring the store receives grouped shop information rather than individual deliveries.
+
+These updates significantly enhance the delivery system by organizing data around shops rather than individual deliveries, providing a more cohesive structure that simplifies both backend management and frontend presentation. This refactoring effort leads to a clearer, more maintainable codebase, and an improved user experience for interacting with shop and delivery information.
+
+
 ## 2024/10/11 - version: 0.6.25+47
 
 This commit introduces several improvements and optimizations to enhance the delivery system's functionality and maintainability. These changes include modifications to model classes, widget updates, controller adjustments, and manager class refinements, all contributing to a more streamlined and efficient codebase.
