@@ -28,7 +28,7 @@ class UserDeliveryController {
   Future<void> Function() get refreshNearbyDeliveries =>
       manager.refreshNearbyDeliveries;
 
-  Future<void> Function(DeliveryModel) get changeStatus =>
+  Future<void> Function(DeliveryModel) get changeDeliveryStatus =>
       manager.changeDeliveryStatus;
 
   void updateRadius(double newRadius) {

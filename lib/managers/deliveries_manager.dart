@@ -5,10 +5,10 @@ import 'dart:math' as math;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 
-import 'package:delivery/common/models/delivery_extended.dart';
-
+import '../common/models/delivery_extended.dart';
 import '../common/models/delivery.dart';
 import '../common/models/delivery_men.dart';
+import '../common/models/shop_delivery_info.dart';
 import '../features/user_delivery/stores/user_delivery_store.dart';
 import '../locator.dart';
 import '../repository/firebase_store/abstract_deliveries_repository.dart';
@@ -31,7 +31,7 @@ class DeliveriesManager {
       DeliveriesFirebaseRepository();
   final user = locator<UserStore>();
 
-  StreamSubscription<List<DeliveryExtended>>? _deliveriesSubscription;
+  StreamSubscription<List<ShopDeliveryInfo>>? _deliveriesSubscription;
 
   String get userId => user.id!;
 
@@ -71,11 +71,11 @@ class DeliveriesManager {
   }
 
   void _processeNearbyDeliveries() {
-    final Stream<List<DeliveryExtended>> extendedDeliveriesStream =
-        _mapExtendedDeliveriesStream();
+    final Stream<List<ShopDeliveryInfo>> shopDeliveriesStream =
+        _mapShopDeliveryInfoStream();
 
     _deliveriesSubscription?.cancel();
-    _subscribeToDeliveries(extendedDeliveriesStream);
+    _subscribeToShopDeliveries(shopDeliveriesStream);
   }
 
   Future<void> _startUserLocation() async {
@@ -102,37 +102,50 @@ class DeliveriesManager {
     user.deliverymen = result.data!;
   }
 
-  Stream<List<DeliveryExtended>> _mapExtendedDeliveriesStream() {
+  Stream<List<ShopDeliveryInfo>> _mapShopDeliveryInfoStream() {
     return deliveriesRepository
         .getNearby(
             geopoint: user.deliverymen!.location.geopoint,
             radiusInKm: store.radiusInKm)
-        .transform(_deliveryToExtendedTransformer());
+        .transform(_deliveryToShopInfoTransformer());
   }
 
-  StreamTransformer<List<DeliveryModel>, List<DeliveryExtended>>
-      _deliveryToExtendedTransformer() {
+  StreamTransformer<List<DeliveryModel>, List<ShopDeliveryInfo>>
+      _deliveryToShopInfoTransformer() {
     return StreamTransformer.fromHandlers(
       handleData: (List<DeliveryModel> deliveries,
-          EventSink<List<DeliveryExtended>> sink) {
-        final List<DeliveryExtended> extendedDeliveries =
-            deliveries.map((delivery) {
+          EventSink<List<ShopDeliveryInfo>> sink) {
+        final Map<String, ShopDeliveryInfo> shopInfoMap = {};
+
+        for (var delivery in deliveries) {
           final distance = _calculateDistance(
             user.deliverymen!.location.geopoint,
             delivery.shopLocation.geopoint,
           );
-          return DeliveryExtended.fromDeliveryModel(delivery, distance);
-        }).toList();
-        sink.add(extendedDeliveries);
+
+          if (!shopInfoMap.containsKey(delivery.shopId)) {
+            shopInfoMap[delivery.shopId] = ShopDeliveryInfo(
+              shopName: delivery.shopName,
+              distance: distance,
+            );
+          }
+
+          final shopInfo = shopInfoMap[delivery.shopId]!;
+          final extendedDelivery =
+              DeliveryExtended.fromDeliveryModel(delivery, distance);
+          shopInfo.deliveries.add(extendedDelivery);
+        }
+
+        sink.add(shopInfoMap.values.toList());
       },
     );
   }
 
-  void _subscribeToDeliveries(
-      Stream<List<DeliveryExtended>> extendedDeliveriesStream) {
-    _deliveriesSubscription = extendedDeliveriesStream.listen(
-      (fetchedDeliveries) {
-        store.setDeliveries(fetchedDeliveries);
+  void _subscribeToShopDeliveries(
+      Stream<List<ShopDeliveryInfo>> shopDeliveriesStream) {
+    _deliveriesSubscription = shopDeliveriesStream.listen(
+      (fetchedShopDeliveries) {
+        store.setDeliveries(fetchedShopDeliveries);
         store.setState(PageState.success);
       },
       onError: (error) {

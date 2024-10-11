@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
-import '../../components/widgets/delivery_card.dart';
+import '/components/widgets/shop_card.dart';
 import '/common/theme/app_text_style.dart';
 import '/locator.dart';
 import '../../stores/common/store_func.dart';
@@ -23,6 +23,9 @@ class _UserDeliveryPageState extends State<UserDeliveryPage> {
 
   late final String userId;
 
+  // Map to track the expanded state of each shop
+  final Map<int, bool> _expandedState = {};
+
   @override
   void initState() {
     super.initState();
@@ -33,16 +36,12 @@ class _UserDeliveryPageState extends State<UserDeliveryPage> {
     }
     userId = _currentUser.id!;
 
-    // Initialize the location and search for deliveries
-    ctrl.init(
-      store: store,
-    );
+    ctrl.init(store: store);
   }
 
   @override
   void dispose() {
     ctrl.dispose();
-
     super.dispose();
   }
 
@@ -96,11 +95,19 @@ class _UserDeliveryPageState extends State<UserDeliveryPage> {
                     return ListView.builder(
                       itemCount: deliveries.length,
                       itemBuilder: (_, index) {
-                        final deliveryExtended = deliveries[index];
+                        final shopDelivery = deliveries[index];
+                        // Initialize the expanded state if not present
+                        _expandedState.putIfAbsent(index, () => false);
 
-                        return DeliveryCard(
-                          delivery: deliveryExtended.delivery,
-                          action: ctrl.changeStatus,
+                        return ShopCard(
+                          shopInfo: shopDelivery,
+                          action: ctrl.changeDeliveryStatus,
+                          isExpanded: _expandedState[index]!,
+                          onExpansionChanged: (isExpanded) {
+                            setState(() {
+                              _expandedState[index] = isExpanded;
+                            });
+                          },
                         );
                       },
                     );
