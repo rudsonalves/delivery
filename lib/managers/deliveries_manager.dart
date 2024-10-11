@@ -40,77 +40,42 @@ class DeliveriesManager {
   }
 
   Future<void> getNearbyDeliveries() async {
-    store.setState(PageState.loading);
+    _setLoadingState();
     try {
       if (user.deliverymen == null) {
         await _startUserLocation();
       } else {
         await _updateUserLocation();
       }
-
       _processeNearbyDeliveries();
-
-      return;
     } catch (err) {
-      final message = 'Error ao inicializar: $err';
-      log(message);
-      return;
+      _setErrorState('Error ao inicializar: $err');
     }
   }
 
   Future<void> refreshNearbyDeliveries() async {
-    store.setState(PageState.loading);
+    _setLoadingState();
     try {
-      // Get and update location in Firebase
       await _updateUserLocation();
-
       _processeNearbyDeliveries();
-
-      return;
     } catch (err) {
-      final message = 'Error ao inicializar: $err';
-      log(message);
-      return;
+      _setErrorState('Error ao inicializar: $err');
     }
   }
 
-  Future<void> changeStatus(DeliveryModel delivery) async {
-    store.setState(PageState.loading);
-    delivery.status =
-        (delivery.status == DeliveryStatus.orderRegisteredForPickup)
-            ? DeliveryStatus.orderReservedForPickup
-            : DeliveryStatus.orderRegisteredForPickup;
-
-    final DeliveryModel updatedDelivery =
-        delivery.status == DeliveryStatus.orderReservedForPickup
-            ? delivery.copyWith(
-                deliveryId: userId,
-                deliveryName: user.currentUser!.name,
-                deliveryPhone: user.currentUser!.phone,
-                updatedAt: DateTime.now(),
-              )
-            : delivery.copyWith(
-                deliveryId: '',
-                deliveryName: '',
-                deliveryPhone: '',
-                updatedAt: DateTime.now(),
-              );
-
+  Future<void> changeDeliveryStatus(DeliveryModel delivery) async {
+    _setLoadingState();
+    final updatedDelivery = _getUpdatedDeliveryStatus(delivery);
     await deliveriesRepository.updateStatus(updatedDelivery);
     store.setState(PageState.success);
   }
 
   void _processeNearbyDeliveries() {
-    // Transform the Stream<List<DeliveryModel>> into Stream<List<DeliveryExtended>>
     final Stream<List<DeliveryExtended>> extendedDeliveriesStream =
         _mapExtendedDeliveriesStream();
 
-    // Start the stream to get nearby deliveries
-    _deliveriesSubscription?.cancel(); // Cancel any previous subscriptions
-
-    // Subscribe to the transformed stream
-    _deliveriesSubscription =
-        _listenExtendedDeliveriesStream(extendedDeliveriesStream);
+    _deliveriesSubscription?.cancel();
+    _subscribeToDeliveries(extendedDeliveriesStream);
   }
 
   Future<void> _startUserLocation() async {
@@ -121,12 +86,9 @@ class DeliveriesManager {
 
     final result = await deliverymenRepository.set(deliverymen);
     if (result.isFailure) {
-      const message = 'Sua localização não pode ser determinada!';
-      log(message);
-      store.setError(message);
+      _setErrorState('Sua localização não pode ser determinada!');
       return;
     }
-
     user.deliverymen = result.data!;
   }
 
@@ -134,12 +96,9 @@ class DeliveriesManager {
     final result =
         await deliverymenRepository.updateLocation(user.deliverymen!);
     if (result.isFailure) {
-      const message = 'Não foi possível obter sua localização.';
-      log(message);
-      store.setError(message);
+      _setErrorState('Não foi possível obter sua localização.');
       return;
     }
-
     user.deliverymen = result.data!;
   }
 
@@ -148,38 +107,61 @@ class DeliveriesManager {
         .getNearby(
             geopoint: user.deliverymen!.location.geopoint,
             radiusInKm: store.radiusInKm)
-        .map((List<DeliveryModel> deliveries) {
-      return deliveries.map((delivery) {
-        final distance = _calculateDistance(
-          user.deliverymen!.location.geopoint,
-          delivery.shopLocation.geopoint,
-        );
-
-        return DeliveryExtended.fromDeliveryModel(delivery, distance);
-      }).toList();
-    });
+        .transform(_deliveryToExtendedTransformer());
   }
 
-  StreamSubscription<List<DeliveryExtended>> _listenExtendedDeliveriesStream(
-      Stream<List<DeliveryExtended>> extendedDeliveriesStream) {
-    return extendedDeliveriesStream.listen(
-      (List<DeliveryExtended> fetchedDeliveries) {
-        // Use the store to set the deliveries in the application state
-        store.setDeliveries(fetchedDeliveries);
-        store.setState(PageState.success);
-      },
-      onError: (error) {
-        final message = 'Erro ao buscar entregas próximas: $error';
-        log(message);
-        store.setError(message);
+  StreamTransformer<List<DeliveryModel>, List<DeliveryExtended>>
+      _deliveryToExtendedTransformer() {
+    return StreamTransformer.fromHandlers(
+      handleData: (List<DeliveryModel> deliveries,
+          EventSink<List<DeliveryExtended>> sink) {
+        final List<DeliveryExtended> extendedDeliveries =
+            deliveries.map((delivery) {
+          final distance = _calculateDistance(
+            user.deliverymen!.location.geopoint,
+            delivery.shopLocation.geopoint,
+          );
+          return DeliveryExtended.fromDeliveryModel(delivery, distance);
+        }).toList();
+        sink.add(extendedDeliveries);
       },
     );
   }
 
+  void _subscribeToDeliveries(
+      Stream<List<DeliveryExtended>> extendedDeliveriesStream) {
+    _deliveriesSubscription = extendedDeliveriesStream.listen(
+      (fetchedDeliveries) {
+        store.setDeliveries(fetchedDeliveries);
+        store.setState(PageState.success);
+      },
+      onError: (error) {
+        _setErrorState('Erro ao buscar entregas próximas: $error');
+      },
+    );
+  }
+
+  DeliveryModel _getUpdatedDeliveryStatus(DeliveryModel delivery) {
+    final newStatus = delivery.status == DeliveryStatus.orderRegisteredForPickup
+        ? DeliveryStatus.orderReservedForPickup
+        : DeliveryStatus.orderRegisteredForPickup;
+
+    return delivery.copyWith(
+      status: newStatus,
+      deliveryId:
+          newStatus == DeliveryStatus.orderReservedForPickup ? userId : '',
+      deliveryName: newStatus == DeliveryStatus.orderReservedForPickup
+          ? user.currentUser!.name
+          : '',
+      deliveryPhone: newStatus == DeliveryStatus.orderReservedForPickup
+          ? user.currentUser!.phone
+          : '',
+      updatedAt: DateTime.now(),
+    );
+  }
+
   double _calculateDistance(GeoPoint start, GeoPoint end) {
-    // Aproximadamente o número de km por grau de latitude
     const double kmPerDegreeLat = 111.32;
-    // Aproximadamente o número de km por grau de longitude no equador
     const double kmPerDegreeLonAtEquator = 111.32;
 
     double deltaLat = (end.latitude - start.latitude) * kmPerDegreeLat;
@@ -187,5 +169,14 @@ class DeliveriesManager {
         (kmPerDegreeLonAtEquator * math.cos(start.latitude * math.pi / 180));
 
     return math.sqrt(deltaLat * deltaLat + deltaLon * deltaLon);
+  }
+
+  void _setLoadingState() {
+    store.setState(PageState.loading);
+  }
+
+  void _setErrorState(String message) {
+    log(message);
+    store.setError(message);
   }
 }
