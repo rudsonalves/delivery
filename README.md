@@ -18,6 +18,58 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/11 - version: 0.6.24+46
+
+This commit introduces significant updates to the delivery system, aimed at enhancing functionality, optimizing performance, and simplifying the management of deliveries. The changes include updates to the build configurations, new model classes for better data encapsulation, and the introduction of a dedicated manager to centralize delivery-related business logic. These improvements are expected to streamline the delivery workflow, reduce redundancy, and make the system more maintainable and scalable.
+
+1. **android/app/build.gradle**
+
+   - Updated `sourceCompatibility` and `targetCompatibility` from Java 1.8 to Java 11 to leverage modern Java features and improve compatibility.
+   - Changed `jvmTarget` in `kotlinOptions` from 1.8 to 11, ensuring alignment with the updated Java version.
+
+2. **android/app/google-services.json.old**
+
+   - Deleted the old `google-services.json` configuration file as it is no longer needed, reducing potential confusion and ensuring the project uses the correct configuration.
+
+3. **android/build.gradle**
+
+   - Removed forced jvmTarget settings across all modules to allow for more flexible configurations.
+   - Cleaned up redundant comments and updated dependencies to improve readability and maintainability of the build script.
+
+4. **lib/common/models/delivery\_extended.dart** (new file)
+
+   - Added `DeliveryExtended` class to extend `DeliveryModel` with an additional `distanceFromShop` attribute, providing more detailed information about deliveries.
+   - Included methods to create `DeliveryExtended` from `DeliveryModel` and convert back, ensuring compatibility and ease of use.
+
+5. **lib/common/models/shop\_delivery\_info.dart** (new file)
+
+   - Introduced `ShopDeliveryInfo` class to encapsulate shop name, number of deliveries, and distance, providing a concise representation of shop delivery information.
+
+6. **lib/features/user\_delivery/stores/user\_delivery\_store.dart**
+
+   - Updated `deliveries` to use `ObservableList<DeliveryExtended>` instead of `DeliveryModel`, enabling the use of extended delivery information.
+   - Modified `setDeliveries` method to accommodate the new `DeliveryExtended` model, ensuring proper data handling.
+
+7. **lib/features/user\_delivery/user\_delivery\_controller.dart**
+
+   - Refactored to use the new `DeliveriesManager` class, centralizing the delivery-related logic.
+   - Removed previous code for manually managing delivery locations and streams, simplifying the controller's responsibilities.
+   - Updated initialization and subscription management to use `DeliveriesManager` methods, improving code organization and maintainability.
+
+8. **lib/features/user\_delivery/user\_delivery\_page.dart**
+
+   - Removed unused `userId` and `radiusInKm` variables from the initialization process, cleaning up the code.
+   - Updated UI elements to reflect new delivery status management, including the use of `refreshNearbyDeliveries` for better user experience.
+
+9. **lib/managers/deliveries\_manager.dart** (new file)
+
+   - Created `DeliveriesManager` class to centralize delivery-related business logic, making the system more modular and easier to maintain.
+   - Implemented methods for initializing user location, fetching nearby deliveries, and changing delivery statuses, providing a clear separation of concerns.
+   - Provided utilities for mapping and listening to extended delivery streams, as well as calculating distances, to enhance the accuracy and efficiency of delivery management.
+
+These changes collectively aim to enhance the delivery system by introducing modularity, improving data handling, and centralizing business logic. The refactoring efforts reduce redundancy, making the codebase more organized and easier to maintain, while the new features provide additional functionality to support a more robust delivery process. Se terminou, para que o 
+
+
 ## 2024/10/11 - version: 0.6.23+45
 
 This commit introduces several updates to the `DeliveryModel` class, controller, repository, and relevant UI components to improve functionality and provide more complete information for delivery entities. The changes encompass additions to data models, modifications in business logic, and UI updates for enhanced user interaction.

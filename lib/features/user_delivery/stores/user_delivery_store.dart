@@ -1,6 +1,6 @@
 import 'package:mobx/mobx.dart';
 
-import '/common/models/delivery.dart';
+import '../../../common/models/delivery_extended.dart';
 import '../../../stores/common/store_func.dart';
 
 part 'user_delivery_store.g.dart';
@@ -13,7 +13,8 @@ abstract class _UserDeliveryStore with Store {
   PageState state = PageState.initial;
 
   @observable
-  ObservableList<DeliveryModel> deliveries = ObservableList<DeliveryModel>();
+  ObservableList<DeliveryExtended> deliveries =
+      ObservableList<DeliveryExtended>();
 
   @observable
   String? errorMessage;
@@ -27,8 +28,8 @@ abstract class _UserDeliveryStore with Store {
   }
 
   @action
-  void setDeliveries(List<DeliveryModel> newDeliveries) {
-    deliveries = ObservableList<DeliveryModel>.of(newDeliveries);
+  void setDeliveries(List<DeliveryExtended> newDeliveries) {
+    deliveries = ObservableList<DeliveryExtended>.of(newDeliveries);
   }
 
   @action
