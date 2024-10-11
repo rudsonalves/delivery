@@ -21,8 +21,6 @@ class _UserDeliveryPageState extends State<UserDeliveryPage> {
   final ctrl = UserDeliveryController();
   final _currentUser = locator<UserStore>().currentUser;
 
-  final double _initialRadius = 5.0;
-
   late final String userId;
 
   @override
@@ -38,8 +36,6 @@ class _UserDeliveryPageState extends State<UserDeliveryPage> {
     // Initialize the location and search for deliveries
     ctrl.init(
       store: store,
-      userId: userId,
-      radiusInKm: _initialRadius,
     );
   }
 
@@ -53,16 +49,6 @@ class _UserDeliveryPageState extends State<UserDeliveryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   actions: [
-      //     IconButton(
-      //       onPressed: () {
-      //         ctrl.refresh(store.radiusInKm);
-      //       },
-      //       icon: const Icon(Icons.refresh),
-      //     ),
-      //   ],
-      // ),
       body: Column(
         children: [
           Padding(
@@ -110,10 +96,10 @@ class _UserDeliveryPageState extends State<UserDeliveryPage> {
                     return ListView.builder(
                       itemCount: deliveries.length,
                       itemBuilder: (_, index) {
-                        final delivery = deliveries[index];
+                        final deliveryExtended = deliveries[index];
 
                         return DeliveryCard(
-                          delivery: delivery,
+                          delivery: deliveryExtended.delivery,
                           action: ctrl.changeStatus,
                         );
                       },
@@ -130,7 +116,7 @@ class _UserDeliveryPageState extends State<UserDeliveryPage> {
                           const SizedBox(height: 20),
                           FilledButton.icon(
                             onPressed: () {
-                              ctrl.refresh(store.radiusInKm);
+                              ctrl.refreshNearbyDeliveries();
                             },
                             label: const Text('Tentar Novamente.'),
                             icon: const Icon(Icons.refresh),
