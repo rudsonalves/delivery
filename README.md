@@ -18,6 +18,32 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/11 - version: 0.6.25+47
+
+This commit introduces several improvements and optimizations to enhance the delivery system's functionality and maintainability. These changes include modifications to model classes, widget updates, controller adjustments, and manager class refinements, all contributing to a more streamlined and efficient codebase.
+
+1. **lib/common/models/shop_delivery_info.dart**
+   - Imported `delivery_extended.dart` to include `DeliveryExtended` information in the model.
+   - Added a `deliveries` attribute of type `List<DeliveryExtended>` to store extended delivery information for each shop.
+   - Added a `length` getter to provide the number of deliveries in the list.
+   - Removed the `numberOfDeliveries` attribute as it is now inferred from the `deliveries` list.
+
+2. **lib/components/widgets/delivery_card.dart**
+   - Updated the phone number display in the `subtitle` to include a phone emoji (📞), providing a clearer representation for users.
+
+3. **lib/features/user_delivery/user_delivery_controller.dart**
+   - Renamed the method reference `changeStatus` to `changeDeliveryStatus` to improve clarity and consistency.
+
+4. **lib/managers/deliveries_manager.dart**
+   - Refactored `getNearbyDeliveries` and `refreshNearbyDeliveries` methods to use `_setLoadingState()` and `_setErrorState()` for better code reuse and readability.
+   - Replaced `changeStatus` method with `changeDeliveryStatus`, and moved the logic for updating the delivery status into a new private method `_getUpdatedDeliveryStatus` to streamline the code.
+   - Updated `_processeNearbyDeliveries` to use `_subscribeToDeliveries` for managing delivery subscriptions.
+   - Introduced `_deliveryToExtendedTransformer` to transform streams of `DeliveryModel` into `DeliveryExtended`, improving the reusability and separation of concerns in the code.
+   - Added `_setLoadingState()` and `_setErrorState()` utility methods to manage store states more effectively and reduce repetition.
+
+These updates improve the structure and readability of the delivery system's code, enhance the reusability of functions, and make the entire flow more maintainable and scalable. The refactoring efforts lead to better code quality while maintaining the intended functionalities of the application.
+
+
 ## 2024/10/11 - version: 0.6.24+46
 
 This commit introduces significant updates to the delivery system, aimed at enhancing functionality, optimizing performance, and simplifying the management of deliveries. The changes include updates to the build configurations, new model classes for better data encapsulation, and the introduction of a dedicated manager to centralize delivery-related business logic. These improvements are expected to streamline the delivery workflow, reduce redundancy, and make the system more maintainable and scalable.
