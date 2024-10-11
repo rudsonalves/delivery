@@ -14,6 +14,10 @@ class DeliveryCard extends StatelessWidget {
     this.action,
   });
 
+  String _cleanPhone(String phone) {
+    return phone.replaceAll('(', '').replaceAll(')', '');
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -21,12 +25,12 @@ class DeliveryCard extends StatelessWidget {
     return Card(
       color: colorScheme.surfaceContainer,
       child: ListTile(
-        title: Text(delivery.clientName),
+        title: Text('${delivery.shopName} ➠ ${delivery.clientName}'),
         subtitle: MarkdowntoRichText(
-          text: '**Retirada: ${delivery.shopName}** -'
-              ' ${delivery.shopAddress}\n'
-              '**Entrega:**'
-              ' ${delivery.clientAddress}',
+          text: '**Retirada:** ${delivery.shopAddress}'
+              ' (**${_cleanPhone(delivery.shopPhone)}**)\n'
+              '**Entrega:** ${delivery.clientAddress}'
+              ' (**${_cleanPhone(delivery.clientPhone)}**)',
         ),
         leading: delivery.status.icon,
         onTap: () {

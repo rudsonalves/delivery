@@ -18,12 +18,13 @@ import 'stores/user_delivery_store.dart';
 
 class UserDeliveryController {
   StreamSubscription<List<DeliveryModel>>? _deliveriesSubscription;
-  final user = locator<UserStore>();
+  final _user = locator<UserStore>().currentUser!;
 
   final AbstractDeliverymenRepository deliverymenRepository =
       DeliverymenFirebaseRepository();
   final AbstractDeliveriesRepository deliveriesRepository =
       DeliveriesFirebaseRepository();
+  final user = locator<UserStore>();
 
   // Method to unsubscribe from the stream when it is no longer needed
   void dispose() {
@@ -130,5 +131,32 @@ class UserDeliveryController {
   void updateRadius(double newRadius) {
     store.setRadius(newRadius);
     refresh(newRadius);
+  }
+
+  //
+  Future<void> changeStatus(DeliveryModel delivery) async {
+    store.setState(PageState.loading);
+    delivery.status =
+        (delivery.status == DeliveryStatus.orderRegisteredForPickup)
+            ? DeliveryStatus.orderReservedForPickup
+            : DeliveryStatus.orderRegisteredForPickup;
+
+    final DeliveryModel updatedDelivery =
+        delivery.status == DeliveryStatus.orderReservedForPickup
+            ? delivery.copyWith(
+                deliveryId: _user.id!,
+                deliveryName: _user.name,
+                deliveryPhone: _user.phone,
+                updatedAt: DateTime.now(),
+              )
+            : delivery.copyWith(
+                deliveryId: '',
+                deliveryName: '',
+                deliveryPhone: '',
+                updatedAt: DateTime.now(),
+              );
+
+    await deliveriesRepository.updateStatus(updatedDelivery);
+    store.setState(PageState.success);
   }
 }
