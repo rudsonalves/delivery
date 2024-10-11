@@ -1,6 +1,6 @@
 import 'package:mobx/mobx.dart';
 
-import '../../../common/models/delivery_extended.dart';
+import '../../../common/models/shop_delivery_info.dart';
 import '../../../stores/common/store_func.dart';
 
 part 'user_delivery_store.g.dart';
@@ -13,8 +13,8 @@ abstract class _UserDeliveryStore with Store {
   PageState state = PageState.initial;
 
   @observable
-  ObservableList<DeliveryExtended> deliveries =
-      ObservableList<DeliveryExtended>();
+  ObservableList<ShopDeliveryInfo> deliveries =
+      ObservableList<ShopDeliveryInfo>();
 
   @observable
   String? errorMessage;
@@ -28,8 +28,8 @@ abstract class _UserDeliveryStore with Store {
   }
 
   @action
-  void setDeliveries(List<DeliveryExtended> newDeliveries) {
-    deliveries = ObservableList<DeliveryExtended>.of(newDeliveries);
+  void setDeliveries(List<ShopDeliveryInfo> newDeliveries) {
+    deliveries = ObservableList<ShopDeliveryInfo>.of(newDeliveries);
   }
 
   @action
