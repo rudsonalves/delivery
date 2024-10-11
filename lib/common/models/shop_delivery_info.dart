@@ -1,11 +1,14 @@
+import 'delivery_extended.dart';
+
 class ShopDeliveryInfo {
   final String shopName;
-  final int numberOfDeliveries;
   final double distance;
+
+  int get length => deliveries.length;
+  final List<DeliveryExtended> deliveries = [];
 
   ShopDeliveryInfo({
     required this.shopName,
-    required this.numberOfDeliveries,
     required this.distance,
   });
 }
