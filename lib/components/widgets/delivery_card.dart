@@ -28,9 +28,9 @@ class DeliveryCard extends StatelessWidget {
         title: Text('${delivery.shopName} ➠ ${delivery.clientName}'),
         subtitle: MarkdowntoRichText(
           text: '**Retirada:** ${delivery.shopAddress}'
-              ' (**${_cleanPhone(delivery.shopPhone)}**)\n'
+              ' (📞 **${_cleanPhone(delivery.shopPhone)}**)\n'
               '**Entrega:** ${delivery.clientAddress}'
-              ' (**${_cleanPhone(delivery.clientPhone)}**)',
+              ' (📞 **${_cleanPhone(delivery.clientPhone)}**)',
         ),
         leading: delivery.status.icon,
         onTap: () {
