@@ -23,14 +23,21 @@ class DeliveryCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
-      color: colorScheme.surfaceContainer,
+      color: colorScheme.surfaceContainerHigh,
       child: ListTile(
         title: Text('${delivery.shopName} ➠ ${delivery.clientName}'),
-        subtitle: MarkdowntoRichText(
-          text: '**Retirada:** ${delivery.shopAddress}'
-              ' (📞 **${_cleanPhone(delivery.shopPhone)}**)\n'
-              '**Entrega:** ${delivery.clientAddress}'
-              ' (📞 **${_cleanPhone(delivery.clientPhone)}**)',
+        subtitle: Column(
+          children: [
+            MarkdowntoRichText(
+              text: '**Retirada:** ${delivery.shopAddress}'
+                  ' (📞 **${_cleanPhone(delivery.shopPhone)}**)',
+            ),
+            const SizedBox(height: 6),
+            MarkdowntoRichText(
+              text: '**Entrega:** ${delivery.clientAddress}'
+                  ' (📞 **${_cleanPhone(delivery.clientPhone)}**)',
+            ),
+          ],
         ),
         leading: delivery.status.icon,
         onTap: () {
