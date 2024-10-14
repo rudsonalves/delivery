@@ -18,6 +18,44 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/11 - version: 0.7.01+49
+
+Add CheckReservedDeliveries Function and Updates to Deployment
+
+This commit introduces a new scheduled function, `checkReservedDeliveries`, which verifies and resets reservations that have exceeded 5 minutes, ensuring that delivery slots are appropriately released for others if not picked up in time. Several updates were made to facilitate this addition and improve deployment automation.
+
+### Changes
+
+1. **Makefile**
+   - Added new command `firebase_functions_deploy` to simplify the deployment of Firebase functions.
+   - Added `schedule_clound` command to trigger the `checkReservedDeliveries` function locally via a `curl` command.
+
+2. **Firebase Cloud Functions** (`functions/index.js`)
+   - Added `checkReservedDeliveries` function using `onSchedule` to automatically verify and reset delivery reservations older than 5 minutes.
+     - This function scans for deliveries with the `orderReservedForPickup` status that were reserved more than 5 minutes ago and resets them.
+     - It also updates the `updatedAt` timestamp and nullifies fields such as `deliveryId`, `deliveryName`, and `deliveryPhone`.
+   - Updated the `setUserClaims` function to specify the `southamerica-east1` region for consistency.
+   - Refactored imports for better clarity, including `FieldValue` from Firestore for timestamp updates.
+
+3. **Package Updates**
+   - Updated dependencies in `functions/package-lock.json` and `functions/package.json`.
+     - Updated `firebase-functions` from version `4.3.1` to `6.0.1` for compatibility with the new function.
+     - Updated related packages to ensure alignment with the latest Firebase and ESLint requirements.
+
+4. **UI Enhancements** (`lib/components/widgets/delivery_card.dart`)
+   - Updated the UI of `DeliveryCard`.
+     - Changed the card color from `surfaceContainer` to `surfaceContainerHigh` for better visibility.
+     - Improved the layout of the `subtitle` to create a clearer visual separation between pickup and delivery information.
+
+5. **Dependencies Management** (`package.json`)
+   - Added `@google-cloud/firestore` for more direct Firestore interactions.
+   - Updated `firebase-admin` to version `12.6.0` and added development dependencies for `eslint`.
+
+### Conclusion
+
+The new `checkReservedDeliveries` function ensures that delivery reservations are canceled if they are not picked up within the expected time, improving the efficiency of the delivery system. Additional improvements include enhancements to the UI and simplifications in deployment workflows.
+
+
 ## 2024/10/11 - version: 0.7.00+48
 
 This commit introduces key updates to enhance the organization and handling of delivery information across the application. The changes include modifications to model classes, addition of new UI widgets, and adjustments to store and controller components to better reflect shop-level data and improve user interaction with the delivery system.

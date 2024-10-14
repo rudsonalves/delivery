@@ -48,6 +48,11 @@ firebase_emu_debug:
 firebase_emusavecache:
 	firebase emulators:export ./emulator_data -f
 
+firebase_functions_deploy:
+	firebase deploy --only functions
+
 build_runner:
 	dart run build_runner watch
 	
+schedule_clound:
+	curl -X POST http://192.168.0.22:5001/delivery-16712/southamerica-east1/checkReservedDeliveries-0
