@@ -7,7 +7,6 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '/common/theme/app_text_style.dart';
-import '/components/widgets/big_bottom.dart';
 
 class QRCodeReadPage extends StatefulWidget {
   const QRCodeReadPage({super.key});
@@ -21,24 +20,27 @@ class QRCodeReadPage extends StatefulWidget {
 class _QRCodeReadPageState extends State<QRCodeReadPage>
     with WidgetsBindingObserver {
   Map<String, dynamic>? data;
-  bool isScanning = true;
+  bool isScanning = false;
 
-  final MobileScannerController controller = MobileScannerController(
-    returnImage: true,
-  );
+  late final MobileScannerController controller;
+
   StreamSubscription<BarcodeCapture>? _subscription;
 
   @override
   void initState() {
     super.initState();
+
+    controller = MobileScannerController(
+      autoStart: false,
+      returnImage: true,
+      detectionSpeed: DetectionSpeed.noDuplicates,
+    );
+
     // Start listening to lifecycle changes.
     WidgetsBinding.instance.addObserver(this);
 
     // Start listening to the barcode events.
     _subscription = controller.barcodes.listen(_onDetect);
-
-    // Finally, start the scanner itself.
-    unawaited(controller.start());
   }
 
   void _onDetect(BarcodeCapture barcodeCapture) {
@@ -52,8 +54,9 @@ class _QRCodeReadPageState extends State<QRCodeReadPage>
       }
 
       setState(() {
-        isScanning = false; // Parar a detecção após o primeiro scan
-        controller.stop(); // Parar a câmera
+        isScanning = false; // Stop detection after the first scan
+        controller.stop(); // Stop the camera
+        log('Scanner stopped after detecting QR Code.');
 
         try {
           data = jsonDecode(code) as Map<String, dynamic>;
@@ -62,7 +65,7 @@ class _QRCodeReadPageState extends State<QRCodeReadPage>
         }
       });
 
-      break; // Apenas processar o primeiro QR Code detectado
+      break; // Only process the first detected QR Code
     }
   }
 
@@ -72,15 +75,21 @@ class _QRCodeReadPageState extends State<QRCodeReadPage>
 
   @override
   void dispose() {
+    log('Disposing the QRCodeReadPage');
     // Stop listening to lifecycle changes.
     WidgetsBinding.instance.removeObserver(this);
     // Stop listening to the barcode events.
-    unawaited(_subscription?.cancel());
+    _subscription?.cancel();
     _subscription = null;
     // Dispose the widget itself.
     super.dispose();
+    log('Leaving the page');
+    // Stop the scanner if it's still running.
+    controller.stop();
+    log('Scanner explicitly stopped in dispose.');
     // Finally, dispose of the controller.
     controller.dispose();
+    log('Controller disposed.');
   }
 
   @override
@@ -94,24 +103,30 @@ class _QRCodeReadPageState extends State<QRCodeReadPage>
     switch (state) {
       case AppLifecycleState.resumed:
         // Restart the scanner when the app is resumed.
-        // Don't forget to resume listening to the barcode events.
-        _subscription = controller.barcodes.listen(_onDetect);
-        unawaited(controller.start());
+        if (isScanning) {
+          unawaited(controller.start());
+          log('Scanner started on resume.');
+        }
         break;
       case AppLifecycleState.inactive:
+      case AppLifecycleState.paused:
         // Stop the scanner when the app is paused.
-        // Also stop the barcode events subscription.
-        unawaited(_subscription?.cancel());
-        _subscription = null;
         unawaited(controller.stop());
+        log('Scanner stopped on pause or inactive state.');
         break;
       case AppLifecycleState.detached:
       case AppLifecycleState.hidden:
-      case AppLifecycleState.paused:
-        // _barcodeSubscription?.cancel();
-        // controller.stop();
         break;
     }
+  }
+
+  Future<void> _startScanning() async {
+    setState(() {
+      isScanning = true;
+      data = null;
+    });
+    await controller.start();
+    log('Scanner started by user action.');
   }
 
   @override
@@ -126,39 +141,77 @@ class _QRCodeReadPageState extends State<QRCodeReadPage>
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
         ),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      body: Stack(
+        fit: StackFit.expand,
         children: [
-          Center(
-            child: (data != null)
-                ? Column(
-                    children: [
-                      Text(
-                        'Usuário: ${data?['name'] ?? 'Desculpe. Ocorreu um erro!'}',
-                        style: AppTextStyle.font15Bold(),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 26),
-                        child: QrImageView(
-                          data: jsonEncode(data),
-                          version: QrVersions.auto,
-                          size: 200.0,
-                          gapless: false,
-                          backgroundColor: colorScheme.onPrimaryContainer,
-                        ),
-                      ),
-                    ],
-                  )
-                : const Text(
-                    'Gere o QRCode no aparelho do gerente,\ne escaneie o QRCode.',
-                  ),
-          ),
-          if (data != null)
-            BigButton(
-              color: Colors.greenAccent,
-              label: 'Retornar',
-              onPressed: _backPage,
+          if (isScanning)
+            MobileScanner(
+              fit: BoxFit.contain,
+              controller: controller,
+              onDetect: _onDetect,
             ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Center(
+                child: (data != null)
+                    ? Column(
+                        children: [
+                          Text(
+                            'Usuário: ${data?['name'] ?? 'Desculpe. Ocorreu um erro!'}',
+                            style: AppTextStyle.font15Bold(),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 26),
+                            child: QrImageView(
+                              data: jsonEncode(data),
+                              version: QrVersions.auto,
+                              size: 200.0,
+                              gapless: false,
+                              backgroundColor: colorScheme.onPrimaryContainer,
+                            ),
+                          ),
+                        ],
+                      )
+                    : Column(
+                        children: [
+                          Container(
+                            height: 250,
+                            width: 250,
+                            decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.white),
+                            ),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text(
+                              'Gere o QRCode no aparelho do gerente,\ne escaneie o QRCode.',
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+              OverflowBar(
+                alignment: MainAxisAlignment.spaceAround,
+                children: [
+                  FilledButton.icon(
+                    onPressed: _backPage,
+                    label: const Text('Retornar'),
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                  ),
+                  if (!isScanning)
+                    FilledButton.icon(
+                      onPressed: _startScanning,
+                      label: const Text('Scannear'),
+                      icon: const Icon(Icons.qr_code_2_rounded),
+                    ),
+                ],
+              ),
+            ],
+          ),
         ],
       ),
     );

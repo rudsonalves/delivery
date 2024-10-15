@@ -2,16 +2,18 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../common/models/user.dart';
-import '../../common/settings/app_settings.dart';
-import '../../locator.dart';
-import '../../stores/user/user_store.dart';
+import '../../../common/models/user.dart';
+import '../../../common/settings/app_settings.dart';
+import '../../../locator.dart';
+import '../../../stores/user/user_store.dart';
 
-class HomeController {
+class CustomDrawerController {
+  late final PageController pageController;
+
+  CustomDrawerController(this.pageController);
+
   final userStore = locator<UserStore>();
   final app = locator<AppSettings>();
-
-  late final PageController pageController;
 
   bool get isLoggedIn => userStore.isLoggedIn;
   bool get isDark => app.isDark;
@@ -26,39 +28,18 @@ class HomeController {
 
   UserRole? get role => currentUser?.role;
 
-  String pageTitle = 'None';
-
-  init() {
-    // if (isLoggedIn) {
-    //   store.setHasPhone(currentUser!.phone != null);
-    //   store.setHasAddress(currentUser!.address != null);
-    // }
-
-    _setPageTitle();
-    pageController = PageController(initialPage: role?.index ?? 0);
-  }
-
-  void dispose() {
-    pageController.dispose();
-  }
-
-  void _setPageTitle() {
+  String get pageTitle {
     switch (role) {
       case null:
-        pageTitle = 'Usuário não logado';
-        break;
+        return 'Usuário não logado';
       case UserRole.admin:
-        pageTitle = 'Administrador';
-        break;
+        return 'Administrador';
       case UserRole.business:
-        pageTitle = 'Comerciante';
-        break;
+        return 'Comerciante';
       case UserRole.delivery:
-        pageTitle = 'Entregador';
-        break;
+        return 'Entregador';
       case UserRole.manager:
-        pageTitle = 'Gerente de Entregas';
-        break;
+        return 'Gerente de Entregas';
     }
   }
 

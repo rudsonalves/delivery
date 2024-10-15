@@ -18,6 +18,58 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/15 - version: 0.7.02+50
+
+This commit introduces new custom widgets, such as `CustomAppBar`, `CustomListTile`, and a `CustomDrawer`, enhancing the modularity of the UI components. Additionally, the app's structural organization has been refined by breaking down larger classes into more manageable pieces.
+
+### Changes made:
+
+1. **lib/components/widgets/custom_app_bar/custom_app_bar.dart**:
+   - Added a new widget called `CustomAppBar` to provide a customizable app bar across different pages.
+   - Implemented `ValueListenableBuilder` for brightness toggle using the controller.
+
+2. **lib/components/widgets/custom_app_bar/custom_app_bar_controller.dart**:
+   - Created a dedicated controller for the `CustomAppBar` to manage settings from `AppSettings`.
+
+3. **lib/components/widgets/custom_list_tile.dart**:
+   - Added a `CustomListTile` widget to create more customized and reusable list tiles with a leading icon, title, subtitle, and trailing widget.
+
+4. **lib/components/widgets/delivery_card.dart**:
+   - Refactored to use the newly added `CustomListTile` for a more consistent UI design.
+   - Introduced an optional `qrCodeButton` to display a QR code for each delivery.
+
+5. **lib/components/widgets/main_drawer/custom_drawer.dart**:
+   - Introduced a new `CustomDrawer` widget to replace `HomeDrawer`, improving readability and modularity.
+
+6. **lib/components/widgets/main_drawer/custom_drawer_controller.dart** (previously `home_controller.dart`):
+   - Renamed and moved the `HomeController` to align it with the `CustomDrawer` component.
+   - Cleaned up redundant methods and improved naming conventions for clarity.
+
+7. **lib/features/account/account_page.dart**:
+   - Added UI elements to increase/decrease the size of QR codes dynamically.
+
+8. **lib/features/delivery_qrcode/**:
+   - Added `delivery_qrcode.dart` and `delivery_qrcode_controller.dart` to manage the QR code generation and printing features.
+   - Utilized the `printing` and `pdf` packages to allow QR code generation as PDFs.
+
+9. **lib/features/home/home_page.dart**:
+   - Replaced the old `HomeDrawer` with the new `CustomDrawer` for better modularization.
+   - Cleaned up the navigation code and improved page controller initialization.
+
+10. **lib/features/user_***:
+    - Updated `UserAdminPage`, `UserBusinessPage`, `UserDeliveryPage`, and `UserManagerPage` to utilize the `CustomAppBar` and `CustomDrawer`, ensuring UI consistency.
+    - Added additional page controller parameters to enable cross-page management via the new `CustomDrawer`.
+
+11. **lib/features/qrcode_read/qrcode_read_page.dart**:
+    - Modified the scanner controller lifecycle to handle multiple states effectively, preventing repeated activations of the camera when the page is not in use.
+
+12. **pubspec.yaml** and **pubspec.lock**:
+    - Updated dependencies to include `printing`, `pdf`, `signals`, and related packages required for the new features.
+
+### Conclusion:
+The introduction of these custom widgets improves the consistency and maintainability of the codebase, while the modularized components simplify future updates. The refined UI elements ensure a seamless user experience across various parts of the app.
+
+
 ## 2024/10/11 - version: 0.7.01+49
 
 Add CheckReservedDeliveries Function and Updates to Deployment

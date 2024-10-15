@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '/common/extensions/user_role_extensions.dart';
 import '/common/theme/app_text_style.dart';
-import '../home_controller.dart';
+import 'custom_drawer_controller.dart';
 
 class CustomDrawerHeader extends StatelessWidget {
   const CustomDrawerHeader({
@@ -12,7 +12,7 @@ class CustomDrawerHeader extends StatelessWidget {
     required this.controller,
   });
 
-  final HomeController controller;
+  final CustomDrawerController controller;
 
   @override
   Widget build(BuildContext context) {

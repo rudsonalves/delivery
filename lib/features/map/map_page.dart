@@ -7,9 +7,9 @@ import 'map_controller.dart';
 class MapPage extends StatefulWidget {
   final DeliveryModel delivery;
 
-  const MapPage({
+  const MapPage(
+    this.delivery, {
     super.key,
-    required this.delivery,
   });
 
   static const routeName = '/map';

@@ -1,19 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
+import '../../components/widgets/custom_app_bar/custom_app_bar.dart';
+import '../../components/widgets/main_drawer/custom_drawer.dart';
+import '../delivery_qrcode/delivery_qrcode.dart';
 import '../../components/widgets/delivery_card.dart';
 import '/stores/common/store_func.dart';
 import '../../common/theme/app_text_style.dart';
 import '../../locator.dart';
 import 'stores/user_business_store.dart';
 import '../../stores/user/user_store.dart';
-import '/features/user_business/user_business_controller.dart';
+import '../user_business/user_business_controller.dart';
 import '../../common/models/delivery.dart';
 import '../add_delivery/add_delivery_page.dart';
 import '../map/map_page.dart';
 
 class UserBusinessPage extends StatefulWidget {
-  const UserBusinessPage({super.key});
+  final PageController pageController;
+
+  const UserBusinessPage(
+    this.pageController, {
+    super.key,
+  });
 
   @override
   State<UserBusinessPage> createState() => _UserBusinessPageState();
@@ -48,13 +56,17 @@ class _UserBusinessPageState extends State<UserBusinessPage> {
   }
 
   void _addDelivery() {
-    // Navigator.pushNamed(context, PersonDataPage.routeName);
     Navigator.pushNamed(context, AddDeliveryPage.routeName);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: const CustomAppBar(
+        title: Text('Comerciante'),
+        elevation: 5,
+      ),
+      drawer: CustomDrawer(widget.pageController),
       floatingActionButton: FloatingActionButton(
         onPressed: _addDelivery,
         child: const Icon(Icons.delivery_dining_rounded),
@@ -86,6 +98,16 @@ class _UserBusinessPageState extends State<UserBusinessPage> {
                         return DeliveryCard(
                           delivery: delivery,
                           action: _showInMap,
+                          qrCodeButton: IconButton(
+                            onPressed: () {
+                              Navigator.pushNamed(
+                                context,
+                                DeliveryQrcode.routeName,
+                                arguments: delivery,
+                              );
+                            },
+                            icon: const Icon(Icons.print),
+                          ),
                         );
                       },
                     );
@@ -101,7 +123,7 @@ class _UserBusinessPageState extends State<UserBusinessPage> {
                           const SizedBox(height: 20),
                           FilledButton.icon(
                             onPressed: () {
-                              // ctrl.refresh(userId, store.radiusInKm);
+                              // FIXME: ctrl.refresh(userId, store.radiusInKm);
                             },
                             label: const Text('Tentar Novamente.'),
                             icon: const Icon(Icons.refresh),
