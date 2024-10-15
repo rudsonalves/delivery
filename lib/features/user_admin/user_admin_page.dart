@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
+import '../../components/widgets/custom_app_bar/custom_app_bar.dart';
+import '../../components/widgets/main_drawer/custom_drawer.dart';
 import '/features/user_admin/user_admin_controller.dart';
 import '/stores/common/store_func.dart';
 import '../../common/models/delivery.dart';
@@ -11,7 +13,12 @@ import '../add_delivery/add_delivery_page.dart';
 import '../map/map_page.dart';
 
 class UserAdminPage extends StatefulWidget {
-  const UserAdminPage({super.key});
+  final PageController pageController;
+
+  const UserAdminPage(
+    this.pageController, {
+    super.key,
+  });
 
   @override
   State<UserAdminPage> createState() => _UserAdminPageState();
@@ -45,6 +52,11 @@ class _UserAdminPageState extends State<UserAdminPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: const CustomAppBar(
+        title: Text('Admin'),
+        elevation: 5,
+      ),
+      drawer: CustomDrawer(widget.pageController),
       floatingActionButton: FloatingActionButton(
         onPressed: _addDelivery,
         child: const Icon(Icons.delivery_dining_rounded),
