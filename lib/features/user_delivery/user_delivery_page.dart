@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
+import '../../components/widgets/custom_app_bar/custom_app_bar.dart';
+import '../../components/widgets/main_drawer/custom_drawer.dart';
 import '/components/widgets/shop_card.dart';
 import '/common/theme/app_text_style.dart';
 import '/locator.dart';
@@ -10,7 +12,11 @@ import '../../stores/user/user_store.dart';
 import 'user_delivery_controller.dart';
 
 class UserDeliveryPage extends StatefulWidget {
-  const UserDeliveryPage({super.key});
+  final PageController pageController;
+  const UserDeliveryPage(
+    this.pageController, {
+    super.key,
+  });
 
   @override
   State<UserDeliveryPage> createState() => _UserDeliveryPageState();
@@ -48,6 +54,11 @@ class _UserDeliveryPageState extends State<UserDeliveryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: const CustomAppBar(
+        title: Text('Entregador'),
+        elevation: 5,
+      ),
+      drawer: CustomDrawer(widget.pageController),
       body: Column(
         children: [
           Padding(

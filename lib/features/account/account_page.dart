@@ -21,6 +21,8 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   final ctrl = AccountController();
   final store = AccountStore();
+  double _size = 250;
+  double _maxSize = 500;
 
   @override
   void initState() {
@@ -32,9 +34,21 @@ class _AccountPageState extends State<AccountPage> {
     Navigator.of(context).pop();
   }
 
+  void _add() {
+    setState(() {
+      _size = _size < _maxSize ? _size + 10 : _maxSize;
+    });
+  }
+
+  void _remove() {
+    setState(() {
+      _size = _size > 200 ? _size - 10 : 200;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    _maxSize = MediaQuery.of(context).size.width;
 
     return Scaffold(
       appBar: AppBar(
@@ -99,29 +113,44 @@ class _AccountPageState extends State<AccountPage> {
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 32),
-              child: Center(
-                child: QrImageView(
-                  data: jsonEncode({
-                    "id": ctrl.currentUser!.id!,
-                    "name": ctrl.currentUser!.name,
-                  }),
-                  version: QrVersions.auto,
-                  size: 250.0,
-                  gapless: false,
-                  backgroundColor: colorScheme.onSurface,
-                  dataModuleStyle: QrDataModuleStyle(
-                    dataModuleShape: QrDataModuleShape.circle,
-                    color: colorScheme.onTertiary,
-                  ),
+            Center(
+              child: QrImageView(
+                data: jsonEncode({
+                  "id": ctrl.currentUser!.id!,
+                  "name": ctrl.currentUser!.name,
+                }),
+                version: QrVersions.auto,
+                size: _size,
+                gapless: true,
+                backgroundColor: Colors.white,
+                eyeStyle: const QrEyeStyle(
+                  eyeShape: QrEyeShape.square,
+                  color: Colors.black,
+                ),
+                dataModuleStyle: const QrDataModuleStyle(
+                  dataModuleShape: QrDataModuleShape.square,
+                  color: Colors.black,
                 ),
               ),
             ),
-            FilledButton.tonalIcon(
-              label: const Text('Fechar'),
-              icon: const Icon(Icons.close),
-              onPressed: store.toogleShowQRCode,
+            const SizedBox(height: 30),
+            OverflowBar(
+              alignment: MainAxisAlignment.spaceAround,
+              children: [
+                IconButton.filled(
+                  icon: const Icon(Icons.add),
+                  onPressed: _add,
+                ),
+                FilledButton.icon(
+                  label: const Text('Fechar'),
+                  icon: const Icon(Icons.close),
+                  onPressed: store.toogleShowQRCode,
+                ),
+                IconButton.filled(
+                  icon: const Icon(Icons.remove),
+                  onPressed: _remove,
+                ),
+              ],
             ),
           ],
         );
