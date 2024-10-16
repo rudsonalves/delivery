@@ -97,8 +97,8 @@ class _UserBusinessPageState extends State<UserBusinessPage> {
 
                         return DeliveryCard(
                           delivery: delivery,
-                          action: _showInMap,
-                          qrCodeButton: IconButton(
+                          onTap: _showInMap,
+                          button: IconButton(
                             onPressed: () {
                               Navigator.pushNamed(
                                 context,

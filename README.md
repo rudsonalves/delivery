@@ -18,6 +18,50 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/15 - version: 0.7.03+51
+
+Added the initial delivery QR Code generation functionality and updated the delivery card handling throughout the application.
+
+### Changes Made
+
+1. **Added Delivery SVG Icon**  
+   - Created and added the file `assets/svg/delivery.svg`.
+
+2. **Updated Delivery Model**  
+   - Added a new property `selected` to the `DeliveryModel` class in `lib/common/models/delivery.dart`.
+   - Reorganized some properties to improve clarity.
+
+3. **Created Delivery Info Model**  
+   - Added a new class `DeliveryInfoModel` in `lib/common/models/delivery_info.dart` to simplify information transfer regarding deliveries.
+
+4. **QR Code Generation Utility**  
+   - Added `lib/common/utils/create_qrcode.dart` to generate QR Codes and export them as PDFs.
+   - Moved QR Code generation logic from `DeliveryQrcodeController` to this utility.
+
+5. **Updated Delivery Card and Custom ListTile**  
+   - Removed the `onTap` parameter from `CustomListTile` in `lib/components/widgets/custom_list_tile.dart`.
+   - Updated `DeliveryCard` in `lib/components/widgets/delivery_card.dart` to include selection functionality (`selected`) and added a button for additional actions.
+
+6. **Refactored User Business and User Admin Pages**  
+   - Modified `user_business_page.dart` and `user_admin_page.dart` to use the updated `DeliveryCard` widget with the new `onTap` property.
+
+7. **Removed Unused Controllers**  
+   - Deleted the old `delivery_qrcode_controller.dart` and `user_manager_store.dart`, moving relevant logic to the new `ManagerController` and `ManagerStore` classes.
+
+8. **Introduced New User Manager Components**  
+   - Created `manager_controller.dart`, `manager_store.dart`, and `show_delivery_list.dart` to manage delivery-related workflows efficiently.
+
+9. **Updated Firebase Repository**  
+   - Enhanced `deliveries_firebase_repository.dart` to support filtering deliveries by status.
+
+10. **Removed Dependency**  
+    - Removed `signals` dependency from `pubspec.yaml` and related packages from `pubspec.lock`.
+
+### Conclusion
+
+This commit enhances the app's delivery management features, including QR code generation and selection capabilities for deliveries, while removing redundant controllers and code to improve maintainability.
+
+
 ## 2024/10/15 - version: 0.7.02+50
 
 This commit introduces new custom widgets, such as `CustomAppBar`, `CustomListTile`, and a `CustomDrawer`, enhancing the modularity of the UI components. Additionally, the app's structural organization has been refined by breaking down larger classes into more manageable pieces.
