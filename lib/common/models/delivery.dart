@@ -17,27 +17,29 @@ enum DeliveryStatus {
 
 class DeliveryModel {
   String? id;
+  bool selected;
   String ownerId;
   String shopId;
   String shopName;
   String shopPhone;
+  String shopAddress;
+  GeoFirePoint shopLocation;
   String clientId;
   String clientName;
   String clientPhone;
+  String clientAddress;
+  GeoFirePoint clientLocation;
   String? deliveryId;
   String? deliveryName;
   String? deliveryPhone;
   String? managerId;
   DeliveryStatus status;
-  String clientAddress;
-  String shopAddress;
-  GeoFirePoint clientLocation;
-  GeoFirePoint shopLocation;
   DateTime? createdAt;
   DateTime? updatedAt;
 
   DeliveryModel({
     this.id,
+    this.selected = false,
     required this.ownerId,
     required this.shopId,
     required this.shopName,

@@ -205,18 +205,61 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
 
   /// Streams deliveries by shop ID
   @override
-  Stream<List<DeliveryModel>> getByShopId(String shopId) {
-    return _getDeliveriesStream(
-      deliveriesCollectionRef.where(keyShopId, isEqualTo: shopId),
-    );
+  Stream<List<DeliveryModel>> getByShopId({
+    required String shopId,
+    DeliveryStatus? status,
+  }) {
+    final statusIndex = status?.index ?? -1;
+    if (statusIndex == -1) {
+      return _getDeliveriesStream(
+        deliveriesCollectionRef.where(keyShopId, isEqualTo: shopId),
+      );
+    }
+    if (statusIndex < 4) {
+      return _getDeliveriesStream(
+        deliveriesCollectionRef
+            .where(keyShopId, isEqualTo: shopId)
+            .where(keyStatus, isEqualTo: statusIndex),
+      );
+    } else {
+      return _getDeliveriesStream(
+        deliveriesCollectionRef
+            .where(keyShopId, isEqualTo: shopId)
+            .where(keyStatus, isGreaterThanOrEqualTo: 4),
+      );
+    }
   }
 
   /// Streams deliveries by manager ID
   @override
-  Stream<List<DeliveryModel>> getByManagerId(String managerId) {
-    return _getDeliveriesStream(
-      deliveriesCollectionRef.where(keyManagerId, isEqualTo: managerId),
-    );
+  Stream<List<DeliveryModel>> getByManagerId({
+    required String managerId,
+    DeliveryStatus? status,
+  }) {
+    final statusIndex = status?.index ?? -1;
+    if (statusIndex == -1) {
+      return _getDeliveriesStream(
+        deliveriesCollectionRef.where(keyManagerId, isEqualTo: managerId),
+      );
+    } else if (statusIndex < 2) {
+      return _getDeliveriesStream(
+        deliveriesCollectionRef
+            .where(keyManagerId, isEqualTo: managerId)
+            .where(keyStatus, isLessThan: 2),
+      );
+    } else if (statusIndex < 4) {
+      return _getDeliveriesStream(
+        deliveriesCollectionRef
+            .where(keyManagerId, isEqualTo: managerId)
+            .where(keyStatus, isEqualTo: statusIndex),
+      );
+    } else {
+      return _getDeliveriesStream(
+        deliveriesCollectionRef
+            .where(keyManagerId, isEqualTo: managerId)
+            .where(keyStatus, isGreaterThanOrEqualTo: 4),
+      );
+    }
   }
 
   /// Streams deliveries by owner ID
@@ -273,7 +316,9 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
 
   /// Converts Firestore data to DeliveryModel
   DeliveryModel _deliveryModelFromFirestoreData(
-      String id, Map<String, dynamic> data) {
+    String id,
+    Map<String, dynamic> data,
+  ) {
     final createdAtTimestamp = data[keyCreatedAt] as Timestamp?;
     final updatedAtTimestamp = data[keyUpdatedAt] as Timestamp?;
 

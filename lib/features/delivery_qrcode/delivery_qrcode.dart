@@ -1,8 +1,8 @@
-import 'package:delivery/common/theme/app_text_style.dart';
-import 'package:delivery/features/delivery_qrcode/delivery_qrcode_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import '../../common/utils/create_qrcode.dart';
+import '/common/theme/app_text_style.dart';
 import '../../common/models/delivery.dart';
 
 class DeliveryQrcode extends StatelessWidget {
@@ -14,8 +14,6 @@ class DeliveryQrcode extends StatelessWidget {
   });
 
   static const routeName = '/deliver_qrcode';
-
-  final ctrl = DeliveryQrcodeController();
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +69,7 @@ class DeliveryQrcode extends StatelessWidget {
               alignment: MainAxisAlignment.spaceAround,
               children: [
                 FilledButton.icon(
-                  onPressed: () => ctrl.printQRCode(delivery),
+                  onPressed: () => CreateQrcode.printQRCode(delivery),
                   icon: const Icon(Icons.print_rounded),
                   label: const Text('Imprimir'),
                 ),

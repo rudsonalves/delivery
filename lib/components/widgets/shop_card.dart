@@ -44,7 +44,7 @@ class ShopCard extends StatelessWidget {
             .map(
               (deliveryExtended) => DeliveryCard(
                 delivery: deliveryExtended.delivery,
-                action: (delivery) {
+                onTap: (delivery) {
                   if (action != null) {
                     action!(delivery);
                   }

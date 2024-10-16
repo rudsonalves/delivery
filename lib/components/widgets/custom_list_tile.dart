@@ -6,7 +6,6 @@ class CustomListTile extends StatelessWidget {
   final String stringTitle;
   final Widget subtitle;
   final Widget? trailing;
-  final void Function()? onTap;
 
   const CustomListTile({
     super.key,
@@ -14,7 +13,6 @@ class CustomListTile extends StatelessWidget {
     required this.stringTitle,
     required this.subtitle,
     this.trailing,
-    this.onTap,
   });
 
   @override
@@ -24,29 +22,26 @@ class CustomListTile extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.fromLTRB(leftMargin, 8, 8, rightMargin),
-      child: InkWell(
-        onTap: onTap,
-        child: Row(
-          children: [
-            if (leading != null) leading!,
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 2),
-                    child: Text(
-                      stringTitle,
-                      style: AppTextStyle.font18(),
-                    ),
+      child: Row(
+        children: [
+          if (leading != null) leading!,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 2),
+                  child: Text(
+                    stringTitle,
+                    style: AppTextStyle.font18(),
                   ),
-                  subtitle,
-                ],
-              ),
+                ),
+                subtitle,
+              ],
             ),
-            if (trailing != null) trailing!,
-          ],
-        ),
+          ),
+          if (trailing != null) trailing!,
+        ],
       ),
     );
   }

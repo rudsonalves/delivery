@@ -87,7 +87,7 @@ class _UserAdminPageState extends State<UserAdminPage> {
 
                         return DeliveryCard(
                           delivery: delivery,
-                          action: _showInMap,
+                          onTap: _showInMap,
                         );
                       },
                     );
