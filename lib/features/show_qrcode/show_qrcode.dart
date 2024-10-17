@@ -98,6 +98,11 @@ class _ShowQrcodeState extends State<ShowQrcode> {
               }
             },
           ),
+          const SizedBox(height: 20),
+          FilledButton(
+            onPressed: _backPage,
+            child: const Text('Próximo'),
+          ),
         ],
       ),
     );

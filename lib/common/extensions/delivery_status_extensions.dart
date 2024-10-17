@@ -10,8 +10,6 @@ extension DeliveryStatusExtension on DeliveryStatus {
         return 'Pedido Registrado para Retirada';
       case DeliveryStatus.orderReservedForPickup:
         return 'Pedido Reservado para Retirada';
-      case DeliveryStatus.orderPickedUpForDelivery:
-        return 'Pedido Retirado para Entrega';
       case DeliveryStatus.orderInTransit:
         return 'Pedido em Trânsito';
       case DeliveryStatus.orderDelivered:
@@ -34,11 +32,6 @@ extension DeliveryStatusExtension on DeliveryStatus {
         return const Icon(
           Symbols.deployed_code_history_rounded,
           color: Colors.cyan,
-        );
-      case DeliveryStatus.orderPickedUpForDelivery:
-        return const Icon(
-          Symbols.deployed_code_rounded,
-          color: Colors.yellow,
         );
       case DeliveryStatus.orderInTransit:
         return const Icon(
@@ -67,8 +60,6 @@ extension DeliveryStatusExtension on DeliveryStatus {
     switch (this) {
       case DeliveryStatus.orderRegisteredForPickup:
         return Colors.blue;
-      case DeliveryStatus.orderPickedUpForDelivery:
-        return Colors.orange;
       case DeliveryStatus.orderInTransit:
         return Colors.purple;
       case DeliveryStatus.orderDelivered:

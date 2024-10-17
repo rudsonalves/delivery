@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 
+import '../../common/models/user.dart';
 import '/common/utils/data_result.dart';
 import '/common/models/delivery.dart';
 import 'abstract_deliveries_repository.dart';
@@ -154,6 +155,38 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
     }
   }
 
+  @override
+  Future<DataResult<void>> updateDeliveryStatus({
+    required UserModel user,
+    required String deliveryId,
+    DeliveryStatus toStatus = DeliveryStatus.orderInTransit,
+  }) async {
+    try {
+      // Get the document reference for the delivery
+      final deliveryDoc = deliveriesCollectionRef.doc(deliveryId);
+
+      WriteBatch batch = _firebase.batch();
+      // Update delivery details
+      batch.update(deliveryDoc, {
+        keyDeliveryId: user.id,
+        keyDeliveryName: user.name,
+        keyDeliveryPhone: user.phone,
+        keyStatus: toStatus.index,
+        keyUpdatedAt: FieldValue.serverTimestamp(),
+      });
+
+      await batch.commit();
+      return DataResult.success(null);
+    } catch (err) {
+      final message = 'DeliveriesFirebaseRepository.updateStatus: $err';
+      log(message);
+      return DataResult.failure(GenericFailure(
+        message: message,
+        code: 615,
+      ));
+    }
+  }
+
   /// Deletes a delivery from Firestore
   @override
   Future<DataResult<void>> delete(String deliveryId) async {
@@ -212,20 +245,27 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
     final statusIndex = status?.index ?? -1;
     if (statusIndex == -1) {
       return _getDeliveriesStream(
-        deliveriesCollectionRef.where(keyShopId, isEqualTo: shopId),
+        deliveriesCollectionRef
+            .where(keyShopId, isEqualTo: shopId)
+            .orderBy(keyCreatedAt),
       );
     }
     if (statusIndex < 4) {
       return _getDeliveriesStream(
         deliveriesCollectionRef
             .where(keyShopId, isEqualTo: shopId)
-            .where(keyStatus, isEqualTo: statusIndex),
+            .where(keyStatus, isEqualTo: statusIndex)
+            .orderBy(keyCreatedAt),
       );
     } else {
       return _getDeliveriesStream(
         deliveriesCollectionRef
             .where(keyShopId, isEqualTo: shopId)
-            .where(keyStatus, isGreaterThanOrEqualTo: 4),
+            .where(
+              keyStatus,
+              isGreaterThanOrEqualTo: DeliveryStatus.orderReject.index,
+            )
+            .orderBy(keyCreatedAt),
       );
     }
   }
@@ -239,27 +279,51 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
     final statusIndex = status?.index ?? -1;
     if (statusIndex == -1) {
       return _getDeliveriesStream(
-        deliveriesCollectionRef.where(keyManagerId, isEqualTo: managerId),
+        deliveriesCollectionRef
+            .where(keyManagerId, isEqualTo: managerId)
+            .orderBy(keyCreatedAt),
       );
-    } else if (statusIndex < 2) {
+    } else if (statusIndex < DeliveryStatus.orderInTransit.index) {
       return _getDeliveriesStream(
         deliveriesCollectionRef
             .where(keyManagerId, isEqualTo: managerId)
-            .where(keyStatus, isLessThan: 2),
+            .where(
+              keyStatus,
+              isLessThanOrEqualTo: DeliveryStatus.orderReservedForPickup.index,
+            )
+            .orderBy(keyCreatedAt),
       );
-    } else if (statusIndex < 4) {
+    } else if (statusIndex < DeliveryStatus.orderReject.index) {
       return _getDeliveriesStream(
         deliveriesCollectionRef
             .where(keyManagerId, isEqualTo: managerId)
-            .where(keyStatus, isEqualTo: statusIndex),
+            .where(keyStatus, isEqualTo: statusIndex)
+            .orderBy(keyCreatedAt),
       );
     } else {
       return _getDeliveriesStream(
         deliveriesCollectionRef
             .where(keyManagerId, isEqualTo: managerId)
-            .where(keyStatus, isGreaterThanOrEqualTo: 4),
+            .where(
+              keyStatus,
+              isGreaterThanOrEqualTo: DeliveryStatus.orderDelivered.index,
+            )
+            .orderBy(keyCreatedAt),
       );
     }
+  }
+
+  @override
+  Stream<List<DeliveryModel>> getByDeliveryId(String deliveryId) {
+    return _getDeliveriesStream(
+      deliveriesCollectionRef
+          .where(keyDeliveryId, isEqualTo: deliveryId)
+          .where(
+            keyStatus,
+            isGreaterThan: DeliveryStatus.orderReservedForPickup.index,
+          )
+          .orderBy(keyCreatedAt),
+    );
   }
 
   /// Streams deliveries by owner ID
