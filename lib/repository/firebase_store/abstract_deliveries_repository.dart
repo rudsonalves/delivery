@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../common/models/delivery.dart';
+import '../../common/models/user.dart';
 import '../../common/utils/data_result.dart';
 
 abstract class AbstractDeliveriesRepository {
@@ -23,5 +24,11 @@ abstract class AbstractDeliveriesRepository {
   Stream<List<DeliveryModel>> getByManagerId({
     required String managerId,
     DeliveryStatus? status,
+  });
+  Stream<List<DeliveryModel>> getByDeliveryId(String deliveryId);
+  Future<DataResult<void>> updateDeliveryStatus({
+    required UserModel user,
+    required String deliveryId,
+    DeliveryStatus toStatus = DeliveryStatus.orderInTransit,
   });
 }

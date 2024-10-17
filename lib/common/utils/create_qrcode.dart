@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:ui';
 
@@ -18,7 +19,7 @@ class CreateQrcode {
     final pdf = pw.Document();
 
     // Generate QRCode
-    final qrBytes = await _generateQRCode(delivery.id);
+    final qrBytes = await _generateQRCode({'id': delivery.id});
     if (qrBytes == null) {
       throw Exception('QRCode generation error');
     }
@@ -41,20 +42,21 @@ class CreateQrcode {
                     mainAxisAlignment: pw.MainAxisAlignment.center,
                     children: [
                       pw.Text(
-                        'Chave: ${delivery.id}',
+                        delivery.id,
                         textAlign: pw.TextAlign.center,
-                        style: fontStyle,
+                        style: fontStyle.copyWith(
+                          fontWeight: pw.FontWeight.bold,
+                        ),
                       ),
                       pw.Text(
-                        'Cliente: ${delivery.clientName}'
+                        '${delivery.clientName}'
                         '\n${delivery.clientPhone}',
                         textAlign: pw.TextAlign.center,
                         style: fontStyle,
                       ),
                       pw.Text(
-                        delivery.clientAddress,
+                        delivery.clientAddress.replaceAll('Avenida', 'Av.'),
                         textAlign: pw.TextAlign.center,
-                        overflow: pw.TextOverflow.clip,
                         style: fontStyle,
                       ),
                     ],
@@ -70,9 +72,10 @@ class CreateQrcode {
     return pdf.save();
   }
 
-  static Future<Uint8List?> _generateQRCode(String doc) async {
+  static Future<Uint8List?> _generateQRCode(Map<String, dynamic> map) async {
+    final data = json.encode(map);
     final qrPainter = QrPainter(
-      data: doc,
+      data: data,
       version: QrVersions.auto,
       gapless: true,
     );
