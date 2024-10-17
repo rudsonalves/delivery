@@ -6,13 +6,12 @@ import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'functions/model_finctions.dart';
 
 enum DeliveryStatus {
-  orderRegisteredForPickup,
-  orderReservedForPickup,
-  orderPickedUpForDelivery,
-  orderInTransit,
-  orderDelivered,
-  orderClosed,
-  orderReject,
+  orderRegisteredForPickup, // 0
+  orderReservedForPickup, // 1
+  orderInTransit, // 2
+  orderDelivered, // 3
+  orderReject, // 4
+  orderClosed, // 5
 }
 
 class DeliveryModel {

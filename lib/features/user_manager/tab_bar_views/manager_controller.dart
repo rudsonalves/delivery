@@ -11,8 +11,9 @@ import 'manager_store.dart';
 class ManagerController {
   StreamSubscription<List<DeliveryModel>>? _deliveriesSubscription;
   final userId = locator<UserStore>().currentUser!.id!;
-  late final ManagerStore store;
   final deliveryRepository = DeliveriesFirebaseRepository();
+
+  late final ManagerStore store;
   late final DeliveryStatus deliveryStatus;
   late final Map<String, DeliveryInfoModel> selectedIds;
 
@@ -30,6 +31,7 @@ class ManagerController {
 
   void dispose() {
     _deliveriesSubscription?.cancel();
+    _deliveriesSubscription = null;
   }
 
   void _getDeliveries() {
@@ -47,7 +49,6 @@ class ManagerController {
         store.setDeliveries(fetchedDeliveries);
         store.setPageState(PageState.success);
       }, onError: (err) {
-        store.setPageState(PageState.loading);
         store.setError('Erro ao buscar entregas: $err');
       });
     } else {

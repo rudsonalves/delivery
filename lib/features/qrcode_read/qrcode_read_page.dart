@@ -22,25 +22,26 @@ class _QRCodeReadPageState extends State<QRCodeReadPage>
   Map<String, dynamic>? data;
   bool isScanning = false;
 
-  late final MobileScannerController controller;
+  late final MobileScannerController controller = MobileScannerController(
+    autoStart: false,
+    torchEnabled: false,
+    useNewCameraSelector: true,
+    returnImage: true,
+  );
 
-  StreamSubscription<BarcodeCapture>? _subscription;
+  StreamSubscription<Object?>? _subscription;
 
   @override
   void initState() {
     super.initState();
-
-    controller = MobileScannerController(
-      autoStart: false,
-      returnImage: true,
-      detectionSpeed: DetectionSpeed.noDuplicates,
-    );
 
     // Start listening to lifecycle changes.
     WidgetsBinding.instance.addObserver(this);
 
     // Start listening to the barcode events.
     _subscription = controller.barcodes.listen(_onDetect);
+
+    _startScanning();
   }
 
   void _onDetect(BarcodeCapture barcodeCapture) {
@@ -54,8 +55,8 @@ class _QRCodeReadPageState extends State<QRCodeReadPage>
       }
 
       setState(() {
-        isScanning = false; // Stop detection after the first scan
-        controller.stop(); // Stop the camera
+        isScanning = false;
+        controller.stop();
         log('Scanner stopped after detecting QR Code.');
 
         try {
@@ -65,7 +66,7 @@ class _QRCodeReadPageState extends State<QRCodeReadPage>
         }
       });
 
-      break; // Only process the first detected QR Code
+      break;
     }
   }
 
@@ -74,48 +75,37 @@ class _QRCodeReadPageState extends State<QRCodeReadPage>
   }
 
   @override
-  void dispose() {
-    log('Disposing the QRCodeReadPage');
-    // Stop listening to lifecycle changes.
+  Future<void> dispose() async {
     WidgetsBinding.instance.removeObserver(this);
-    // Stop listening to the barcode events.
-    _subscription?.cancel();
+    unawaited(_subscription?.cancel());
     _subscription = null;
-    // Dispose the widget itself.
     super.dispose();
-    log('Leaving the page');
-    // Stop the scanner if it's still running.
-    controller.stop();
-    log('Scanner explicitly stopped in dispose.');
-    // Finally, dispose of the controller.
-    controller.dispose();
-    log('Controller disposed.');
+    await controller.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // If the controller is not ready, do not try to start or stop it.
-    // Permission dialogs can trigger lifecycle changes before the controller is ready.
-    if (!controller.value.isInitialized) {
+    if (!controller.value.hasCameraPermission) {
+      log('You don\'t have camera controller permissions.');
       return;
     }
 
     switch (state) {
-      case AppLifecycleState.resumed:
-        // Restart the scanner when the app is resumed.
-        if (isScanning) {
-          unawaited(controller.start());
-          log('Scanner started on resume.');
-        }
-        break;
-      case AppLifecycleState.inactive:
-      case AppLifecycleState.paused:
-        // Stop the scanner when the app is paused.
-        unawaited(controller.stop());
-        log('Scanner stopped on pause or inactive state.');
-        break;
       case AppLifecycleState.detached:
       case AppLifecycleState.hidden:
+      case AppLifecycleState.paused:
+        log('Scan is paused, hidden or detached');
+        return;
+      case AppLifecycleState.resumed:
+        _subscription = controller.barcodes.listen(_onDetect);
+        unawaited(controller.start());
+        log('Scanner started on resume.');
+        break;
+      case AppLifecycleState.inactive:
+        unawaited(_subscription?.cancel());
+        _subscription = null;
+        unawaited(controller.stop());
+        log('Scanner stopped on pause or inactive state.');
         break;
     }
   }
@@ -158,7 +148,9 @@ class _QRCodeReadPageState extends State<QRCodeReadPage>
                     ? Column(
                         children: [
                           Text(
-                            'Usuário: ${data?['name'] ?? 'Desculpe. Ocorreu um erro!'}',
+                            data!.containsKey('name')
+                                ? 'Usuário: ${data!['name']}'
+                                : 'id : ${data!['id']}',
                             style: AppTextStyle.font15Bold(),
                           ),
                           Padding(
