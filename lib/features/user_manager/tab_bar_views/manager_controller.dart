@@ -1,3 +1,20 @@
+// Copyright (C) 2024 Rudson Alves
+// 
+// This file is part of delivery.
+// 
+// delivery is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// delivery is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with delivery.  If not, see <https://www.gnu.org/licenses/>.
+
 import 'dart:async';
 
 import '../../../common/models/delivery.dart';
@@ -11,9 +28,8 @@ import 'manager_store.dart';
 class ManagerController {
   StreamSubscription<List<DeliveryModel>>? _deliveriesSubscription;
   final userId = locator<UserStore>().currentUser!.id!;
-  final deliveryRepository = DeliveriesFirebaseRepository();
-
   late final ManagerStore store;
+  final deliveryRepository = DeliveriesFirebaseRepository();
   late final DeliveryStatus deliveryStatus;
   late final Map<String, DeliveryInfoModel> selectedIds;
 
@@ -31,7 +47,6 @@ class ManagerController {
 
   void dispose() {
     _deliveriesSubscription?.cancel();
-    _deliveriesSubscription = null;
   }
 
   void _getDeliveries() {
@@ -49,6 +64,7 @@ class ManagerController {
         store.setDeliveries(fetchedDeliveries);
         store.setPageState(PageState.success);
       }, onError: (err) {
+        store.setPageState(PageState.loading);
         store.setError('Erro ao buscar entregas: $err');
       });
     } else {
@@ -76,6 +92,12 @@ class ManagerController {
     } else {
       selectedIds[deliveryId] = DeliveryInfoModel.fromDelivery(delivery);
     }
+    store.setPageState(PageState.success);
+  }
+
+  void clearSelections() {
+    store.setPageState(PageState.loading);
+    selectedIds.clear();
     store.setPageState(PageState.success);
   }
 }
