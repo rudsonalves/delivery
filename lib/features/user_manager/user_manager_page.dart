@@ -1,12 +1,26 @@
+// Copyright (C) 2024 Rudson Alves
+// 
+// This file is part of delivery.
+// 
+// delivery is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// delivery is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with delivery.  If not, see <https://www.gnu.org/licenses/>.
+
 import 'package:flutter/material.dart';
 
-import '../../common/models/delivery_info.dart';
-import '../show_qrcode/show_qrcode.dart';
 import '/common/extensions/delivery_status_extensions.dart';
 import '/components/widgets/main_drawer/custom_drawer.dart';
 import '../../common/models/delivery.dart';
 import '../../components/widgets/custom_app_bar/custom_app_bar.dart';
-import '../add_delivery/add_delivery_page.dart';
 import '../map/map_page.dart';
 import 'tab_bar_views/show_delivery_list.dart';
 
@@ -23,32 +37,15 @@ class UserManagerPage extends StatefulWidget {
 }
 
 class _UserManagerPageState extends State<UserManagerPage> {
-  final Map<String, DeliveryInfoModel> deliveriesSelected = {};
-
   void _showInMap(DeliveryModel delivery) {
     Navigator.pushNamed(context, MapPage.routeName, arguments: delivery);
-  }
-
-  void _addDelivery() {
-    Navigator.pushNamed(context, AddDeliveryPage.routeName);
-  }
-
-  Future<void> _showQRCode() async {
-    for (final delivery in deliveriesSelected.values) {
-      await Navigator.pushNamed(
-        context,
-        ShowQrcode.routeName,
-        arguments: delivery,
-      );
-    }
-    deliveriesSelected.clear();
   }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       initialIndex: 0,
-      length: 4,
+      length: 5,
       child: Scaffold(
         appBar: CustomAppBar(
           title: const Text('Gerente'),
@@ -56,13 +53,10 @@ class _UserManagerPageState extends State<UserManagerPage> {
           bottom: TabBar(
             tabs: [
               Tab(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    DeliveryStatus.orderRegisteredForPickup.icon,
-                    DeliveryStatus.orderReservedForPickup.icon,
-                  ],
-                ),
+                child: DeliveryStatus.orderReservedForPickup.icon,
+              ),
+              Tab(
+                icon: DeliveryStatus.orderPickedUpForDelivery.icon,
               ),
               Tab(
                 icon: DeliveryStatus.orderInTransit.icon,
@@ -71,55 +65,33 @@ class _UserManagerPageState extends State<UserManagerPage> {
                 icon: DeliveryStatus.orderDelivered.icon,
               ),
               Tab(
-                icon: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    DeliveryStatus.orderClosed.icon,
-                    DeliveryStatus.orderReject.icon,
-                  ],
-                ),
+                icon: DeliveryStatus.orderClosed.icon,
               ),
             ],
           ),
         ),
         drawer: CustomDrawer(widget.pageController),
-        floatingActionButton: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            FloatingActionButton(
-              heroTag: 'hero_01',
-              onPressed: _showQRCode,
-              child: const Icon(Icons.qr_code_2),
-            ),
-            const SizedBox(width: 40),
-            FloatingActionButton(
-              heroTag: 'hero_02',
-              onPressed: _addDelivery,
-              child: const Icon(Icons.delivery_dining_rounded),
-            ),
-          ],
-        ),
         body: TabBarView(
           children: [
             ShowDeliveryList(
               action: _showInMap,
-              selectedIds: deliveriesSelected,
-              deliveryStatus: DeliveryStatus.orderRegisteredForPickup,
+              status: DeliveryStatus.orderReservedForPickup,
             ),
             ShowDeliveryList(
               action: _showInMap,
-              selectedIds: deliveriesSelected,
-              deliveryStatus: DeliveryStatus.orderInTransit,
+              status: DeliveryStatus.orderPickedUpForDelivery,
             ),
             ShowDeliveryList(
               action: _showInMap,
-              selectedIds: deliveriesSelected,
-              deliveryStatus: DeliveryStatus.orderDelivered,
+              status: DeliveryStatus.orderInTransit,
             ),
             ShowDeliveryList(
               action: _showInMap,
-              selectedIds: deliveriesSelected,
-              deliveryStatus: DeliveryStatus.orderClosed,
+              status: DeliveryStatus.orderDelivered,
+            ),
+            ShowDeliveryList(
+              action: _showInMap,
+              status: DeliveryStatus.orderClosed,
             ),
           ],
         ),

@@ -1,3 +1,20 @@
+// Copyright (C) 2024 Rudson Alves
+// 
+// This file is part of delivery.
+// 
+// delivery is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// delivery is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with delivery.  If not, see <https://www.gnu.org/licenses/>.
+
 import 'dart:async';
 
 import '../../../../locator.dart';
@@ -12,10 +29,15 @@ class DeliveriesController {
   final user = locator<UserStore>().currentUser!;
 
   late final DeliveriesStore store;
+  late final DeliveryStatus status;
   StreamSubscription<List<DeliveryModel>>? _deliveriesSubscription;
 
-  void init(DeliveriesStore store) {
+  void init({
+    required DeliveriesStore store,
+    required DeliveryStatus status,
+  }) {
     this.store = store;
+    this.status = status;
 
     _getDeliveries();
   }
@@ -30,7 +52,10 @@ class DeliveriesController {
     // Cancel previus subscription
     _deliveriesSubscription?.cancel();
     _deliveriesSubscription = deliveryRepository
-        .getByDeliveryId(user.id!)
+        .getByDeliveryId(
+      deliveryId: user.id!,
+      status: status,
+    )
         .listen((List<DeliveryModel> fetchedDeliveries) {
       store.setPageState(PageState.loading);
       store.setDeliveries(fetchedDeliveries);
