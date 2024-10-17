@@ -1,3 +1,20 @@
+// Copyright (C) 2024 Rudson Alves
+// 
+// This file is part of delivery.
+// 
+// delivery is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// delivery is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with delivery.  If not, see <https://www.gnu.org/licenses/>.
+
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
@@ -10,6 +27,8 @@ extension DeliveryStatusExtension on DeliveryStatus {
         return 'Pedido Registrado para Retirada';
       case DeliveryStatus.orderReservedForPickup:
         return 'Pedido Reservado para Retirada';
+      case DeliveryStatus.orderPickedUpForDelivery:
+        return 'Pedido Retirado para Entrega';
       case DeliveryStatus.orderInTransit:
         return 'Pedido em Trânsito';
       case DeliveryStatus.orderDelivered:
@@ -32,6 +51,11 @@ extension DeliveryStatusExtension on DeliveryStatus {
         return const Icon(
           Symbols.deployed_code_history_rounded,
           color: Colors.cyan,
+        );
+      case DeliveryStatus.orderPickedUpForDelivery:
+        return const Icon(
+          Symbols.deployed_code_rounded,
+          color: Colors.yellow,
         );
       case DeliveryStatus.orderInTransit:
         return const Icon(

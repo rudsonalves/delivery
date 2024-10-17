@@ -18,6 +18,52 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/17 - version: 0.7.06+54
+
+This commit reinstates the `DeliveryStatus.orderPickedUpForDelivery` status that had been removed, and introduces updates to multiple files to ensure consistent usage of this status throughout the codebase. Additionally, GPLv3 license headers were added to all files in the `lib/` directory, though these changes have been omitted from the diff to reduce its size.
+
+### Changes made:
+
+1. **lib/common/extensions/delivery_status_extensions.dart**:
+   - Added `DeliveryStatus.orderPickedUpForDelivery` back to the enum list.
+   - Updated the status descriptions with a new label: "Pedido Retirado para Entrega."
+   - Added an associated icon (`Symbols.deployed_code_rounded`, with yellow color) for the reinstated status.
+
+2. **lib/common/models/delivery.dart**:
+   - Reintroduced `DeliveryStatus.orderPickedUpForDelivery` to the `DeliveryStatus` enum, updating all subsequent status indices accordingly.
+
+3. **lib/features/user_delivery/tab_bar_views/deliveries/deliveries_controller.dart**:
+   - Added `DeliveryStatus` as a parameter to the `init` method of `DeliveriesController`.
+   - Updated `_getDeliveries()` to retrieve deliveries based on the new status.
+
+4. **lib/features/user_delivery/tab_bar_views/deliveries/deliveries_page.dart**:
+   - Updated `DeliveriesPage` to include a `DeliveryStatus` parameter to manage different statuses more effectively.
+   - Added a floating action button for adding deliveries.
+
+5. **lib/features/user_delivery/tab_bar_views/show_delivery_list.dart**:
+   - Modified `ShowDeliveryList` to allow status-based operations.
+   - Added a floating action button for QR code generation and delivery addition.
+
+6. **lib/features/user_delivery/user_delivery_page.dart**:
+   - Modified the tab controller to accommodate the reintroduced status.
+   - Added the "Preparando" tab for deliveries with the `orderPickedUpForDelivery` status.
+
+7. **lib/features/user_manager/tab_bar_views/manager_controller.dart**:
+   - Refactored `_deliveriesSubscription` to properly fetch deliveries based on status.
+   - Introduced a new `clearSelections` method for clearing selected deliveries.
+
+8. **lib/features/user_manager/user_manager_page.dart**:
+   - Updated tab bar to include the `orderPickedUpForDelivery` status, reflecting this change in the UI.
+   - Adjusted the floating action buttons and tab bar icons accordingly.
+
+9. **lib/repository/firebase_store/deliveries_firebase_repository.dart**:
+   - Updated the repository methods to correctly query deliveries based on the newly reinstated status.
+   - Modified `getByManagerId()` and `getByDeliveryId()` methods to support filtering deliveries by `orderPickedUpForDelivery`.
+
+### Conclusion:
+These changes reintroduce the `DeliveryStatus.orderPickedUpForDelivery` status, improving the granularity of the delivery workflow. The reinstated status enables better tracking of deliveries during the transition between reservation and transit, while the updates to controllers, views, and repositories ensure seamless integration and usage throughout the app. The UI changes further enhance clarity for delivery personnel and managers.
+
+
 ## 2024/10/17 - version: 0.7.05+53
 
 This commit introduces the addition of the GNU General Public License (GPL) v3 to the project, as well as various code improvements, new features, and refactorings across multiple modules to enhance the delivery management and QR code functionalities.

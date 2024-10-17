@@ -1,3 +1,20 @@
+// Copyright (C) 2024 Rudson Alves
+// 
+// This file is part of delivery.
+// 
+// delivery is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// delivery is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with delivery.  If not, see <https://www.gnu.org/licenses/>.
+
 import 'dart:developer';
 import 'dart:math' as math;
 
@@ -274,16 +291,10 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
   @override
   Stream<List<DeliveryModel>> getByManagerId({
     required String managerId,
-    DeliveryStatus? status,
+    required DeliveryStatus status,
   }) {
-    final statusIndex = status?.index ?? -1;
-    if (statusIndex == -1) {
-      return _getDeliveriesStream(
-        deliveriesCollectionRef
-            .where(keyManagerId, isEqualTo: managerId)
-            .orderBy(keyCreatedAt),
-      );
-    } else if (statusIndex < DeliveryStatus.orderInTransit.index) {
+    final statusIndex = status.index;
+    if (statusIndex <= DeliveryStatus.orderReservedForPickup.index) {
       return _getDeliveriesStream(
         deliveriesCollectionRef
             .where(keyManagerId, isEqualTo: managerId)
@@ -306,7 +317,7 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
             .where(keyManagerId, isEqualTo: managerId)
             .where(
               keyStatus,
-              isGreaterThanOrEqualTo: DeliveryStatus.orderDelivered.index,
+              isGreaterThanOrEqualTo: DeliveryStatus.orderReject.index,
             )
             .orderBy(keyCreatedAt),
       );
@@ -314,13 +325,16 @@ class DeliveriesFirebaseRepository implements AbstractDeliveriesRepository {
   }
 
   @override
-  Stream<List<DeliveryModel>> getByDeliveryId(String deliveryId) {
+  Stream<List<DeliveryModel>> getByDeliveryId({
+    required String deliveryId,
+    required DeliveryStatus status,
+  }) {
     return _getDeliveriesStream(
       deliveriesCollectionRef
           .where(keyDeliveryId, isEqualTo: deliveryId)
           .where(
             keyStatus,
-            isGreaterThan: DeliveryStatus.orderReservedForPickup.index,
+            isGreaterThan: status.index,
           )
           .orderBy(keyCreatedAt),
     );

@@ -1,7 +1,25 @@
+// Copyright (C) 2024 Rudson Alves
+// 
+// This file is part of delivery.
+// 
+// delivery is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// delivery is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with delivery.  If not, see <https://www.gnu.org/licenses/>.
+
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
 
+import '../../../../common/models/delivery.dart';
 import '/features/qrcode_read/qrcode_read_page.dart';
 import '../../../../common/theme/app_text_style.dart';
 import '../../../../components/widgets/delivery_card.dart';
@@ -10,7 +28,11 @@ import 'deliveries_controller.dart';
 import 'deliveries_store.dart';
 
 class DeliveriesPage extends StatefulWidget {
-  const DeliveriesPage({super.key});
+  final DeliveryStatus status;
+  const DeliveriesPage(
+    this.status, {
+    super.key,
+  });
 
   @override
   State<DeliveriesPage> createState() => _DeliveriesPageState();
@@ -24,7 +46,10 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
   void initState() {
     super.initState();
 
-    ctrl.init(store);
+    ctrl.init(
+      store: store,
+      status: widget.status,
+    );
   }
 
   @override
@@ -45,6 +70,8 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Stack(
@@ -107,10 +134,12 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
             },
           ),
           Positioned(
+            bottom: 20,
             right: 20,
-            top: 20,
             child: FloatingActionButton(
               onPressed: _addDeliveries,
+              backgroundColor:
+                  colorScheme.onPrimaryFixedVariant.withOpacity(0.5),
               child: const Icon(Icons.loupe),
             ),
           ),
