@@ -18,6 +18,78 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/17 - version: 0.7.05+53
+
+This commit introduces the addition of the GNU General Public License (GPL) v3 to the project, as well as various code improvements, new features, and refactorings across multiple modules to enhance the delivery management and QR code functionalities.
+
+### Changes made:
+
+1. **LICENSE**:
+   - Added the GNU General Public License (GPL) v3 to the project, ensuring that the software is shared under a copyleft license, promoting freedom to use, modify, and distribute.
+
+2. **android/gradle.properties**:
+   - Commented out the `dev.steenbakker.mobile_scanner.useUnbundled=true` property to disable its use temporarily.
+
+3. **lib/common/extensions/delivery_status_extensions.dart**:
+   - Removed the `orderPickedUpForDelivery` status from the extension methods.
+   - Updated relevant icons and text mappings to reflect the updated statuses.
+
+4. **lib/common/models/delivery.dart**:
+   - Removed the `orderPickedUpForDelivery` status from the `DeliveryStatus` enum.
+   - Updated the remaining statuses with corresponding index comments for better readability.
+
+5. **lib/common/utils/create_qrcode.dart**:
+   - Added an import for `dart:convert` to handle JSON encoding.
+   - Modified the `_generateQRCode` method to accept a `Map<String, dynamic>` instead of a `String` to provide more structured data for QR code generation.
+   - Adjusted text formatting within the PDF to make the `delivery.id` bold and abbreviate address components for clarity.
+
+6. **lib/features/qrcode_read/qrcode_read_page.dart**:
+   - Refactored the `MobileScannerController` initialization to simplify the configuration.
+   - Added `_startScanning` call within `initState` to automatically start scanning upon page load.
+   - Streamlined the `dispose` method to ensure proper resource cleanup, including using `unawaited` to prevent blocking.
+
+7. **lib/features/show_qrcode/show_qrcode.dart**:
+   - Added a `FilledButton` labeled "Próximo" to navigate back after viewing the QR code.
+
+8. **lib/features/user_delivery/tab_bar_views/deliveries/deliveries_controller.dart** (new file):
+   - Added a new controller to manage deliveries, handling state management and data fetching via Firestore.
+
+9. **lib/features/user_delivery/tab_bar_views/deliveries/deliveries_page.dart** (new file):
+   - Created a new page to list deliveries with a `DeliveryCard` component for each item.
+   - Implemented interaction flow to read QR codes and update delivery status.
+
+10. **lib/features/user_delivery/tab_bar_views/deliveries/deliveries_store.dart** (new file):
+    - Added a new store to manage state for deliveries, handling loading, success, and error states.
+
+11. **lib/features/user_delivery/tab_bar_views/reservations/reservations_controller.dart** (new file):
+    - Created a controller for managing delivery reservations, including fetching nearby deliveries and updating the radius.
+
+12. **lib/features/user_delivery/tab_bar_views/reservations/reservations_page.dart** (new file):
+    - Added a page to manage reservations, including sliders to adjust the radius for nearby deliveries and a list view to show available deliveries.
+
+13. **lib/features/user_delivery/user_delivery_page.dart**:
+    - Updated the page to use a `TabBar` for separating reservations and deliveries into different views.
+
+14. **lib/features/user_manager/tab_bar_views/manager_controller.dart**:
+    - Added a null assignment to `_deliveriesSubscription` after canceling it to ensure proper cleanup.
+    - Updated delivery fetching logic to improve error handling.
+
+15. **lib/features/user_manager/user_manager_page.dart**:
+    - Updated tab icons to reflect new status changes after removal of `orderPickedUpForDelivery`.
+    - Cleared `deliveriesSelected` after navigating to the QR code page.
+
+16. **lib/repository/firebase_store/abstract_deliveries_repository.dart**:
+    - Added new methods `getByDeliveryId` and `updateDeliveryStatus` to handle delivery updates based on delivery ID.
+
+17. **lib/repository/firebase_store/deliveries_firebase_repository.dart**:
+    - Implemented `updateDeliveryStatus` to allow changing the status of a delivery document in Firestore.
+    - Added `getByDeliveryId` to fetch deliveries assigned to a specific delivery ID.
+    - Refined existing query logic to better handle status-based fetching of deliveries.
+
+### Conclusion:
+These updates add significant new functionality for delivery management, including better handling of reservations and status updates. The addition of the GNU GPL ensures that this software remains open and free, encouraging community collaboration.
+
+
 ## 2024/10/17 - version: 0.7.04+52
 
 This commit introduces enhancements in QR code generation, including visual refinements and a new page to display QR codes, improving the user experience and the flexibility of QR code usage. It also includes refactoring and the addition of a `ShowQrcode` page for better modularity.

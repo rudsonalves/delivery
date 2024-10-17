@@ -25,11 +25,6 @@ class UserManagerPage extends StatefulWidget {
 class _UserManagerPageState extends State<UserManagerPage> {
   final Map<String, DeliveryInfoModel> deliveriesSelected = {};
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
   void _showInMap(DeliveryModel delivery) {
     Navigator.pushNamed(context, MapPage.routeName, arguments: delivery);
   }
@@ -46,6 +41,7 @@ class _UserManagerPageState extends State<UserManagerPage> {
         arguments: delivery,
       );
     }
+    deliveriesSelected.clear();
   }
 
   @override
@@ -69,13 +65,19 @@ class _UserManagerPageState extends State<UserManagerPage> {
                 ),
               ),
               Tab(
-                icon: DeliveryStatus.orderPickedUpForDelivery.icon,
-              ),
-              Tab(
                 icon: DeliveryStatus.orderInTransit.icon,
               ),
               Tab(
-                icon: DeliveryStatus.orderClosed.icon,
+                icon: DeliveryStatus.orderDelivered.icon,
+              ),
+              Tab(
+                icon: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    DeliveryStatus.orderClosed.icon,
+                    DeliveryStatus.orderReject.icon,
+                  ],
+                ),
               ),
             ],
           ),
@@ -107,17 +109,17 @@ class _UserManagerPageState extends State<UserManagerPage> {
             ShowDeliveryList(
               action: _showInMap,
               selectedIds: deliveriesSelected,
-              deliveryStatus: DeliveryStatus.orderPickedUpForDelivery,
-            ),
-            ShowDeliveryList(
-              action: _showInMap,
-              selectedIds: deliveriesSelected,
               deliveryStatus: DeliveryStatus.orderInTransit,
             ),
             ShowDeliveryList(
               action: _showInMap,
               selectedIds: deliveriesSelected,
               deliveryStatus: DeliveryStatus.orderDelivered,
+            ),
+            ShowDeliveryList(
+              action: _showInMap,
+              selectedIds: deliveriesSelected,
+              deliveryStatus: DeliveryStatus.orderClosed,
             ),
           ],
         ),
