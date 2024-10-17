@@ -8,6 +8,7 @@ import 'features/add_shop/add_shop_page.dart';
 import 'features/delivery_qrcode/delivery_qrcode.dart';
 import 'features/map/map_page.dart';
 import 'features/qrcode_read/qrcode_read_page.dart';
+import 'features/show_qrcode/show_qrcode.dart';
 import 'features/splash/splash_page.dart';
 import 'features/home/home_page.dart';
 import 'common/models/client.dart';
@@ -62,6 +63,11 @@ class _MyMaterialAppState extends State<MyMaterialApp> {
             },
             onGenerateRoute: (settings) {
               switch (settings.name) {
+                case ShowQrcode.routeName:
+                  return MaterialPageRoute(builder: (context) {
+                    final delivery = settings.arguments as dynamic;
+                    return ShowQrcode(delivery);
+                  });
                 case DeliveryQrcode.routeName:
                   return MaterialPageRoute(builder: (context) {
                     final delivery = settings.arguments as DeliveryModel;

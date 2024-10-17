@@ -1,8 +1,7 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 
 import '../../common/models/delivery_info.dart';
+import '../show_qrcode/show_qrcode.dart';
 import '/common/extensions/delivery_status_extensions.dart';
 import '/components/widgets/main_drawer/custom_drawer.dart';
 import '../../common/models/delivery.dart';
@@ -39,9 +38,13 @@ class _UserManagerPageState extends State<UserManagerPage> {
     Navigator.pushNamed(context, AddDeliveryPage.routeName);
   }
 
-  void _showQRCode() {
+  Future<void> _showQRCode() async {
     for (final delivery in deliveriesSelected.values) {
-      log(delivery.toString());
+      await Navigator.pushNamed(
+        context,
+        ShowQrcode.routeName,
+        arguments: delivery,
+      );
     }
   }
 
