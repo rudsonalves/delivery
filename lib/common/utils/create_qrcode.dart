@@ -23,19 +23,45 @@ class CreateQrcode {
       throw Exception('QRCode generation error');
     }
 
+    const fontStyle = pw.TextStyle(fontSize: 16);
+
     pdf.addPage(
       pw.Page(
+        pageFormat: const PdfPageFormat(350, 450),
         build: (pw.Context context) {
-          return pw.Column(
-            mainAxisAlignment: pw.MainAxisAlignment.center,
-            children: [
-              pw.Image(pw.MemoryImage(qrBytes), width: 200, height: 200),
-              pw.SizedBox(height: 12),
-              pw.Text('Código: ${delivery.id}'),
-              pw.Text('Cliente: ${delivery.clientName}'
-                  ' (${delivery.clientPhone})'),
-              pw.Text(delivery.clientAddress),
-            ],
+          return pw.Center(
+            child: pw.Column(
+              mainAxisAlignment: pw.MainAxisAlignment.center,
+              children: [
+                pw.Image(pw.MemoryImage(qrBytes), width: 300, height: 300),
+                pw.SizedBox(height: 12),
+                pw.SizedBox(
+                  width: 250,
+                  child: pw.Column(
+                    mainAxisAlignment: pw.MainAxisAlignment.center,
+                    children: [
+                      pw.Text(
+                        'Chave: ${delivery.id}',
+                        textAlign: pw.TextAlign.center,
+                        style: fontStyle,
+                      ),
+                      pw.Text(
+                        'Cliente: ${delivery.clientName}'
+                        '\n${delivery.clientPhone}',
+                        textAlign: pw.TextAlign.center,
+                        style: fontStyle,
+                      ),
+                      pw.Text(
+                        delivery.clientAddress,
+                        textAlign: pw.TextAlign.center,
+                        overflow: pw.TextOverflow.clip,
+                        style: fontStyle,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),
@@ -48,7 +74,7 @@ class CreateQrcode {
     final qrPainter = QrPainter(
       data: doc,
       version: QrVersions.auto,
-      gapless: false,
+      gapless: true,
     );
 
     final imageData = await qrPainter.toImageData(
