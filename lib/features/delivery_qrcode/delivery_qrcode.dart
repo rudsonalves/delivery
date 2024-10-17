@@ -8,7 +8,7 @@ import '../../common/models/delivery.dart';
 class DeliveryQrcode extends StatelessWidget {
   final DeliveryModel delivery;
 
-  DeliveryQrcode(
+  const DeliveryQrcode(
     this.delivery, {
     super.key,
   });

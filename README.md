@@ -18,6 +18,39 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/17 - version: 0.7.04+52
+
+This commit introduces enhancements in QR code generation, including visual refinements and a new page to display QR codes, improving the user experience and the flexibility of QR code usage. It also includes refactoring and the addition of a `ShowQrcode` page for better modularity.
+
+### Changes made:
+
+1. **lib/common/utils/create_qrcode.dart**:
+   - Adjusted page format for QR code generation, setting dimensions to 350x450.
+   - Changed QR code image size from 200x200 to 300x300 for better readability.
+   - Added a `pw.TextStyle` constant for consistent styling of text fields.
+   - Modified the layout to center-align all elements and added labels such as 'Key', 'Client', and address details with improved formatting and alignment.
+   - Set the QR code painter's `gapless` property to `true` for better rendering quality.
+
+2. **lib/features/delivery_qrcode/delivery_qrcode.dart**:
+   - Marked the `DeliveryQrcode` constructor as `const` to enable compile-time optimization where possible.
+
+3. **lib/features/show_qrcode/show_qrcode.dart** (New File):
+   - Created the `ShowQrcode` page to display QR codes generated for deliveries.
+   - Introduced a `convertPdfToImage` method to convert PDF data to an image, allowing the generated QR code to be rendered as a visual component on the screen.
+   - Added navigation functionality to return to the previous page and handled different states (loading, success, error) when displaying the QR code.
+
+4. **lib/features/user_manager/user_manager_page.dart**:
+   - Replaced the `log` statement in `_showQRCode` with a navigation call to push the `ShowQrcode` page, passing the delivery data as arguments.
+   - Updated `_showQRCode` to handle multiple deliveries using a loop and async navigation to `ShowQrcode`.
+
+5. **lib/my_material_app.dart**:
+   - Added route handling for `ShowQrcode.routeName`, allowing the `ShowQrcode` page to be accessible throughout the app.
+   - Defined a new case in the `onGenerateRoute` function to create a route for the `ShowQrcode` page with delivery data passed as arguments.
+
+### Conclusion:
+The addition of the `ShowQrcode` page and improvements to the QR code generation process enhance the usability of QR code features, providing a clearer, more accessible visual experience for users. The changes ensure better modularity and consistency across the app's functionalities.
+
+
 ## 2024/10/15 - version: 0.7.03+51
 
 Added the initial delivery QR Code generation functionality and updated the delivery card handling throughout the application.
