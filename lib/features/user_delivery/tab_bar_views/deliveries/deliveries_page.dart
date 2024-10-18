@@ -20,6 +20,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 
 import '../../../../common/models/delivery.dart';
+import '../../delivery_map/delivery_map_page.dart';
 import '/features/qrcode_read/qrcode_read_page.dart';
 import '../../../../common/theme/app_text_style.dart';
 import '../../../../components/widgets/delivery_card.dart';
@@ -68,6 +69,13 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
     }
   }
 
+  Future<void> _createRoutes() async {
+    await ctrl.createBasicRoutes();
+    if (mounted) {
+      await Navigator.pushNamed(context, DeliveryMapPage.routeName);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -86,7 +94,7 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
                     child: CircularProgressIndicator(),
                   );
                 case PageState.success:
-                  final deliveries = store.deliveries;
+                  final deliveries = ctrl.deliveries;
                   if (deliveries.isEmpty) {
                     return const Center(
                       child:
@@ -101,13 +109,13 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
 
                       return DeliveryCard(
                         delivery: delivery,
-                        button: IconButton(
-                          onPressed: () {},
-                          icon: const Icon(
-                            Icons.place,
-                            color: Colors.red,
-                          ),
-                        ),
+                        // button: IconButton(
+                        //   onPressed: () {},
+                        //   icon: const Icon(
+                        //     Icons.place,
+                        //     color: Colors.red,
+                        //   ),
+                        // ),
                       );
                     },
                   );
@@ -137,12 +145,30 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
           Positioned(
             bottom: 20,
             right: 20,
-            child: FloatingActionButton(
-              onPressed: _addDeliveries,
-              backgroundColor:
-                  colorScheme.onPrimaryFixedVariant.withOpacity(0.5),
-              child: const Icon(Icons.loupe),
-            ),
+            child: ValueListenableBuilder(
+                valueListenable: store.deliveries,
+                builder: (context, deliveries, _) {
+                  return Row(
+                    children: [
+                      if (deliveries.isNotEmpty)
+                        FloatingActionButton(
+                          onPressed: _createRoutes,
+                          heroTag: 'hero_01',
+                          backgroundColor: colorScheme.onPrimaryFixedVariant
+                              .withOpacity(0.5),
+                          child: const Icon(Icons.location_on_sharp),
+                        ),
+                      const SizedBox(width: 20),
+                      FloatingActionButton(
+                        onPressed: _addDeliveries,
+                        heroTag: 'hero_02',
+                        backgroundColor:
+                            colorScheme.onPrimaryFixedVariant.withOpacity(0.5),
+                        child: const Icon(Icons.loupe),
+                      ),
+                    ],
+                  );
+                }),
           ),
         ],
       ),

@@ -15,13 +15,12 @@
 // You should have received a copy of the GNU General Public License
 // along with delivery.  If not, see <https://www.gnu.org/licenses/>.
 
-import '../../common/models/delivery_men.dart';
-import '../../common/utils/data_result.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-abstract class AbstractDeliverymenRepository {
-  Future<DataResult<DeliverymenModel>> updateLocation(
-      DeliverymenModel deliverymen);
-  Future<DataResult<DeliverymenModel>> set(DeliverymenModel deliverymen);
-  Future<DataResult<DeliverymenModel?>> get(String id);
-  Future<DataResult<void>> delete(String id);
+class DeliveryMapController {
+  late final GoogleMapController mapController;
+
+  void onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+  }
 }
