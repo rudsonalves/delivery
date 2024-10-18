@@ -1,23 +1,22 @@
 // Copyright (C) 2024 Rudson Alves
-// 
+//
 // This file is part of delivery.
-// 
+//
 // delivery is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // delivery is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with delivery.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'dart:async';
 import 'dart:developer';
-import 'dart:math' as math;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
@@ -32,6 +31,7 @@ import '../repository/firebase_store/abstract_deliveries_repository.dart';
 import '../repository/firebase_store/abstract_deliverymen_repository.dart';
 import '../repository/firebase_store/deliveries_firebase_repository.dart';
 import '../repository/firebase_store/deliverymen_firebase_repository.dart';
+import '../services/geo_location.dart';
 import '../stores/common/store_func.dart';
 import '../stores/user/user_store.dart';
 
@@ -135,7 +135,7 @@ class DeliveriesManager {
         final Map<String, ShopDeliveryInfo> shopInfoMap = {};
 
         for (var delivery in deliveries) {
-          final distance = _calculateDistance(
+          final distance = GeoLocation.calculateDistance(
             user.deliverymen!.location.geopoint,
             delivery.shopLocation.geopoint,
           );
@@ -188,17 +188,6 @@ class DeliveriesManager {
           : '',
       updatedAt: DateTime.now(),
     );
-  }
-
-  double _calculateDistance(GeoPoint start, GeoPoint end) {
-    const double kmPerDegreeLat = 111.32;
-    const double kmPerDegreeLonAtEquator = 111.32;
-
-    double deltaLat = (end.latitude - start.latitude) * kmPerDegreeLat;
-    double deltaLon = (end.longitude - start.longitude) *
-        (kmPerDegreeLonAtEquator * math.cos(start.latitude * math.pi / 180));
-
-    return math.sqrt(deltaLat * deltaLat + deltaLon * deltaLon);
   }
 
   void _setLoadingState() {

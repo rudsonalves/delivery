@@ -1,17 +1,17 @@
 // Copyright (C) 2024 Rudson Alves
-// 
+//
 // This file is part of delivery.
-// 
+//
 // delivery is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // delivery is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with delivery.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -19,8 +19,8 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
-import 'package:geolocator/geolocator.dart';
 
+import '../../services/geo_location.dart';
 import '/common/models/delivery_men.dart';
 import '../../common/utils/data_result.dart';
 import 'abstract_deliverymen_repository.dart';
@@ -149,73 +149,12 @@ class DeliverymenFirebaseRepository implements AbstractDeliverymenRepository {
     }
   }
 
-  /// Function to check and request location permissions.
-  ///
-  /// Returns `true` if the permissions are granted, otherwise `false`.
-  Future<bool> _handleLocationPermission() async {
-    try {
-      // Check if location services are enabled
-      final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        return false;
-      }
-
-      // Check and request location permissions
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          return false;
-        }
-      }
-
-      // If permission is denied forever, location access is not possible
-      if (permission == LocationPermission.deniedForever) {
-        return false;
-      }
-
-      return true;
-    } catch (err) {
-      log('_handleLocationPermission: $err');
-      return false;
-    }
-  }
-
-  /// Function to get the current location as a [GeoFirePoint].
-  ///
-  /// Returns a [GeoFirePoint] representing the current location.
-  /// Throws an exception if the location cannot be generated.
-  @override
-  Future<GeoFirePoint> getCurrentGeoFirePoint() async {
-    try {
-      // Handle location permissions
-      bool hasPermission = await _handleLocationPermission();
-      if (!hasPermission) {
-        throw Exception(
-            'LocationService._getCurrentGeoFirePoint: Unable to get geolocation!');
-      }
-
-      // Get the current position with high accuracy
-      Position? position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-        ),
-      );
-
-      // Create and return a GeoFirePoint with the current location coordinates
-      return GeoFirePoint(GeoPoint(position.latitude, position.longitude));
-    } catch (err) {
-      throw Exception(
-          'LocationService._getCurrentGeoFirePoint: Unable to generate geolocation!');
-    }
-  }
-
   /// Updates the location of a [DeliverymenModel] with the current geolocation.
   ///
   /// Takes a [DeliverymenModel], gets the current location, and returns an updated model.
   Future<DeliverymenModel> _updateLocation(DeliverymenModel deliverymen) async {
     // Get the current location as a GeoFirePoint
-    final GeoFirePoint location = await getCurrentGeoFirePoint();
+    final GeoFirePoint location = await GeoLocation.getCurrentGeoFirePoint();
 
     // Create a copy of the DeliverymenModel object with the new location
     return deliverymen.copyWith(
