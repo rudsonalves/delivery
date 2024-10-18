@@ -1,17 +1,17 @@
 // Copyright (C) 2024 Rudson Alves
-// 
+//
 // This file is part of delivery.
-// 
+//
 // delivery is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // delivery is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with delivery.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -38,6 +38,7 @@ import 'features/person_data/person_data_page.dart';
 import 'features/sign_in/sign_in_page.dart';
 import 'features/sign_up/sign_up_page.dart';
 import 'features/shops/shops_page.dart';
+import 'features/user_delivery/delivery_map/delivery_map_page.dart';
 import 'locator.dart';
 
 class MyMaterialApp extends StatefulWidget {
@@ -77,31 +78,32 @@ class _MyMaterialAppState extends State<MyMaterialApp> {
               ShopsPage.routeName: (_) => const ShopsPage(),
               AccountPage.routeName: (_) => const AccountPage(),
               QRCodeReadPage.routeName: (_) => const QRCodeReadPage(),
+              DeliveryMapPage.routeName: (_) => const DeliveryMapPage(),
             },
             onGenerateRoute: (settings) {
               switch (settings.name) {
                 case ShowQrcode.routeName:
-                  return MaterialPageRoute(builder: (context) {
+                  return MaterialPageRoute(builder: (_) {
                     final delivery = settings.arguments as dynamic;
                     return ShowQrcode(delivery);
                   });
                 case DeliveryQrcode.routeName:
-                  return MaterialPageRoute(builder: (context) {
+                  return MaterialPageRoute(builder: (_) {
                     final delivery = settings.arguments as DeliveryModel;
                     return DeliveryQrcode(delivery);
                   });
                 case MapPage.routeName:
-                  return MaterialPageRoute(builder: (context) {
+                  return MaterialPageRoute(builder: (_) {
                     final delivery = settings.arguments as DeliveryModel;
                     return MapPage(delivery);
                   });
                 case AddClientPage.routeName:
-                  return MaterialPageRoute(builder: (context) {
+                  return MaterialPageRoute(builder: (_) {
                     final client = settings.arguments as ClientModel?;
                     return AddClientPage(client);
                   });
                 case AddShopPage.routeName:
-                  return MaterialPageRoute(builder: (context) {
+                  return MaterialPageRoute(builder: (_) {
                     final shop = settings.arguments as ShopModel?;
                     return AddShopPage(shop);
                   });

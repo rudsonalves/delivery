@@ -18,6 +18,85 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/18 - version: 0.7.08+56
+
+This commit includes the addition of new features such as a delivery map interface, along with various improvements and bug fixes across multiple files. Below are the detailed changes made:
+
+### Changes made:
+
+1. **assets/images/pin.png**:
+   - Added a new image resource, `pin.png`, which will be used for map markers in the delivery map view.
+
+2. **lib/common/models/address.dart**:
+   - Corrected import typo from `model_finctions.dart` to `model_functions.dart` for better accuracy.
+
+3. **lib/common/models/client.dart**:
+   - Fixed import typo from `model_finctions.dart` to `model_functions.dart`.
+
+4. **lib/common/models/deliver_order.dart** (new file):
+   - Added the `DeliveryOrder` class to represent a delivery order, containing information such as delivery ID, client name, address, phone number, and client location.
+   - Introduced a method `fromDelivery` to create `DeliveryOrder` instances from `DeliveryModel`.
+
+5. **lib/common/models/delivery.dart**:
+   - Corrected import typo from `model_finctions.dart` to `model_functions.dart`.
+
+6. **lib/common/models/delivery_men.dart**:
+   - Updated import path to correctly reference `model_functions.dart`.
+
+7. **lib/common/models/functions/model_functions.dart**:
+   - Renamed from `model_finctions.dart` to `model_functions.dart` for better clarity.
+
+8. **lib/common/models/shop.dart**:
+   - Fixed import typo from `model_finctions.dart` to `model_functions.dart`.
+
+9. **lib/features/user_admin/user_admin_page.dart**:
+   - Removed redundant spacing in the GPL license comment block for consistency.
+
+10. **lib/features/user_business/user_business_page.dart**:
+    - Cleaned up license comment block spacing.
+
+11. **lib/features/user_delivery/delivery_map/delivery_map_controller.dart** (new file):
+    - Added `DeliveryMapController` to handle Google Maps integration and manage map-related events.
+
+12. **lib/features/user_delivery/delivery_map/delivery_map_page.dart** (new file):
+    - Added `DeliveryMapPage`, which provides a visual representation of the delivery map using `GoogleMaps`. This includes features such as numbered markers for each delivery location.
+
+13. **lib/features/user_delivery/tab_bar_views/deliveries/deliveries_controller.dart**:
+    - Added a `createBasicRoutes` function to generate basic delivery routes based on the available deliveries.
+    - Added a reference to the `NavigationRoute` service for route calculation.
+
+14. **lib/features/user_delivery/tab_bar_views/deliveries/deliveries_page.dart**:
+    - Integrated `DeliveryMapPage` for route visualization.
+    - Updated the floating action button to provide an option to create a route (`_createRoutes`).
+
+15. **lib/features/user_delivery/tab_bar_views/deliveries/deliveries_store.dart**:
+    - Updated `deliveries` to use `ValueNotifier` to track state changes reactively.
+
+16. **lib/locator.dart**:
+    - Registered the `NavigationRoute` service in the dependency locator.
+
+17. **lib/managers/deliveries_manager.dart**:
+    - Replaced the internal distance calculation method with a call to `GeoLocation.calculateDistance()`.
+
+18. **lib/my_material_app.dart**:
+    - Added a route for `DeliveryMapPage` in the application router.
+
+19. **lib/repository/firebase_store/abstract_deliverymen_repository.dart**:
+    - Removed deprecated `getCurrentGeoFirePoint` function from the interface.
+
+20. **lib/repository/firebase_store/deliverymen_firebase_repository.dart**:
+    - Removed local implementation of location permission handling, now replaced by `GeoLocation`.
+
+21. **lib/services/geo_location.dart** (new file):
+    - Added a new service for handling geolocation operations, including calculating distances and obtaining the current location.
+
+22. **lib/services/navigation_route.dart** (new file):
+    - Created a new `NavigationRoute` service to manage delivery routes, calculate optimized orders, and determine distances between delivery locations.
+
+### Conclusion:
+This commit introduces new features that allow delivery personnel to visualize and organize deliveries on a map using `GoogleMaps`, enhancing the delivery workflow. Several code improvements and bug fixes were implemented to increase maintainability, accuracy, and reliability of the system. The introduction of dedicated services for geolocation and route management makes the codebase more modular and easier to extend in the future.
+
+
 ## 2024/10/18 - version: 0.7.07+55
 
 This commit addresses several bugs within the user delivery and user manager pages of the application, enhances code consistency, and corrects delivery status transitions for better logic flow.
