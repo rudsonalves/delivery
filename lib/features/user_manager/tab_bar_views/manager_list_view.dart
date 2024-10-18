@@ -1,17 +1,17 @@
 // Copyright (C) 2024 Rudson Alves
-// 
+//
 // This file is part of delivery.
-// 
+//
 // delivery is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // delivery is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with delivery.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -27,12 +27,12 @@ import '../../show_qrcode/show_qrcode.dart';
 import 'manager_store.dart';
 import 'manager_controller.dart';
 
-class ShowDeliveryList extends StatefulWidget {
+class ManagerListView extends StatefulWidget {
   final void Function(DeliveryModel)? action;
   final void Function(DeliveryModel)? select;
   final DeliveryStatus status;
 
-  const ShowDeliveryList({
+  const ManagerListView({
     super.key,
     required this.status,
     this.action,
@@ -40,10 +40,10 @@ class ShowDeliveryList extends StatefulWidget {
   });
 
   @override
-  State<ShowDeliveryList> createState() => _ShowDeliveryListState();
+  State<ManagerListView> createState() => _ManagerListViewState();
 }
 
-class _ShowDeliveryListState extends State<ShowDeliveryList> {
+class _ManagerListViewState extends State<ManagerListView> {
   final ctrl = ManagerController();
   final ManagerStore store = ManagerStore();
   final Map<String, DeliveryInfoModel> selectedIds = {};
@@ -61,6 +61,7 @@ class _ShowDeliveryListState extends State<ShowDeliveryList> {
 
   @override
   void dispose() {
+    ctrl.dispose();
     store.dispose();
     super.dispose();
   }
