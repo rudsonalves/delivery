@@ -18,6 +18,43 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/18 - version: 0.7.07+55
+
+This commit addresses several bugs within the user delivery and user manager pages of the application, enhances code consistency, and corrects delivery status transitions for better logic flow.
+
+### Changes made:
+
+1. **lib/features/user_delivery/tab_bar_views/deliveries/deliveries_page.dart**:
+   - Updated empty state message text from "Nenhuma entrega em andamento!" to "Scanneie os QRCode reservados no fornecedor." to provide better guidance to the delivery person.
+
+2. **lib/features/user_delivery/tab_bar_views/reservations/reservations_page.dart**:
+   - Updated the text displayed when no deliveries are found from "Nenhuma entrega próxima encontrada!" to "Nenhuma entrega próxima para reservar!" for improved user clarity.
+
+3. **lib/features/user_delivery/user_delivery_page.dart**:
+   - Removed redundant spacing in the GPL license comment block to maintain consistency across files.
+
+4. **lib/features/user_manager/tab_bar_views/manager_controller.dart**:
+   - Added a line to nullify `_deliveriesSubscription` after it is canceled to prevent potential issues when the subscription is re-initialized.
+
+5. **lib/features/user_manager/tab_bar_views/show_delivery_list.dart**:
+   - Renamed file from `show_delivery_list.dart` to `manager_list_view.dart` for a more descriptive and consistent naming convention.
+   - Updated class name from `ShowDeliveryList` to `ManagerListView` and its internal state class accordingly.
+   - Added `ctrl.dispose()` to properly dispose of the controller and prevent resource leaks.
+
+6. **lib/features/user_manager/user_manager_page.dart**:
+   - Updated references to the renamed file and class (`ManagerListView` instead of `ShowDeliveryList`).
+
+7. **lib/repository/firebase_store/abstract_deliveries_repository.dart**:
+   - Modified the default value for `toStatus` in the `updateDeliveryStatus` method from `DeliveryStatus.orderInTransit` to `DeliveryStatus.orderPickedUpForDelivery` for more accurate status progression.
+
+8. **lib/repository/firebase_store/deliveries_firebase_repository.dart**:
+   - Adjusted the default value of `toStatus` in `updateDeliveryStatus` method to `DeliveryStatus.orderPickedUpForDelivery`.
+   - Modified the condition from `isGreaterThan` to `isEqualTo` for delivery status filtering in the `getByDeliveryId` method to accurately retrieve deliveries at a specific status.
+
+### Conclusion:
+These changes resolve several text-related bugs, improve class and file naming for maintainability, and correct the delivery status logic to ensure that the application handles delivery workflows as intended. Proper disposal of resources was also implemented to enhance application stability and performance.
+
+
 ## 2024/10/17 - version: 0.7.06+54
 
 This commit reinstates the `DeliveryStatus.orderPickedUpForDelivery` status that had been removed, and introduces updates to multiple files to ensure consistent usage of this status throughout the codebase. Additionally, GPLv3 license headers were added to all files in the `lib/` directory, though these changes have been omitted from the diff to reduce its size.

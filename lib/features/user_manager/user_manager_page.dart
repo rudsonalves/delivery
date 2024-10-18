@@ -1,17 +1,17 @@
 // Copyright (C) 2024 Rudson Alves
-// 
+//
 // This file is part of delivery.
-// 
+//
 // delivery is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // delivery is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with delivery.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -22,7 +22,7 @@ import '/components/widgets/main_drawer/custom_drawer.dart';
 import '../../common/models/delivery.dart';
 import '../../components/widgets/custom_app_bar/custom_app_bar.dart';
 import '../map/map_page.dart';
-import 'tab_bar_views/show_delivery_list.dart';
+import 'tab_bar_views/manager_list_view.dart';
 
 class UserManagerPage extends StatefulWidget {
   final PageController pageController;
@@ -73,23 +73,23 @@ class _UserManagerPageState extends State<UserManagerPage> {
         drawer: CustomDrawer(widget.pageController),
         body: TabBarView(
           children: [
-            ShowDeliveryList(
+            ManagerListView(
               action: _showInMap,
               status: DeliveryStatus.orderReservedForPickup,
             ),
-            ShowDeliveryList(
+            ManagerListView(
               action: _showInMap,
               status: DeliveryStatus.orderPickedUpForDelivery,
             ),
-            ShowDeliveryList(
+            ManagerListView(
               action: _showInMap,
               status: DeliveryStatus.orderInTransit,
             ),
-            ShowDeliveryList(
+            ManagerListView(
               action: _showInMap,
               status: DeliveryStatus.orderDelivered,
             ),
-            ShowDeliveryList(
+            ManagerListView(
               action: _showInMap,
               status: DeliveryStatus.orderClosed,
             ),
