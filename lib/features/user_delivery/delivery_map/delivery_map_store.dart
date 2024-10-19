@@ -20,13 +20,26 @@ import 'package:flutter/material.dart';
 import '../../../stores/common/store_func.dart';
 
 class DeliveryMapStore {
+  final int lenght;
+
+  DeliveryMapStore(this.lenght);
+
   final state = ValueNotifier<PageState>(PageState.initial);
+  final count = ValueNotifier<int>(1);
 
   String? errorMessage;
 
   void dispose() {
     state.dispose();
+    count.dispose();
   }
+
+  void incrementCount() {
+    final newCount = count.value + 1;
+    count.value = newCount > lenght ? 1 : newCount;
+  }
+
+  void resetCount() => count.value = 1;
 
   void setPageState(PageState state) {
     this.state.value = state;

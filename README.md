@@ -18,6 +18,45 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/19 - version: 0.7.10+58
+
+This update significantly enhances the interactivity and usability of the delivery map by introducing features for dynamically managing delivery routes. Below are the detailed changes made:
+
+### Changes Made:
+
+1. **lib/features/user_delivery/delivery_map/delivery_map_controller.dart**:
+   - Added `DeliveryModel` to manage deliveries within the controller.
+   - Modified the `init` method to include a list of `DeliveryModel` deliveries.
+   - Implemented `reversedOrder` method to reverse the delivery order and update the UI.
+   - Added `changeOrder` method to allow swapping of delivery points based on user interaction.
+
+2. **lib/features/user_delivery/delivery_map/delivery_map_page.dart**:
+   - Updated `DeliveryMapPage` to accept a `deliveries` parameter and initialized `DeliveryMapStore` with the length of deliveries.
+   - Enhanced the user interface with additional buttons for reversing delivery order and resetting counters using `IconButton` widgets.
+   - Integrated `ValueListenableBuilder` to manage and track the current state of delivery count interactively.
+   - Added Google Maps markers to reflect the dynamically updated delivery order and provide a more engaging visual representation.
+
+3. **lib/features/user_delivery/delivery_map/delivery_map_store.dart**:
+   - Modified `DeliveryMapStore` to manage the length of deliveries.
+   - Added a `count` ValueNotifier to track the interaction count and functions (`incrementCount`, `resetCount`) to manage the counter.
+
+4. **lib/features/user_delivery/tab_bar_views/deliveries/deliveries_controller.dart**:
+   - Removed the `setDeliveriesPoints` function as deliveries are now managed directly by the `DeliveryMapController`.
+
+5. **lib/features/user_delivery/tab_bar_views/deliveries/deliveries_page.dart**:
+   - Updated `_createRoutes` to pass `ctrl.deliveries` as an argument to `DeliveryMapPage`, ensuring the correct data flow.
+
+6. **lib/my_material_app.dart**:
+   - Updated `onGenerateRoute` to correctly pass the `deliveries` data to `DeliveryMapPage` when generating the route.
+
+7. **lib/services/navigation_route.dart**:
+   - Added `reversedOrder` to reverse the current delivery order.
+   - Added `swapOrderIds` to allow users to swap specific delivery points, enabling user-driven customization of routes.
+
+### Conclusion:
+These updates make the delivery map much more interactive and user-friendly by allowing users to dynamically manage delivery points, visualize their order on a map, and reorder deliveries with ease. The additional UI controls and value listeners ensure a smooth and responsive user experience, providing better control over deliveries.
+
+
 ## 2024/10/19 - version: 0.7.09+57
 
 This commit introduces significant improvements to the delivery map functionality, including the integration of a new store for managing map states, refactoring of controllers, and code clean-up to enhance modularity and maintainability.

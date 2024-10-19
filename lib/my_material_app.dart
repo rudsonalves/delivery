@@ -78,10 +78,15 @@ class _MyMaterialAppState extends State<MyMaterialApp> {
               ShopsPage.routeName: (_) => const ShopsPage(),
               AccountPage.routeName: (_) => const AccountPage(),
               QRCodeReadPage.routeName: (_) => const QRCodeReadPage(),
-              DeliveryMapPage.routeName: (_) => const DeliveryMapPage(),
             },
             onGenerateRoute: (settings) {
               switch (settings.name) {
+                case DeliveryMapPage.routeName:
+                  return MaterialPageRoute(builder: (_) {
+                    final deliveries =
+                        settings.arguments as List<DeliveryModel>;
+                    return DeliveryMapPage(deliveries);
+                  });
                 case ShowQrcode.routeName:
                   return MaterialPageRoute(builder: (_) {
                     final delivery = settings.arguments as dynamic;

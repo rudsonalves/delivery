@@ -36,6 +36,18 @@ class NavigationRoute {
         _startLocation!.longitude,
       );
 
+  void reversedOrder() {
+    final reversedOrder = orderIds.reversed.toList();
+    orderIds.clear();
+    orderIds.addAll(reversedOrder);
+  }
+
+  void swapOrderIds(int index0, int index1) {
+    final value0 = orderIds[index0];
+    orderIds[index0] = orderIds[index1];
+    orderIds[index1] = value0;
+  }
+
   Future<DataResult<void>> setDeliveries(List<DeliveryModel> deliveries) async {
     try {
       this.deliveries.clear();
