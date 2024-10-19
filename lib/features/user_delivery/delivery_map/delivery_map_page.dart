@@ -15,14 +15,14 @@
 // You should have received a copy of the GNU General Public License
 // along with delivery.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '/common/theme/app_text_style.dart';
 import '../../../locator.dart';
 import '../../../services/navigation_route.dart';
+import 'delivery_map_controller.dart';
+import 'delivery_map_store.dart';
 
 class DeliveryMapPage extends StatefulWidget {
   const DeliveryMapPage({
@@ -36,80 +36,34 @@ class DeliveryMapPage extends StatefulWidget {
 }
 
 class _DeliveryMapPageState extends State<DeliveryMapPage> {
+  final ctrl = DeliveryMapController();
   final navRoute = locator<NavigationRoute>();
-  late final GoogleMapController mapController;
+  final store = DeliveryMapStore();
 
   @override
   void initState() {
     super.initState();
+    ctrl.init(
+      store: store,
+    );
+  }
+
+  @override
+  void dispose() {
+    store.dispose();
+    ctrl.dispose();
+
+    super.dispose();
   }
 
   void _backPage() {
     Navigator.of(context).pop();
   }
 
-  void onMapCreated(GoogleMapController controller) {
-    mapController = controller;
-  }
-
-  Future<BitmapDescriptor> createNumberedMarker(int index) async {
-    // Load the marker's base image
-    ByteData data = await rootBundle.load('assets/images/pin.png');
-    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
-        targetWidth: 22, targetHeight: 32);
-    ui.FrameInfo fi = await codec.getNextFrame();
-
-    // Start the drawing process
-    final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
-    final Canvas canvas = Canvas(pictureRecorder);
-    final Paint paint = Paint();
-
-    // Draw the base marker
-    canvas.drawImage(fi.image, Offset.zero, paint);
-
-    // Draw the dot for the number
-    const double circleSize = 16.0;
-    final Paint circlePaint = Paint()
-      ..color = index == 0 ? Colors.black : Colors.transparent;
-    canvas.drawCircle(
-      Offset(fi.image.width / 2, fi.image.height / 3.1),
-      circleSize / 2,
-      circlePaint,
-    );
-
-    // Draw the number on the ball
-    final textPainter = TextPainter(
-      textDirection: TextDirection.ltr,
-      textAlign: TextAlign.center,
-      text: TextSpan(
-        text: index.toString(),
-        style: const TextStyle(
-          fontSize: 12,
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-
-    textPainter.layout();
-    textPainter.paint(
-      canvas,
-      Offset(
-        (fi.image.width - textPainter.width) / 2,
-        (fi.image.height / 3.0) - textPainter.height / 2,
-      ),
-    );
-
-    // Convert the drawing to a BitmapDescriptor
-    final img = await pictureRecorder
-        .endRecording()
-        .toImage(fi.image.width, fi.image.height);
-    final dataBytes = await img.toByteData(format: ui.ImageByteFormat.png);
-    return BitmapDescriptor.bytes(dataBytes!.buffer.asUint8List());
-  }
-
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Delevery Map'),
@@ -121,13 +75,27 @@ class _DeliveryMapPageState extends State<DeliveryMapPage> {
       ),
       body: Column(
         children: [
-          OverflowBar(
-            alignment: MainAxisAlignment.spaceAround,
+          Wrap(
+            alignment: WrapAlignment.spaceAround,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               IconButton.filled(
                 onPressed: () {},
                 icon: const Icon(Icons.refresh),
                 tooltip: 'Reiniciar',
+              ),
+              Container(
+                height: 40,
+                width: 40,
+                decoration: BoxDecoration(
+                    color: colorScheme.inversePrimary,
+                    borderRadius: BorderRadius.circular(12)),
+                child: Center(
+                  child: Text(
+                    '01',
+                    style: AppTextStyle.font14Bold(),
+                  ),
+                ),
               ),
               IconButton.filled(
                 onPressed: () {},
@@ -143,9 +111,9 @@ class _DeliveryMapPageState extends State<DeliveryMapPage> {
           ),
           FutureBuilder<List<BitmapDescriptor>>(
             future: Future.wait([
-              createNumberedMarker(0),
+              ctrl.createNumberedMarker(0),
               ...navRoute.orderIds.asMap().entries.map((entry) async {
-                return await createNumberedMarker(entry.key + 1);
+                return await ctrl.createNumberedMarker(entry.key + 1);
               }),
             ]),
             builder: (context, snapshot) {
@@ -155,7 +123,7 @@ class _DeliveryMapPageState extends State<DeliveryMapPage> {
 
               return Expanded(
                 child: GoogleMap(
-                  onMapCreated: onMapCreated,
+                  onMapCreated: ctrl.onMapCreated,
                   initialCameraPosition: CameraPosition(
                     target: navRoute.startLatLng,
                     zoom: 12,

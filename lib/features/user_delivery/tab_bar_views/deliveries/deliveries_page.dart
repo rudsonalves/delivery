@@ -70,7 +70,7 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
   }
 
   Future<void> _createRoutes() async {
-    await ctrl.createBasicRoutes();
+    await ctrl.setDeliveriesPoints();
     if (mounted) {
       await Navigator.pushNamed(context, DeliveryMapPage.routeName);
     }
@@ -109,13 +109,6 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
 
                       return DeliveryCard(
                         delivery: delivery,
-                        // button: IconButton(
-                        //   onPressed: () {},
-                        //   icon: const Icon(
-                        //     Icons.place,
-                        //     color: Colors.red,
-                        //   ),
-                        // ),
                       );
                     },
                   );
