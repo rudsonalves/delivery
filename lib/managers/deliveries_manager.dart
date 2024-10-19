@@ -36,6 +36,7 @@ import '../stores/common/store_func.dart';
 import '../stores/user/user_store.dart';
 
 class DeliveriesManager {
+  // FIXME: Check this dependency of UserDeliveryStore!
   final UserDeliveryStore store;
 
   DeliveriesManager({
@@ -57,7 +58,7 @@ class DeliveriesManager {
   }
 
   Future<void> getNearbyDeliveries() async {
-    _setLoadingState();
+    store.setState(PageState.loading);
     try {
       if (user.deliverymen == null) {
         await _startUserLocation();
@@ -66,22 +67,22 @@ class DeliveriesManager {
       }
       _processeNearbyDeliveries();
     } catch (err) {
-      _setErrorState('Error ao inicializar: $err');
+      _setError('Error ao inicializar: $err');
     }
   }
 
   Future<void> refreshNearbyDeliveries() async {
-    _setLoadingState();
+    store.setState(PageState.loading);
     try {
       await _updateUserLocation();
       _processeNearbyDeliveries();
     } catch (err) {
-      _setErrorState('Error ao inicializar: $err');
+      _setError('Error ao inicializar: $err');
     }
   }
 
   Future<void> changeDeliveryStatus(DeliveryModel delivery) async {
-    _setLoadingState();
+    store.setState(PageState.loading);
     final updatedDelivery = _getUpdatedDeliveryStatus(delivery);
     await deliveriesRepository.updateStatus(updatedDelivery);
     store.setState(PageState.success);
@@ -103,7 +104,7 @@ class DeliveriesManager {
 
     final result = await deliverymenRepository.set(deliverymen);
     if (result.isFailure) {
-      _setErrorState('Sua localização não pode ser determinada!');
+      _setError('Sua localização não pode ser determinada!');
       return;
     }
     user.deliverymen = result.data!;
@@ -113,7 +114,7 @@ class DeliveriesManager {
     final result =
         await deliverymenRepository.updateLocation(user.deliverymen!);
     if (result.isFailure) {
-      _setErrorState('Não foi possível obter sua localização.');
+      _setError('Não foi possível obter sua localização.');
       return;
     }
     user.deliverymen = result.data!;
@@ -166,7 +167,7 @@ class DeliveriesManager {
         store.setState(PageState.success);
       },
       onError: (error) {
-        _setErrorState('Erro ao buscar entregas próximas: $error');
+        _setError('Erro ao buscar entregas próximas: $error');
       },
     );
   }
@@ -190,11 +191,7 @@ class DeliveriesManager {
     );
   }
 
-  void _setLoadingState() {
-    store.setState(PageState.loading);
-  }
-
-  void _setErrorState(String message) {
+  void _setError(String message) {
     log(message);
     store.setError(message);
   }

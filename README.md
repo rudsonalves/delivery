@@ -18,6 +18,51 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/19 - version: 0.7.09+57
+
+This commit introduces significant improvements to the delivery map functionality, including the integration of a new store for managing map states, refactoring of controllers, and code clean-up to enhance modularity and maintainability.
+
+### Changes made:
+
+1. **lib/features/user_delivery/delivery_map/delivery_map_controller.dart**:
+   - Added an ignore statement for linting to suppress public member API documentation warnings.
+   - Imported additional libraries for drawing custom map markers and logging.
+   - Implemented new methods:
+     - `init` to initialize the `DeliveryMapStore`.
+     - `dispose` to properly clean up resources.
+     - `createBasicRoutes` to generate basic delivery routes and set page states accordingly.
+   - Added `createNumberedMarker` to generate custom numbered markers for map locations.
+
+2. **lib/features/user_delivery/delivery_map/delivery_map_page.dart**:
+   - Added a reference to the `DeliveryMapController` (`ctrl`) and initialized it using the new `DeliveryMapStore`.
+   - Moved the marker creation logic to the controller (`createNumberedMarker`).
+   - Updated button layouts to use the `Wrap` widget for better UI alignment.
+   - Updated the lifecycle (`initState` and `dispose`) to initialize and dispose of the store and controller appropriately.
+
+3. **lib/features/user_delivery/delivery_map/delivery_map_store.dart** (new file):
+   - Introduced `DeliveryMapStore` to manage page state and handle errors for the delivery map.
+   - Added methods for state management: `dispose`, `setPageState`, and `setError`.
+
+4. **lib/features/user_delivery/tab_bar_views/deliveries/deliveries_controller.dart**:
+   - Renamed the `createBasicRoutes` method to `setDeliveriesPoints` for better clarity regarding its functionality.
+   - Removed redundant route creation logic to streamline the process.
+
+5. **lib/features/user_delivery/tab_bar_views/deliveries/deliveries_page.dart**:
+   - Updated the method `_createRoutes` to call the renamed `setDeliveriesPoints` method from the controller.
+   - Removed commented-out button code for improved code readability.
+
+6. **lib/features/user_delivery/tab_bar_views/reservations/reservations_controller.dart**:
+   - Cleaned up redundant spacing in the license comment block for consistency.
+
+7. **lib/managers/deliveries_manager.dart**:
+   - Added a `FIXME` comment to highlight a potential dependency issue for `UserDeliveryStore`.
+   - Removed redundant `_setLoadingState` and `_setErrorState` methods to simplify state management.
+   - Updated methods to directly set the store state (`setState`) or call `_setError` to handle errors, improving code conciseness.
+
+### Conclusion:
+This commit enhances the delivery map feature by modularizing map management and improving the consistency of state handling across the application. The introduction of a dedicated store (`DeliveryMapStore`) and controller (`DeliveryMapController`) results in cleaner code and easier maintainability, while also ensuring efficient resource management through proper initialization and disposal practices.
+
+
 ## 2024/10/18 - version: 0.7.08+56
 
 This commit includes the addition of new features such as a delivery map interface, along with various improvements and bug fixes across multiple files. Below are the detailed changes made:

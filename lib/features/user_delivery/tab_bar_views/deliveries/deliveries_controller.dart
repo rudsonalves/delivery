@@ -83,18 +83,18 @@ class DeliveriesController {
     }
   }
 
-  Future<void> createBasicRoutes() async {
+  Future<void> setDeliveriesPoints() async {
     try {
       store.setPageState(PageState.initial);
       var result = await navRoute.setDeliveries(deliveries);
       if (result.isFailure) {
         throw Exception(result.error);
       }
-      result = await navRoute.createBasicRoute();
-      if (result.isFailure) {
-        throw Exception(result.error);
-      }
-      store.setPageState(PageState.success);
+      // result = await navRoute.createBasicRoute();
+      // if (result.isFailure) {
+      //   throw Exception(result.error);
+      // }
+      // store.setPageState(PageState.success);
     } catch (err) {
       final message = 'createBasicRoute error: $err';
       log(message);
