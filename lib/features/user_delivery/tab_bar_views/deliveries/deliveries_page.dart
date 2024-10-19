@@ -70,9 +70,12 @@ class _DeliveriesPageState extends State<DeliveriesPage> {
   }
 
   Future<void> _createRoutes() async {
-    await ctrl.setDeliveriesPoints();
     if (mounted) {
-      await Navigator.pushNamed(context, DeliveryMapPage.routeName);
+      await Navigator.pushNamed(
+        context,
+        DeliveryMapPage.routeName,
+        arguments: ctrl.deliveries,
+      );
     }
   }
 

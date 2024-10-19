@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../../common/models/delivery.dart';
 import '../../../locator.dart';
 import '../../../services/navigation_route.dart';
 import '../../../stores/common/store_func.dart';
@@ -34,11 +35,14 @@ class DeliveryMapController {
 
   late final DeliveryMapStore store;
   late final GoogleMapController mapController;
+  late List<DeliveryModel> deliveries;
 
   void init({
     required DeliveryMapStore store,
+    required List<DeliveryModel> deliveries,
   }) {
     this.store = store;
+    this.deliveries = deliveries;
 
     createBasicRoutes();
   }
@@ -47,10 +51,30 @@ class DeliveryMapController {
     mapController.dispose();
   }
 
+  void reversedOrder() {
+    store.setPageState(PageState.loading);
+    navRoute.reversedOrder();
+    store.setPageState(PageState.success);
+  }
+
+  void changeOrder(int selectedIndex) {
+    final replaceIndex = store.count.value - 1;
+    store.incrementCount();
+    if (replaceIndex == selectedIndex) return;
+
+    store.setPageState(PageState.loading);
+    navRoute.swapOrderIds(replaceIndex, selectedIndex);
+    store.setPageState(PageState.success);
+  }
+
   Future<void> createBasicRoutes() async {
     try {
       store.setPageState(PageState.initial);
-      final result = await navRoute.createBasicRoute();
+      var result = await navRoute.setDeliveries(deliveries);
+      if (result.isFailure) {
+        throw Exception(result.error);
+      }
+      result = await navRoute.createBasicRoute();
       if (result.isFailure) {
         throw Exception(result.error);
       }

@@ -16,11 +16,9 @@
 // along with delivery.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'dart:async';
-import 'dart:developer';
 
 import '../../../../locator.dart';
 import '../../../../repository/firebase_store/deliveries_firebase_repository.dart';
-import '../../../../services/navigation_route.dart';
 import '../../../../stores/user/user_store.dart';
 import '/stores/common/store_func.dart';
 import '../../../../common/models/delivery.dart';
@@ -29,7 +27,6 @@ import 'deliveries_store.dart';
 class DeliveriesController {
   final deliveryRepository = DeliveriesFirebaseRepository();
   final user = locator<UserStore>().currentUser!;
-  final navRoute = locator<NavigationRoute>();
 
   late final DeliveriesStore store;
   late final DeliveryStatus status;
@@ -80,25 +77,6 @@ class DeliveriesController {
       store.setPageState(PageState.success);
     } catch (err) {
       store.setError('Erro ao buscar entregas: $err');
-    }
-  }
-
-  Future<void> setDeliveriesPoints() async {
-    try {
-      store.setPageState(PageState.initial);
-      var result = await navRoute.setDeliveries(deliveries);
-      if (result.isFailure) {
-        throw Exception(result.error);
-      }
-      // result = await navRoute.createBasicRoute();
-      // if (result.isFailure) {
-      //   throw Exception(result.error);
-      // }
-      // store.setPageState(PageState.success);
-    } catch (err) {
-      final message = 'createBasicRoute error: $err';
-      log(message);
-      store.setError('Erro na determinação de sua localização.');
     }
   }
 }
