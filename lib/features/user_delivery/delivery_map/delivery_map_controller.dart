@@ -17,13 +17,16 @@
 // along with delivery.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'dart:developer';
-import 'dart:ui' as ui;
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../../common/utils/late_final.dart';
+import '/services/extensions_services.dart';
+import '/services/remote_config.dart';
 import '../../../common/models/delivery.dart';
 import '../../../locator.dart';
 import '../../../services/navigation_route.dart';
@@ -34,8 +37,14 @@ class DeliveryMapController {
   final navRoute = locator<NavigationRoute>();
 
   late final DeliveryMapStore store;
-  late final GoogleMapController mapController;
+  final mapController = LateFinal<GoogleMapController>();
   late List<DeliveryModel> deliveries;
+
+  bool isStarted = false;
+
+  final googleApiKey = LateFinal<String>();
+  List<LatLng> polylineCoordinates = [];
+  Set<Polyline> polylines = {};
 
   void init({
     required DeliveryMapStore store,
@@ -48,7 +57,7 @@ class DeliveryMapController {
   }
 
   void dispose() {
-    mapController.dispose();
+    mapController.value.dispose();
   }
 
   void reversedOrder() {
@@ -87,18 +96,19 @@ class DeliveryMapController {
   }
 
   void onMapCreated(GoogleMapController controller) {
-    mapController = controller;
+    if (mapController.isInitialized) return;
+    mapController.value = controller;
   }
 
   Future<BitmapDescriptor> createNumberedMarker(int index) async {
     // Load the marker's base image
     ByteData data = await rootBundle.load('assets/images/pin.png');
-    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
+    Codec codec = await instantiateImageCodec(data.buffer.asUint8List(),
         targetWidth: 22, targetHeight: 32);
-    ui.FrameInfo fi = await codec.getNextFrame();
+    FrameInfo fi = await codec.getNextFrame();
 
     // Start the drawing process
-    final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
+    final PictureRecorder pictureRecorder = PictureRecorder();
     final Canvas canvas = Canvas(pictureRecorder);
     final Paint paint = Paint();
 
@@ -108,7 +118,7 @@ class DeliveryMapController {
     // Draw the dot for the number
     double circleSize = (index == 0) ? 19.0 : 16.0;
     final Paint circlePaint = Paint()
-      ..color = index == 0 ? const ui.Color(0xFF1A57C0) : Colors.transparent;
+      ..color = index == 0 ? const Color(0xFF1A57C0) : Colors.transparent;
     canvas.drawCircle(
       Offset(fi.image.width / 2, fi.image.height / 3.1),
       circleSize / 2,
@@ -142,7 +152,70 @@ class DeliveryMapController {
     final img = await pictureRecorder
         .endRecording()
         .toImage(fi.image.width, fi.image.height);
-    final dataBytes = await img.toByteData(format: ui.ImageByteFormat.png);
+    final dataBytes = await img.toByteData(format: ImageByteFormat.png);
     return BitmapDescriptor.bytes(dataBytes!.buffer.asUint8List());
+  }
+
+  Future<void> fetchGoogleRoute() async {
+    try {
+      store.setPageState(PageState.loading);
+      final remoteConfig = locator<RemoteConfig>();
+
+      if (!googleApiKey.isInitialized) {
+        googleApiKey.value = await remoteConfig.googleApi;
+      }
+      if (googleApiKey.value.isEmpty) {
+        throw Exception('Google API Key not found!');
+      }
+      await _getPolyline();
+      store.setPageState(PageState.success);
+    } catch (err) {
+      log(err.toString());
+      store.setError(err.toString());
+    }
+  }
+
+  Future<void> _getPolyline() async {
+    final polylinePoints = PolylinePoints();
+    final PolylineResult result =
+        await polylinePoints.getRouteBetweenCoordinates(
+      googleApiKey: googleApiKey.value,
+      request: PolylineRequest(
+        origin: navRoute.startLatLng.pointLatLng(),
+        destination: navRoute.orderIds.isNotEmpty
+            ? navRoute.lastLatLng.pointLatLng()
+            : navRoute.startLatLng.pointLatLng(),
+        wayPoints: navRoute.orderIds
+            .map(
+              (id) => PolylineWayPoint(
+                location:
+                    '${navRoute.deliveries[id]!.clientLocation.latLng().latitude},'
+                    '${navRoute.deliveries[id]!.clientLocation.latLng().longitude}',
+              ),
+            )
+            .toList(),
+        mode: TravelMode.driving,
+      ),
+    );
+
+    if (result.points.isNotEmpty) {
+      polylineCoordinates.clear();
+      for (var point in result.points) {
+        polylineCoordinates.add(
+          LatLng(point.latitude, point.longitude),
+        );
+      }
+
+      polylines.add(
+        Polyline(
+          polylineId: const PolylineId('route'),
+          color: Colors.blue,
+          width: 5,
+          points: polylineCoordinates,
+        ),
+      );
+    } else {
+      throw Exception('Error ou buscar a rota: ${result.errorMessage}');
+    }
   }
 }
