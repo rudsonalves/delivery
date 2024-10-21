@@ -2,7 +2,7 @@ name: delivery
 description: "Aplicativo de entregas."
 publish_to: 'none' 
 
-version: 0.7.10+58
+version: 0.7.11+59
 
 environment:
   sdk: ^3.5.1
@@ -37,6 +37,7 @@ dependencies:
   geoflutterfire_plus: ^0.0.31
   printing: ^5.13.3
   pdf: ^3.11.1
+  flutter_polyline_points: ^2.1.0
 
 dev_dependencies:
   flutter_test:
