@@ -80,3 +80,7 @@ node_modules/
 .env.*
 *.old
 *.g.dart
+
+# Others files
+android/app/google-services.json
+android/app/GoogleService-Info.plist

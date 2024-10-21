@@ -21,6 +21,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../common/models/delivery.dart';
+import '../../../services/google_navigation_launcher.dart';
 import '/common/theme/app_text_style.dart';
 import '../../../locator.dart';
 import '../../../services/navigation_route.dart';
@@ -67,6 +68,10 @@ class _DeliveryMapPageState extends State<DeliveryMapPage> {
 
   void _backPage() {
     Navigator.of(context).pop();
+  }
+
+  Future<void> _openGoogleNavigationApp() async {
+    await GoogleNavigationLauncher.startNavigation();
   }
 
   @override
@@ -117,14 +122,14 @@ class _DeliveryMapPageState extends State<DeliveryMapPage> {
                 tooltip: 'Reiniciar Contador',
               ),
               IconButton.filled(
-                onPressed: () {},
+                onPressed: ctrl.fetchGoogleRoute,
                 icon: const Icon(Symbols.moving_rounded),
-                tooltip: 'Navegar',
+                tooltip: 'Transporte',
               ),
               IconButton.filled(
-                onPressed: ctrl.fetchGoogleRoute,
+                onPressed: _openGoogleNavigationApp,
                 icon: const Icon(Symbols.transportation_rounded),
-                tooltip: 'Transporte',
+                tooltip: 'Navegar',
               ),
             ],
           ),

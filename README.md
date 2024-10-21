@@ -18,6 +18,39 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/21 - version: 0.7.12+60
+
+This commit adds the ability to launch Google Maps navigation directly from the delivery map and enhances the Android manifest for better compatibility with certain features. Furthermore, Google Maps route fetching is now integrated, improving the application's user navigation experience.
+
+### Changes made:
+
+1. **.gitignore**:
+   - Added `android/app/google-services.json` and `android/app/GoogleService-Info.plist` to ignore Google service configuration files.
+
+2. **android/app/src/main/AndroidManifest.xml**:
+   - Added intent visibility configuration for custom tabs service for API level 30 and above.
+
+3. **lib/features/user_delivery/delivery_map/delivery_map_page.dart**:
+   - Imported `google_navigation_launcher.dart` to facilitate Google Maps navigation.
+   - Added `_openGoogleNavigationApp()` method to initiate Google Maps navigation for deliveries.
+   - Modified button functionality: 
+     - Changed the button to call `ctrl.fetchGoogleRoute` for fetching delivery route information.
+     - Added a button to launch Google Maps navigation using `_openGoogleNavigationApp()`.
+
+4. **lib/services/google_navigation_launcher.dart**:
+   - Added a new service class `GoogleNavigationLauncher` to facilitate navigation using Google Maps.
+   - Implemented `startNavigation()` to launch Google Maps with the delivery route, including origin, destination, and waypoints.
+
+5. **linux/flutter/generated_plugin_registrant.cc & linux/flutter/generated_plugins.cmake**:
+   - Registered `url_launcher_linux` plugin to allow URL launching capabilities on Linux.
+
+6. **pubspec.yaml & pubspec.lock**:
+   - Added `url_launcher` version 6.3.1 to facilitate external URL launching for Google Maps navigation.
+
+### Conclusion:
+The integration of Google Maps navigation provides a seamless way for delivery personnel to navigate between delivery points directly within the application. The modifications in the Android manifest and addition of URL launcher support across platforms enhance the application's flexibility and compatibility.
+
+
 ## 2024/10/21 - version: 0.7.11+59
 
 This commit introduces a new utility class `LateFinal` and integrates Google route fetching in the delivery map feature. The changes aim to enhance route visualization and manage late initialization of variables, improving the application's reliability and user experience.
