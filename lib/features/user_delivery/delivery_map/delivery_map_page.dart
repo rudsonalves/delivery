@@ -86,12 +86,12 @@ class _DeliveryMapPageState extends State<DeliveryMapPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Wrap(
-            alignment: WrapAlignment.spaceAround,
+            alignment: WrapAlignment.spaceEvenly,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               IconButton.filled(
                 onPressed: ctrl.reversedOrder,
-                icon: const Icon(Icons.swap_horiz_outlined),
+                icon: const Icon(Symbols.multiple_stop_rounded),
                 tooltip: 'Reiniciar',
               ),
               Container(
@@ -113,89 +113,91 @@ class _DeliveryMapPageState extends State<DeliveryMapPage> {
               ),
               IconButton.filled(
                 onPressed: store.resetCount,
-                icon: const Icon(Icons.refresh),
+                icon: const Icon(Symbols.restart_alt_rounded),
                 tooltip: 'Reiniciar Contador',
               ),
               IconButton.filled(
                 onPressed: () {},
-                icon: const Icon(Symbols.map_rounded),
+                icon: const Icon(Symbols.moving_rounded),
                 tooltip: 'Navegar',
               ),
               IconButton.filled(
-                onPressed: () {},
+                onPressed: ctrl.fetchGoogleRoute,
                 icon: const Icon(Symbols.transportation_rounded),
                 tooltip: 'Transporte',
               ),
             ],
           ),
           ValueListenableBuilder(
-              valueListenable: store.state,
-              builder: (context, state, _) {
-                switch (state) {
-                  case PageState.initial:
-                  case PageState.loading:
-                    return const Expanded(
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-                  case PageState.success:
-                    return FutureBuilder<List<BitmapDescriptor>>(
-                      future: Future.wait([
-                        ctrl.createNumberedMarker(0),
-                        ...navRoute.orderIds.asMap().entries.map((entry) async {
-                          return await ctrl.createNumberedMarker(entry.key + 1);
-                        }),
-                      ]),
-                      builder: (context, snapshot) {
-                        if (!snapshot.hasData) {
-                          return const Expanded(
-                            child: Center(child: CircularProgressIndicator()),
-                          );
-                        }
-
-                        return Expanded(
-                          child: GoogleMap(
-                            onMapCreated: ctrl.onMapCreated,
-                            initialCameraPosition: CameraPosition(
-                              target: navRoute.startLatLng,
-                              zoom: 12,
-                            ),
-                            markers: {
-                              // Marker para o ponto inicial, usando um ícone azul padrão
-                              Marker(
-                                markerId: const MarkerId('start'),
-                                position: navRoute.startLatLng,
-                                icon: snapshot.data![0],
-                                infoWindow: const InfoWindow(
-                                    title: 'Localização atual'),
-                              ),
-                              // Markers para as entregas, com ícones numerados
-                              ...navRoute.orderIds.asMap().entries.map((entry) {
-                                int index = entry.key;
-                                String id = entry.value;
-                                String label =
-                                    navRoute.deliveries[id]!.clientName;
-                                return Marker(
-                                  markerId: MarkerId(label),
-                                  position: navRoute.deliveries[id]!.latLng,
-                                  icon: snapshot.data![
-                                      index + 1], // Usa o ícone com número
-                                  infoWindow: InfoWindow(title: label),
-                                  onTap: () => ctrl.changeOrder(index),
-                                );
-                              }).toSet(),
-                            },
-                          ),
+            valueListenable: store.state,
+            builder: (context, state, _) {
+              switch (state) {
+                case PageState.initial:
+                case PageState.loading:
+                  return const Expanded(
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                case PageState.success:
+                  return FutureBuilder<List<BitmapDescriptor>>(
+                    future: Future.wait([
+                      ctrl.createNumberedMarker(0),
+                      ...navRoute.orderIds.asMap().entries.map((entry) async {
+                        return await ctrl.createNumberedMarker(entry.key + 1);
+                      }),
+                    ]),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const Expanded(
+                          child: Center(child: CircularProgressIndicator()),
                         );
-                      },
-                    );
-                  case PageState.error:
-                    return const Center(
-                      child: Text('Ocorreu um error'),
-                    );
-                }
-              }),
+                      }
+
+                      return Expanded(
+                        child: GoogleMap(
+                          onMapCreated: ctrl.onMapCreated,
+                          initialCameraPosition: CameraPosition(
+                            target: navRoute.startLatLng,
+                            zoom: 12,
+                          ),
+                          markers: {
+                            // Marker for the starting point, using a default blue icon
+                            Marker(
+                              markerId: const MarkerId('start'),
+                              position: navRoute.startLatLng,
+                              icon: snapshot.data![0],
+                              infoWindow:
+                                  const InfoWindow(title: 'Localização atual'),
+                            ),
+                            // Markers for deliveries, with numbered icons
+                            ...navRoute.orderIds.asMap().entries.map((entry) {
+                              int index = entry.key;
+                              String id = entry.value;
+                              String label =
+                                  navRoute.deliveries[id]!.clientName;
+                              return Marker(
+                                markerId: MarkerId(label),
+                                position: navRoute.deliveries[id]!.latLng,
+                                icon: snapshot
+                                    .data![index + 1], // Use the number icon
+                                infoWindow: InfoWindow(title: label),
+                                onTap: () => ctrl.changeOrder(index),
+                              );
+                            }).toSet(),
+                          },
+                          polylines: ctrl.polylines,
+                        ),
+                      );
+                    },
+                  );
+                case PageState.error:
+                  return const Center(
+                    child: Text('Ocorreu um error'),
+                  );
+              }
+            },
+          ),
         ],
       ),
     );

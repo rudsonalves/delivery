@@ -20,6 +20,7 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import 'extensions_services.dart';
 import '../common/models/deliver_order.dart';
 import '../common/models/delivery.dart';
 import '../common/utils/data_result.dart';
@@ -35,6 +36,10 @@ class NavigationRoute {
         _startLocation!.latitude,
         _startLocation!.longitude,
       );
+  LatLng get lastLatLng {
+    final lastId = orderIds.last;
+    return deliveries[lastId]!.clientLocation.latLng();
+  }
 
   void reversedOrder() {
     final reversedOrder = orderIds.reversed.toList();

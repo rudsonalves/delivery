@@ -18,6 +18,43 @@ samples, guidance on mobile development, and a full API reference.
 
 # Changelog
 
+## 2024/10/21 - version: 0.7.11+59
+
+This commit introduces a new utility class `LateFinal` and integrates Google route fetching in the delivery map feature. The changes aim to enhance route visualization and manage late initialization of variables, improving the application's reliability and user experience.
+
+### Changes made:
+
+1. **lib/common/utils/late_final.dart**:
+   - Added a new utility class `LateFinal<T>` to manage late initialization and ensure values are set only once. It includes safeguards to prevent re-initialization and ensure controlled access.
+
+2. **lib/features/user_delivery/delivery_map/delivery_map_controller.dart**:
+   - Replaced `late final GoogleMapController mapController` with `LateFinal<GoogleMapController>` for safer initialization control.
+   - Added `fetchGoogleRoute()` to manage the fetching of route data using Google Maps API.
+   - Introduced `_getPolyline()` to retrieve route polylines and visualize them on the map, improving delivery path tracking.
+   - Added `googleApiKey` as a `LateFinal<String>` for secure and controlled API key initialization.
+   - Added `isStarted`, `polylineCoordinates`, and `polylines` attributes to manage the map state and route visualization.
+   - Updated `onMapCreated()` method to use `LateFinal` for managing map controller initialization.
+   - Modified `createNumberedMarker()` to utilize simplified type imports and added consistency improvements.
+
+3. **lib/features/user_delivery/delivery_map/delivery_map_page.dart**:
+   - Updated button icons to more relevant symbols for better UX.
+   - Added a new button that calls `ctrl.fetchGoogleRoute` to fetch and display route information.
+   - Enhanced `GoogleMap` widget to include `polylines` from `ctrl.polylines`, allowing users to view optimized delivery routes.
+
+4. **lib/services/extensions_services.dart**:
+   - Added new extensions: `LatLngExtension` and `GeoPointExtension` to convert between `LatLng`, `GeoPoint`, and `PointLatLng`, simplifying code readability and reuse.
+
+5. **lib/services/navigation_route.dart**:
+   - Added the `lastLatLng` getter to retrieve the last delivery point, improving route management functionality.
+   - Imported `extensions_services.dart` to utilize the newly defined `LatLng` and `GeoPoint` extensions.
+
+6. **pubspec.yaml & pubspec.lock**:
+   - Added `flutter_polyline_points` version 2.1.0 to manage polyline calculations for route visualization.
+
+### Conclusion:
+The addition of `LateFinal` improves the safety and integrity of variable initialization across the application. Integration of route fetching and visualization significantly enhances delivery management by providing clear and optimized paths for deliveries. The new extensions further streamline code interactions with geographical data, contributing to a cleaner and more maintainable codebase.
+
+
 ## 2024/10/19 - version: 0.7.10+58
 
 This update significantly enhances the interactivity and usability of the delivery map by introducing features for dynamically managing delivery routes. Below are the detailed changes made:
